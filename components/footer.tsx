@@ -3,6 +3,8 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { FaTwitter, FaLinkedin, FaGithub } from "react-icons/fa"
+import { fetchFromAPI } from "@/lib/utils";
+
 
 export function Footer() {
   const pathname = usePathname()

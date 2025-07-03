@@ -10,11 +10,12 @@ import ComparePlans from "@/components/ComparePlans"
 
 
 
+
 export default function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-emerald-50 pt-20 pb-20">
+      <section className="relative overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-emerald-50 pt-12 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* ✅ Grid now switches to 1 column on mobile, 2 columns on large screens */}

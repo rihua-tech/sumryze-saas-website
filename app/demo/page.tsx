@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { BarChart3, TrendingUp, Globe, Clock, ArrowRight, Download, Eye, CheckCircle } from "lucide-react"
 import { Info } from "lucide-react";
+import { fetchFromAPI } from "@/lib/utils";
 
 
 export default function DemoPage() {
