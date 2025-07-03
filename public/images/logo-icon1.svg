@@ -1,0 +1,14 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sumryzeGradient" x1="0" y1="0" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+  </defs>
+
+  <rect x="10" y="80" width="16" height="30" rx="4" fill="url(#sumryzeGradient)" />
+  <rect x="34" y="60" width="16" height="50" rx="4" fill="url(#sumryzeGradient)" />
+  <rect x="58" y="40" width="16" height="70" rx="4" fill="url(#sumryzeGradient)" />
+  <path d="M10 80C30 50, 60 20, 90 30L85 20L120 28L100 60L93 47C60 40, 30 60, 10 80Z"
+        fill="url(#sumryzeGradient)" />
+</svg>
