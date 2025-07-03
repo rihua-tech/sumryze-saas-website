@@ -106,9 +106,11 @@ const tools: Tool[] = [
 export default function ComparisonTable() {
   return (
     <section className="py-20 px-4 md:px-8">
+
       <h2 id="comparison" className="text-3xl md:text-4xl font-extrabold text-center mb-4">
         How does Sumryze compare to other tools?
       </h2>
+      
       <p className="text-center text-gray-500 mb-10 max-w-2xl mx-auto">
         See how Sumryze stacks up against the competition in features, automation, and AI insights.
       </p>
