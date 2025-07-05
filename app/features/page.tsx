@@ -177,7 +177,7 @@ export default function FeaturesPage() {
 
 {/* Additional Features Grid */}
 <section className="py-10 bg-white">
-  <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div className="max-w-5xl mx-auto px-4 sm:px-5 lg:px-5">
     <div className="text-center mb-10">
       <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-5">More powerful features</h2>
       <p className="text-base text-gray-600">Enhance your reporting workflow with automation, branding, and intelligence</p>
@@ -186,10 +186,10 @@ export default function FeaturesPage() {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
       {/* 1. White-Label Branding */}
-      <Card className="border-0 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 p-8">
+      <Card className="border-0 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 p-4">
         <CardHeader>
-          <div className="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mb-4">
-            <Palette className="h-8 w-8 text-indigo-600" />
+          <div className="w-14 h-14 bg-indigo-100 rounded-2xl flex items-center justify-center mb-4">
+            <Palette className="h-7 w-7 text-indigo-600" />
           </div>
           <CardTitle className="text-xl font-bold">White-Label Branding</CardTitle>
         </CardHeader>
@@ -201,10 +201,10 @@ export default function FeaturesPage() {
       </Card>
 
       {/* 2. Automated Scheduling */}
-      <Card className="border-0 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 p-8">
+      <Card className="border-0 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 p-4">
         <CardHeader>
-          <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mb-4">
-            <Clock className="h-8 w-8 text-emerald-600" />
+          <div className="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mb-4">
+            <Clock className="h-7 w-7 text-emerald-600" />
           </div>
           <CardTitle className="text-xl font-bold">Automated Scheduling</CardTitle>
         </CardHeader>
@@ -216,10 +216,10 @@ export default function FeaturesPage() {
       </Card>
 
       {/* 3. Email Integration */}
-      <Card className="border-0 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 p-8">
+      <Card className="border-0 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 p-4">
         <CardHeader>
-          <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mb-4">
-            <Mail className="h-8 w-8 text-purple-600" />
+          <div className="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center mb-4">
+            <Mail className="h-7 w-7 text-purple-600" />
           </div>
           <CardTitle className="text-xl font-bold">Email Integration</CardTitle>
         </CardHeader>
@@ -231,45 +231,45 @@ export default function FeaturesPage() {
       </Card>
 
       {/* 4. Multi-Site Management */}
-      <Card className="border-0 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 p-8">
+      <Card className="border-0 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 p-4">
         <CardHeader>
-          <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-4">
-            <Globe className="h-8 w-8 text-blue-600" />
+          <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mb-4">
+            <Globe className="h-7 w-7 text-blue-600" />
           </div>
           <CardTitle className="text-xl font-bold">Multi-Site Management</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-base text-gray-600 leading-relaxed">
+          <p className="text-sm text-gray-600 leading-relaxed">
             Manage and generate reports across multiple websites from a single dashboard.
           </p>
         </CardContent>
       </Card>
 
       {/* 5. Historical Data */}
-      <Card className="border-0 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 p-8">
+      <Card className="border-0 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 p-4">
         <CardHeader>
-          <div className="w-16 h-16 bg-yellow-100 rounded-2xl flex items-center justify-center mb-4">
-            <TrendingUp className="h-8 w-8 text-yellow-600" />
+          <div className="w-14 h-14 bg-yellow-100 rounded-2xl flex items-center justify-center mb-4">
+            <TrendingUp className="h-7 w-7 text-yellow-600" />
           </div>
           <CardTitle className="text-xl font-bold">Historical Data</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-base text-gray-600 leading-relaxed">
+          <p className="text-sm text-gray-600 leading-relaxed">
             Monitor performance trends over time with access to full historical analytics data.
           </p>
         </CardContent>
       </Card>
 
       {/* 6. Smart KPI Templates — REPLACED Custom Metrics */}
-      <Card className="border-0 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 p-8">
+      <Card className="border-0 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 p-4">
         <CardHeader>
-          <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mb-4">
-            <CheckCircle className="h-8 w-8 text-red-600" />
+          <div className="w-14 h-14 bg-red-100 rounded-2xl flex items-center justify-center mb-4">
+            <CheckCircle className="h-7 w-7 text-red-600" />
           </div>
           <CardTitle className="text-xl font-bold">Smart KPI Templates</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-base text-gray-600 leading-relaxed">
+          <p className="text-sm text-gray-600 leading-relaxed">
             Choose from ready-made KPI sets for SEO, content, and traffic goals — or let AI recommend what matters most.
           </p>
         </CardContent>
