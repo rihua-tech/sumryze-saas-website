@@ -21,22 +21,22 @@ export default function FeaturesPage() {
       {/* Hero Section */}
       
 
-             <section className="bg-gradient-to-br from-indigo-50 via-white to-emerald-50 pt-20 pb-20">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 gap-6 text-center">
-    
-              <span className="inline-block mb-6 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 text-sm font-medium px-4 py-2 rounded-full transition">
+             <section className="bg-gradient-to-br from-indigo-50 via-white to-emerald-50 py-10">
+              <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 gap-6 text-center">
+
+              <span className="inline-block mb-4 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 text-sx font-medium px-3 py-1 rounded-full transition">
                ✨ Powerful Features
               </span>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-6 leading-tight">
+            <h1 className="text-3xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-5 leading-tight">
                Automate SEO Reports in Minutes
               </h1>
 
-                <h2 className="text-3xl lg:text-4xl font-black bg-gradient-to-r from-indigo-600 to-purple-500 bg-clip-text text-transparent mb-8 leading-tight">
+                <h2 className="text-2xl lg:text-3xl font-black bg-gradient-to-r from-indigo-600 to-purple-500 bg-clip-text text-transparent mb-5 leading-tight">
                 From templates to AI-powered insights, built for agencies & pros
              </h2>
 
-              <p className="text-sm sm:text-base lg:text-lg text-gray-700 mb-12 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-sm sm:text-sm lg:text-sm text-gray-700 mb-8 max-w-3xl mx-auto leading-relaxed">
                Deliver stunning, client-ready SEO reports — with full automation, smart metrics, and customizable branding — all in one place.
             </p>
 
@@ -45,11 +45,11 @@ export default function FeaturesPage() {
              <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8 px-4">
   
               <a href="/signup"
-                 className="w-full sm:w-[220px] px-6 py-3 text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg text-base font-semibold transition shadow-md text-center">
+                 className="w-full sm:w-[180px] px-4 py-2 text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg text-sm font-semibold transition shadow-md text-center">
                Start Free Trial
               </a>
                 <a href="/features"
-                className="w-full sm:w-[220px] px-6 py-3 text-indigo-600 bg-white border border-indigo-300 hover:bg-gray-50 rounded-lg text-base font-semibold transition shadow-sm text-center">
+                className="w-full sm:w-[180px] px-4 py-2 text-indigo-600 bg-white border border-indigo-300 hover:bg-gray-50 rounded-lg text-sm font-semibold transition shadow-sm text-center">
                   Explore Features
                 </a>
              </div>
@@ -60,34 +60,34 @@ export default function FeaturesPage() {
 
 
       {/* Core Features */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-20">
+      <section className="py-10 bg-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-10">
             <div>
               <div className="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mb-6">
                 <Zap className="h-8 w-8 text-indigo-600" />
               </div>
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">SEO Automation</h2>
-              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+              <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">SEO Automation</h2>
+              <p className="text-base text-gray-600 mb-8 leading-relaxed">
                 Automatically crawl and analyze websites to identify technical SEO issues, track keyword rankings, and
                 monitor performance metrics.
               </p>
-              <ul className="space-y-4">
+              <ul className="space-y-3">
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-emerald-500 mr-3 flex-shrink-0" />
-                  <span className="text-base text-gray-700">Technical SEO audits</span>
+                  <span className="text-sm text-gray-700">Technical SEO audits</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-emerald-500 mr-3 flex-shrink-0" />
-                  <span className="text-base text-gray-700">Keyword ranking tracking</span>
+                  <span className="text-sm text-gray-700">Keyword ranking tracking</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-emerald-500 mr-3 flex-shrink-0" />
-                  <span className="text-base text-gray-700">Competitor analysis</span>
+                  <span className="text-sm text-gray-700">Competitor analysis</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-emerald-500 mr-3 flex-shrink-0" />
-                  <span className="text-base text-gray-700">Performance monitoring</span>
+                  <span className="text-sm text-gray-700">Performance monitoring</span>
                 </li>
               </ul>
             </div>
@@ -110,27 +110,27 @@ export default function FeaturesPage() {
               <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mb-6">
                 <BarChart3 className="h-8 w-8 text-emerald-600" />
               </div>
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">AI Insights</h2>
-              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+              <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-6">AI Insights</h2>
+              <p className="text-base text-gray-600 mb-8 leading-relaxed">
                 Leverage advanced AI algorithms to uncover hidden opportunities, predict trends, and provide actionable
                 recommendations.
               </p>
               <ul className="space-y-4">
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-emerald-500 mr-3 flex-shrink-0" />
-                  <span className="text-base text-gray-700">Predictive analytics</span>
+                  <span className="text-sm text-gray-700">Predictive analytics</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-emerald-500 mr-3 flex-shrink-0" />
-                  <span className="text-base text-gray-700">Opportunity identification</span>
+                  <span className="text-sm text-gray-700">Opportunity identification</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-emerald-500 mr-3 flex-shrink-0" />
-                  <span className="text-base text-gray-700">Trend analysis</span>
+                  <span className="text-sm text-gray-700">Trend analysis</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-emerald-500 mr-3 flex-shrink-0" />
-                  <span className="text-base text-gray-700">Smart recommendations</span>
+                  <span className="text-sm text-gray-700">Smart recommendations</span>
                 </li>
               </ul>
             </div>
@@ -141,27 +141,27 @@ export default function FeaturesPage() {
               <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mb-6">
                 <FileText className="h-8 w-8 text-purple-600" />
               </div>
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">Flexible Report Delivery</h2>
-              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+              <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-6">Flexible Report Delivery</h2>
+              <p className="text-base text-gray-600 mb-8 leading-relaxed">
                 Deliver reports in the format your clients prefer - Notion pages, PDF documents, or interactive HTML
                 reports.
               </p>
               <ul className="space-y-4">
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-emerald-500 mr-3 flex-shrink-0" />
-                  <span className="text-base text-gray-700">Notion integration</span>
+                  <span className="text-sm text-gray-700">Notion integration</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-emerald-500 mr-3 flex-shrink-0" />
-                  <span className="text-base text-gray-700">PDF generation</span>
+                  <span className="text-sm text-gray-700">PDF generation</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-emerald-500 mr-3 flex-shrink-0" />
-                  <span className="text-base text-gray-700">Interactive HTML</span>
+                  <span className="text-sm text-gray-700">Interactive HTML</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-emerald-500 mr-3 flex-shrink-0" />
-                  <span className="text-base text-gray-700">Automated scheduling</span>
+                  <span className="text-sm text-gray-700">Automated scheduling</span>
                 </li>
               </ul>
             </div>
@@ -176,11 +176,11 @@ export default function FeaturesPage() {
       </section>
 
 {/* Additional Features Grid */}
-<section className="py-20 bg-gray-50">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div className="text-center mb-12">
-      <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-8">More powerful features</h2>
-      <p className="text-lg text-gray-600">Enhance your reporting workflow with automation, branding, and intelligence</p>
+<section className="py-10 bg-white">
+  <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="text-center mb-10">
+      <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-5">More powerful features</h2>
+      <p className="text-base text-gray-600">Enhance your reporting workflow with automation, branding, and intelligence</p>
     </div>
 
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -194,7 +194,7 @@ export default function FeaturesPage() {
           <CardTitle className="text-xl font-bold">White-Label Branding</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-base text-gray-600 leading-relaxed">
+          <p className="text-sm text-gray-600 leading-relaxed">
             Apply your agency’s branding, logo, and colors for a seamless and professional client experience.
           </p>
         </CardContent>
@@ -209,7 +209,7 @@ export default function FeaturesPage() {
           <CardTitle className="text-xl font-bold">Automated Scheduling</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-base text-gray-600 leading-relaxed">
+          <p className="text-sm text-gray-600 leading-relaxed">
             Schedule recurring reports to be generated and delivered automatically — no manual work needed.
           </p>
         </CardContent>
@@ -224,7 +224,7 @@ export default function FeaturesPage() {
           <CardTitle className="text-xl font-bold">Email Integration</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-base text-gray-600 leading-relaxed">
+          <p className="text-sm text-gray-600 leading-relaxed">
             Send reports via email using custom templates and flexible delivery schedules.
           </p>
         </CardContent>
@@ -282,17 +282,17 @@ export default function FeaturesPage() {
 
 
         {/* CTA Section */}
-      <section className="py-20 bg-indigo-600">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">Ready to experience these features?</h2>
-          <p className="text-xl text-indigo-100 mb-10 leading-relaxed">
+      <section className="py-12 bg-indigo-600">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-5">Ready to experience these features?</h2>
+          <p className="text-base text-indigo-100 mb-8 leading-relaxed">
            Start your free trial today and see how Sumryze can transform your reporting workflow.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/signup">
               <Button
-                size="lg"
-                className="bg-white text-indigo-600 hover:bg-gray-100 text-lg px-8 py-4 font-bold shadow-lg hover:shadow-xl transition-all duration-300"
+                size="sm"
+                className="bg-white text-indigo-600 hover:bg-gray-100 text-base px-8 py-4 font-bold shadow-lg hover:shadow-xl transition-all duration-300"
               >
                Try It Free
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -301,8 +301,8 @@ export default function FeaturesPage() {
             <Link href="/pricing">
               
               <Button
-              size="lg"
-              className="bg-white/10 text-white hover:bg-white hover:text-indigo-600 text-lg px-8 py-4 font-semibold transition-all duration-300 border border-white"
+              size="sm"
+              className="bg-white/10 text-white hover:bg-white hover:text-indigo-600 text-base px-8 py-4 font-semibold transition-all duration-300 border border-white"
 >
                View Pricing
               </Button>
