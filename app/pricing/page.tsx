@@ -84,20 +84,20 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-indigo-50 via-white to-emerald-50 pt-16 pb-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="bg-gradient-to-br from-indigo-50 via-white to-emerald-50 py-10">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
           
-            <Badge className="mb-6 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 text-sm px-4 py-2 font-semibold">
-
+            <Badge className="mb-4 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 text-xs px-3 py-1.5 font-medium rounded-full shadow-sm transition-all duration-200">          
               💰 Simple Pricing</Badge>
-            <h1 className="text-4xl lg:text-5xl font-black text-gray-900 mb-6 leading-tight">
+              
+            <h1 className="text-3xl lg:text-4xl font-black text-gray-900 mb-4 leading-tight">
              Start Growing with the Right Plan
             </h1>
-             <h2 className="text-3xl lg:text-4xl font-black bg-gradient-to-r from-indigo-700 to-purple-500 bg-clip-text text-transparent mb-8 leading-tight">
+             <h2 className="text-2xl lg:text-3xl font-black bg-gradient-to-r from-indigo-700 to-purple-500 bg-clip-text text-transparent mb-4 leading-tight">
               for your agency</h2>
 
-            <p className="text-base lg:text-lg text-gray-700 mb-12 max-w-4xl mx-auto leading-relaxed">
+            <p className="text-sm sm:text-sm lg:text-sm text-gray-700 mb-12 max-w-3xl mx-auto leading-relaxed">
             Every plan includes a <strong>14-day free trial</strong>. No hidden fees — just <strong>powerful reporting</strong> from day one.
              </p>
 
@@ -105,7 +105,7 @@ export default function PricingPage() {
 
               {/* Billing Toggle */}
             
-              <div className="flex items-center justify-center w-fit mx-auto mb-10 px-6 py-3 gap-5 bg-gray-100 rounded-full shadow-sm">
+              <div className="flex items-center justify-center w-fit mx-auto mb-6 px-4 py-2 gap-5 bg-gray-100 rounded-full shadow-sm">
               
               <span className={`text-base font-medium ${!isYearly ? 'text-gray-900' : 'text-gray-500'}`}>
                Monthly
@@ -136,7 +136,7 @@ export default function PricingPage() {
       {/* Pricing Cards */}
       <section className=" bg-white pt-4 pb-2">
         
-          <div className="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-[70rem] mx-auto px-4 sm:px-6 lg:px-8">
           
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-1 md:grid-cols-3">
 
@@ -162,10 +162,10 @@ export default function PricingPage() {
                   <CardTitle className={`text-3xl font-black text-gray-900 mb-3 ${plan.popular ? "mt-4" : ""}`}>
                     {plan.name}
                   </CardTitle>
-                  <p className="text-lg text-gray-600 mb-6">{plan.description}</p>
+                  <p className="text-base text-gray-600 mb-6">{plan.description}</p>
 
                   <div className="mb-6">
-                    <span className="text-5xl font-black text-gray-900">
+                    <span className="text-4xl font-black text-gray-900">
                       ${isYearly ? plan.yearlyPrice : plan.monthlyPrice}
                     </span>
                     <span className="text-lg text-gray-600 ml-2">/month</span>
@@ -177,10 +177,10 @@ export default function PricingPage() {
                   </div>
                   <Link href={plan.href}>
                   <Button
-                    className={`w-full text-lg px-6 py-3 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 ${
+                    className={`w-full text-base px-6 py-3 font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 ${
                       plan.popular ? "bg-indigo-600 hover:bg-indigo-700" : "bg-gray-900 hover:bg-gray-800"
                     }`}
-                    size="lg"
+                    size="sm"
                   >
                     {plan.cta}
                     {plan.cta !== "Contact Sales" && <ArrowRight className="ml-2 h-4 w-4" />}
@@ -193,7 +193,7 @@ export default function PricingPage() {
                     {plan.features.map((feature, featureIndex) => (
                       <li key={featureIndex} className="flex items-start">
                         <CheckCircle className="h-5 w-5 text-emerald-500 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-600 text-base leading-relaxed">{feature}</span>
+                        <span className="text-gray-600 text-xs leading-relaxed">{feature}</span>
                       </li>
                     ))}
                   </ul>
@@ -219,13 +219,13 @@ export default function PricingPage() {
 
      {/* More Ways to Earn & Grow Section */}
 
-<section className="bg-white pt-6 pb-12">
-  <div className="max-w-7xl mx-auto px-4">
-    <div className="text-center mb-6">
-      <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">
+<section className="bg-white pt-5 pb-6 ">
+  <div className="max-w-5xl mx-auto px-5">
+    <div className="text-center mb-6 ">
+      <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
         Earn with Sumryze
       </h2>
-      <p className="text-gray-500 mt-3 text-lg">
+      <p className="text-gray-500 mt-3 text-base">
         Share Sumryze and earn 30% recurring commissions for life.
       </p>
     </div>
@@ -342,10 +342,11 @@ export default function PricingPage() {
       
 
       {/* CTA Section */}
-      <section className="py-20 bg-indigo-600">
+      <section className="py-16 bg-indigo-600">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">Ready to simplify your reporting?</h2>
-          <p className="text-xl text-indigo-100 mb-10 leading-relaxed">
+             <h2 className="text-3xl lg:text-4xl font-bold text-white mb-5">
+            Ready to simplify your reporting?</h2>
+          <p className="text-base text-indigo-100 mb-8 leading-relaxed">
             
             Join 1,000+ agencies using Sumryze to save time and impress clients.
           </p>
@@ -353,8 +354,8 @@ export default function PricingPage() {
            <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/signup?plan=starter">
               <Button
-                size="lg"
-                className="bg-white text-indigo-600 hover:bg-gray-100 text-lg px-8 py-4 font-bold shadow-lg hover:shadow-xl transition-all duration-300"
+                size="sm"
+                className="bg-white text-indigo-600 hover:bg-gray-100 text-base px-8 py-4 font-bold shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 Start Free Trial
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -363,8 +364,8 @@ export default function PricingPage() {
 
             <Link href="#comparison"> 
               <Button
-              size="lg"
-              className="bg-white/10 text-white hover:bg-white hover:text-indigo-600 text-lg px-8 py-4 font-semibold transition-all duration-300 border border-white"
+              size="sm"
+              className="bg-white/10 text-white hover:bg-white hover:text-indigo-600 text-base px-8 py-4 font-semibold transition-all duration-300 border border-white"
 >              Compare Plans
               </Button>
             </Link>

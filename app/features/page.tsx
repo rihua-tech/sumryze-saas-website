@@ -24,9 +24,10 @@ export default function FeaturesPage() {
              <section className="bg-gradient-to-br from-indigo-50 via-white to-emerald-50 py-10">
               <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 gap-6 text-center">
 
-              <span className="inline-block mb-4 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 text-sx font-medium px-3 py-1 rounded-full transition">
+              <Badge 
+                className="mb-4 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 text-xs px-3 py-1.5 font-medium rounded-full shadow-sm transition-all duration-200">  
                ✨ Powerful Features
-              </span>
+              </Badge>
 
             <h1 className="text-3xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-5 leading-tight">
                Automate SEO Reports in Minutes

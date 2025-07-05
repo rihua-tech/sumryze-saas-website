@@ -105,7 +105,7 @@ const tools: Tool[] = [
 
 export default function ComparisonTable() {
   return (
-    <section className="py-20 px-4 md:px-8">
+    <section className="py-10 px-4 md:px-8">
 
       <h2 id="comparison" className="text-3xl md:text-4xl font-extrabold text-center mb-4">
         How does Sumryze compare to other tools?
@@ -116,8 +116,8 @@ export default function ComparisonTable() {
       </p>
 
       {/* ✅ Desktop Table */}
-      <div className="hidden md:block max-w-screen-xl mx-auto overflow-x-auto border rounded-xl shadow-sm">
-        <table className="min-w-full text-sm md:text-base text-left">
+      <div className="hidden md:block  max-w-5xl mx-auto overflow-x-auto border rounded-xl shadow-sm">
+        <table className="min-w-full text-sm md:text-sm lg:text-sm text-center">
           <thead className="bg-gray-100 text-gray-700 font-semibold text-center">
             <tr>
               <th className="p-4">Tool Name</th>
@@ -131,12 +131,12 @@ export default function ComparisonTable() {
               <th className="p-4">Team Collaboration</th>
             </tr>
           </thead>
-          <tbody className="text-center">
+          <tbody className="text-center text-gray-600">
             {tools.map((tool, i) => (
               <tr key={i}className="border-t even:bg-gray-50 transition-all duration-300 ease-in-out hover:bg-blue-50 hover:shadow-sm"
     >
 
-                <td className="p-4 font-medium text-left">{tool.name}</td>
+                <td className="p-4 font-medium text-center">{tool.name}</td>
                 <td className="p-4">{tool.price}</td>
                 <td className="p-4">{iconMap[tool.ai]}</td>
                 <td className="p-4">{iconMap[tool.whiteLabel]}</td>
@@ -150,6 +150,7 @@ export default function ComparisonTable() {
           </tbody>
         </table>
       </div>
+
 
       {/* ✅ Mobile Cards */}
       {/* ✅ Mobile Cards (Optimized with spacing) */}

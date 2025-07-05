@@ -24,14 +24,16 @@ export default function HomePage() {
             {/* LEFT: Text content */}
             {/* ✅ Added `space-y-8` for clean vertical spacing between elements */}
             {/* ✅ `text-center` for mobile, `lg:text-left` for desktop alignment */}
-              <div className="text-center lg:text-left space-y-4 sm:space-y-5 md:space-y-5 lg:space-y-5">
+              <div className="text-center lg:text-left space-y-4 sm:space-y-4 md:space-y-4 lg:space-y-4">
 
 
 
               {/* 🔁 No change here — badge stays the same */}
-              <Badge className="text-xs px-2  bg-indigo-100 text-indigo-700 rounded-full font-sm">
+              <Badge 
+                className=" bg-indigo-100 text-indigo-700 hover:bg-indigo-200 text-xs px-3 py-1.5 font-medium rounded-full shadow-sm transition-all duration-200">  
                 🚀 White-Label AI Reporting Platform
               </Badge>
+
 
               {/* ✅ Headline and subheadline keep same size, no change */}
               <h1 className="text-3xl lg:text-4xl font-black text-gray-900 leading-tight">
