@@ -92,6 +92,7 @@ export default function PricingPage() {
               💰 Simple Pricing</Badge>
               
             <h1 className="text-3xl lg:text-4xl font-black text-gray-900 mb-4 leading-tight">
+              
              Start Growing with the Right Plan
             </h1>
              <h2 className="text-2xl lg:text-3xl font-black bg-gradient-to-r from-indigo-700 to-purple-500 bg-clip-text text-transparent mb-4 leading-tight">
@@ -342,38 +343,40 @@ export default function PricingPage() {
       
 
       {/* CTA Section */}
-      <section className="py-16 bg-indigo-600">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-             <h2 className="text-3xl lg:text-4xl font-bold text-white mb-5">
-            Ready to simplify your reporting?</h2>
-          <p className="text-base text-indigo-100 mb-8 leading-relaxed">
-            
-            Join 1,000+ agencies using Sumryze to save time and impress clients.
-          </p>
-          
-           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/signup?plan=starter">
-              <Button
-                size="sm"
-                className="bg-white text-indigo-600 hover:bg-gray-100 text-base px-8 py-4 font-bold shadow-lg hover:shadow-xl transition-all duration-300"
-              >
-                Start Free Trial
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
+      
+            <section className="py-16 bg-indigo-600">
+              <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+               <h2 className="text-3xl lg:text-4xl font-bold text-white mb-5">
+                 Ready to simplify your reporting?
+                </h2>
+              <p className="text-base text-indigo-100 mb-8 leading-relaxed">
+              Join 1,000+ agencies using Sumryze to save time and impress clients.
+             </p>
 
-            <Link href="#comparison"> 
-              <Button
-              size="sm"
-              className="bg-white/10 text-white hover:bg-white hover:text-indigo-600 text-base px-8 py-4 font-semibold transition-all duration-300 border border-white"
->              Compare Plans
-              </Button>
-            </Link>
-          </div>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+
+              {/* Primary SEO-Friendly CTA */}
+               <a
+                 href="/signup?plan=starter"
+                    className="inline-flex items-center justify-center bg-white text-indigo-600 hover:bg-gray-100 text-base px-7 py-1 font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+               Start Free Trial
+               <ArrowRight className="ml-2 h-5 w-5" />
+              </a>
+
+              {/* Secondary SEO-Friendly CTA */}
+              <a
+               href="#comparison"
+              className="inline-flex items-center justify-center bg-white/10 text-white hover:bg-white hover:text-indigo-600 text-base px-7 py-1 font-semibold rounded-lg border border-white transition-all duration-300"
+      >
+        Compare Plans
+      </a>
+    </div>
+  </div>
+</section>
 
 
-        </div>
-      </section>
+
     </div>
   )
 }

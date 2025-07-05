@@ -52,32 +52,28 @@ export default function HomePage() {
                 Wow your clients, save hours of manual work, and grow your agency with AI-driven insights.
               </p>
 
-              {/* ✅ Buttons now stack on mobile (`flex-col`) and align side-by-side on tablet/desktop (`sm:flex-row`) */}
-              {/* ✅ `justify-center` on mobile, `lg:justify-start` on large screens */}
-              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center lg:justify-start">
+              
 
-                {/* ✅ Button font-size, padding, and animation cleaned up */}
-                <Link href="/demo">
-                  <Button
-                    size="sm"
-                    className="bg-indigo-600 hover:bg-indigo-700 hover:scale-105 text-lg px-6 py-3 font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-                  >
-                    Try It Free
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
+              <div className="flex flex-col sm:flex-row gap-6 pt-3 justify-center lg:justify-start">
 
-                {/* ✅ Secondary button adjusted to be slightly smaller, lighter padding */}
-                <Link href="/demo">
-                  <Button
-                   size="sm"
-                    variant="outline"
-                    className="text-base px-6 py-3 font-semibold hover:bg-indigo-50"
-                  >
-                    View Demo
-                  </Button>
-                </Link>
+                <a
+                 href="/demo"
+                 className="bg-indigo-600 hover:bg-indigo-700 hover:scale-105 text-sm px-10 py-2 font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 text-white rounded-lg inline-flex items-center justify-center"
+
+                 >
+                 Try It Free
+                <ArrowRight className="ml-2 h-5 w-5" />
+               </a>
+
+               <a
+                href="/demo"
+                className="text-sm px-8 py-2 font-semibold text-indigo-600 border border-indigo-300 hover:bg-indigo-50 transition duration-300 rounded-lg text-center"
+                >
+                View Demo
+               </a>
+
               </div>
+
 
               {/* 🔁 Subtitle note below buttons — unchanged but moved below spacing for clarity */}
            
@@ -222,43 +218,40 @@ export default function HomePage() {
 <Testimonials />
 
       {/* CTA Section */}
-      <section className="py-12 bg-indigo-600">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-5">Ready to transform your reporting?</h2>
-          <p className="text-base text-indigo-100 mb-8 leading-relaxed">
-            Join thousands of agencies and consultants who trust Sumryze for their client reporting needs.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/demo">
-              <Button
-                size="sm"
-                className="bg-white text-indigo-600 hover:bg-gray-100 text-base px-6 py-1 font-medium shadow-lg hover:shadow-xl transition-all duration-300"
-              >
-                Start Free Trial
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-            <Link href="/pricing">
-              
-              <Button
-              size="sm"
-              className="bg-white/10 text-white hover:bg-white hover:text-indigo-600 text-base px-6 py-1 font-medium transition-all duration-300 border border-white"
->
-               View Pricing
-              </Button>
+                 <section className="py-12 bg-indigo-600">
+                   <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                     <h2 className="text-3xl lg:text-4xl font-bold text-white mb-5">
+                       Ready to transform your reporting?
+                     </h2>
+                     <p className="text-base text-indigo-100 mb-8 leading-relaxed">
+                      Join thousands of agencies and consultants who trust Sumryze for their client reporting needs.
+                     </p>
 
-            </Link>
-          </div>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
 
-            {/* ✅ Social Proof Line */}
-           <p className="text-sm text-indigo-100 mt-6">
-            💜 Trusted by early adopters from top SEO and marketing agencies.
-            </p>
+                    {/* Primary CTA */}
+                    <a
+                     href="/demo"
+                      className="inline-flex items-center justify-center bg-white text-indigo-600 hover:bg-gray-100 text-base px-6 py-1 font-medium rounded-md shadow-lg hover:shadow-xl transition-all duration-300"                 >
+                      Start Free Trial
+                       <ArrowRight className="ml-2 h-5 w-5" />
+                       </a>
 
+                      {/* Secondary CTA */}
+                     <a
+                       href="/pricing"
+                       className="inline-flex items-center justify-center bg-white/10 text-white hover:bg-white hover:text-indigo-600 text-base px-6 py-1 font-medium rounded-md border border-white transition-all duration-300"
+                  >
+                       View Pricing
+                      </a>
+                      </div>
 
-        </div>
-      </section>
-
+                      {/* Social Proof Line */}
+                      <p className="text-sm text-indigo-100 mt-6">
+                      💜 Trusted by early adopters from top SEO and marketing agencies.
+                      </p>
+                      </div>
+                   </section>             
     </div>
   )
 }

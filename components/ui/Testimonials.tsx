@@ -109,7 +109,7 @@ export default function Testimonials() {
 
   return (
     <section className="pb-10 bg-white">
-      <div className="max-w-5xl mx-auto px-4 text-center">
+      <div className="max-w-5xl mx-auto px-3 text-center">
         <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
           Trusted by Agencies Worldwide
         </h2>
@@ -130,14 +130,14 @@ export default function Testimonials() {
 
   {/* Carousel */}
   <div ref={emblaRef} className="overflow-hidden px-0 sm:px-4 md:px-4">
-    <div className="flex gap-4">
+    <div className="flex gap-3">
       {testimonials.map((t, i) => (
         <div
           key={i}
           className="min-w-full sm:min-w-[50%] md:min-w-[33.3333%] px-2"
         >
           <Card className="shadow-md hover:shadow-xl transition rounded-xl text-left h-full">
-            <CardContent className="p-6">
+            <CardContent className="p-7">
               <div className="flex items-center gap-1 mb-2 text-yellow-500">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-4 h-4 fill-current" />
@@ -166,7 +166,7 @@ export default function Testimonials() {
 
   {/* Right Arrow */}
   <button
-    className="absolute -right-8 top-1/2 -translate-y-1/2 bg-white border shadow-md rounded-full p-2 z-10 "
+    className="absolute -right-7 top-1/2 -translate-y-1/2 bg-white border shadow-md rounded-full p-2 z-10 "
     onClick={() => emblaApi?.scrollNext()}
     disabled={!canScrollNext}
   >

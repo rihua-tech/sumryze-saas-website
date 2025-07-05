@@ -43,17 +43,26 @@ export default function FeaturesPage() {
 
               
               {/* CTA Buttons */}
+
              <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8 px-4">
-  
-              <a href="/signup"
-                 className="w-full sm:w-[180px] px-4 py-2 text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg text-sm font-semibold transition shadow-md text-center">
-               Start Free Trial
-              </a>
-                <a href="/features"
-                className="w-full sm:w-[180px] px-4 py-2 text-indigo-600 bg-white border border-indigo-300 hover:bg-gray-50 rounded-lg text-sm font-semibold transition shadow-sm text-center">
-                  Explore Features
-                </a>
-             </div>
+
+                {/* Primary Button */}
+                <a
+                href="/signup"
+                className="w-full sm:w-auto px-10 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-md text-center transition duration-300"
+                >
+                Start Free Trial
+               </a>
+
+               {/* Secondary Button */}
+               <a
+               href="#feature-cards"
+               className="w-full sm:w-auto px-8 py-2 text-sm font-semibold text-indigo-600 bg-white border border-indigo-300 hover:bg-gray-50 rounded-lg shadow-sm text-center transition duration-300"
+              >
+               Explore Features
+             </a>
+
+          </div>         
             
      </div>
 </section>
@@ -61,7 +70,7 @@ export default function FeaturesPage() {
 
 
       {/* Core Features */}
-      <section className="py-10 bg-white">
+      <section  id="feature-cards"className="py-10 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-10">
             <div>
@@ -283,45 +292,45 @@ export default function FeaturesPage() {
 
 
         {/* CTA Section */}
-      <section className="py-12 bg-indigo-600">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-5">Ready to experience these features?</h2>
-          <p className="text-base text-indigo-100 mb-8 leading-relaxed">
-           Start your free trial today and see how Sumryze can transform your reporting workflow.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/signup">
-              <Button
-                size="sm"
-                className="bg-white text-indigo-600 hover:bg-gray-100 text-base px-8 py-4 font-bold shadow-lg hover:shadow-xl transition-all duration-300"
-              >
+     
+
+            <section className="py-16 bg-indigo-600">
+              <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6">
+
+                 Ready to experience these features?
+                 </h2>
+                 <p className="text-base text-indigo-100 mb-8 leading-relaxed">
+                   Start your free trial today and see how Sumryze can transform your reporting workflow.
+                 </p>
+
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+
+
+                {/* Primary CTA */}
+               <a
+                href="/signup"
+                className="inline-flex items-center justify-center bg-white text-indigo-600 hover:bg-gray-100 text-base px-7 py-1 font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                >
                Try It Free
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-            <Link href="/pricing">
-              
-              <Button
-              size="sm"
-              className="bg-white/10 text-white hover:bg-white hover:text-indigo-600 text-base px-8 py-4 font-semibold transition-all duration-300 border border-white"
->
-               View Pricing
-              </Button>
+              <ArrowRight className="ml-2 h-5 w-5" />
+              </a>
 
-            </Link>
-          </div>
+             {/* Secondary CTA */}
+               <a
+               href="/pricing"
+               className="inline-flex items-center justify-center bg-white/10 text-white hover:bg-white hover:text-indigo-600 text-base px-7 py-1 font-semibold rounded-lg border border-white transition-all duration-300"
+               >
+                View Pricing
+              </a>
+             </div>
 
-            {/* ✅ Social Proof Line */}
-           <p className="text-sm text-indigo-100 mt-6">
-            No credit card required. Cancel anytime.
-            </p>
-
-
-        </div>
-      </section>
-
-
-         
+             {/* Social Proof */}
+             <p className="text-sm text-indigo-100 mt-6">
+             No credit card required. Cancel anytime.
+             </p>
+            </div>
+           </section>
 
 
     </div>
