@@ -30,7 +30,7 @@ export function Navigation() {
 
   return (
     <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
 
           <div className="flex items-center ">
@@ -41,7 +41,7 @@ export function Navigation() {
             alt="Sumryze Logo"
             className="w-9 h-9 sm:w-10 sm:h-9 transition-transform duration-200 group-hover:scale-105 align-middle"
              />
-              <span className="text-xl sm:text-2xl md:text-3xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 ">
+              <span className="text-base sm:text-xl md:text-2xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 ">
                Sumryze
              </span>
 
@@ -50,13 +50,13 @@ export function Navigation() {
           </div>
 
           <div className="hidden lg:block">
-            <div className="ml-10 flex items-center space-x-8">
+            <div className="ml-10flex items-center space-x-6">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "text-sm font-semibold transition-colors duration-200 px-2 py-1",
+                    "text-xs font-medium transition-colors duration-200 px-2 py-1",
                     isActive(item.href) ? "text-indigo-600 font-bold" : "text-gray-700 hover:text-indigo-600",
                   )}
                 >
@@ -69,14 +69,14 @@ export function Navigation() {
   <Link href="/login">
     <Button
       variant="outline"
-      className="bg-white border border-gray-300 text-gray-900 font-semibold text-sm px-5 py-2 rounded-md hover:border-gray-400 hover:bg-gray-100 transition-all"
+      className="bg-white border border-gray-300 text-gray-900 font-medium text-sm px-5 py-1 rounded-md hover:border-gray-400 hover:bg-gray-100 transition-all"
     >
       Login
     </Button>
   </Link>
   <Link href="/signup">
     <Button
-      className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold text-sm px-6 py-2 rounded-md shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200"
+      className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium text-sm px-6 py-1 rounded-md shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200"
     >
       Sign Up
     </Button>
@@ -113,15 +113,16 @@ export function Navigation() {
             <div className="pt-4">
               <Link href="/login" onClick={() => setIsOpen(false)}>
                <Button
+              
               variant="outline"
-              className="w-full justify-center bg-white border border-gray-300 text-gray-900 font-semibold text-base py-3 mb-3"
+              className="w-full justify-center bg-white border border-gray-300 text-gray-900 font-medium text-sm py-3 mb-3"
               >
              Login
             </Button>
              </Link>
             <Link href="/signup" onClick={() => setIsOpen(false)}>
             <Button
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold text-base py-3 rounded-md shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all"
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium text-sm py-3 rounded-md shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all"
              >
             Sign Up
           </Button>

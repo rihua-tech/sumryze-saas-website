@@ -108,12 +108,12 @@ export default function Testimonials() {
   }, [emblaApi])
 
   return (
-    <section className="pt-16 pb-16 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 text-center">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+    <section className="pb-10 bg-white">
+      <div className="max-w-5xl mx-auto px-4 text-center">
+        <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
           Trusted by Agencies Worldwide
         </h2>
-        <p className="text-lg text-gray-600 mb-10">
+        <p className="text-base text-gray-600 mb-10">
           Join thousands of marketers using Sumryze to save hours and wow their clients.
         </p>
 
@@ -143,7 +143,7 @@ export default function Testimonials() {
                   <Star key={i} className="w-4 h-4 fill-current" />
                 ))}
               </div>
-              <p className="text-gray-700 mb-4 text-base leading-relaxed">
+              <p className="text-gray-700 mb-4 text-sm leading-relaxed">
                 "{t.text}"
               </p>
               <div className="flex items-center gap-3 mt-4">
@@ -166,7 +166,7 @@ export default function Testimonials() {
 
   {/* Right Arrow */}
   <button
-    className="absolute -right-6 top-1/2 -translate-y-1/2 bg-white border shadow-md rounded-full p-2 z-10 "
+    className="absolute -right-8 top-1/2 -translate-y-1/2 bg-white border shadow-md rounded-full p-2 z-10 "
     onClick={() => emblaApi?.scrollNext()}
     disabled={!canScrollNext}
   >

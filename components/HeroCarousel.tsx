@@ -45,7 +45,7 @@ export function HeroCarousel() {
         {visibleSlides.map((src, index) => (
           <div
             key={index}
-            className="min-w-full flex-shrink-0 aspect-[16/9] bg-white flex items-center justify-center"
+            className="min-w-full flex-shrink-0  h-[300px]  bg-white flex items-center justify-center"
           >
             <Image
               src={src}
