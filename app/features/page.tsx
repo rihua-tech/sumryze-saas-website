@@ -72,13 +72,13 @@ export default function FeaturesPage() {
       {/* Core Features */}
       <section  id="feature-cards"className="py-10 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-12">
             <div>
-              <div className="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mb-6">
-                <Zap className="h-8 w-8 text-indigo-600" />
+              <div className="w-14 h-14 bg-indigo-100 rounded-2xl flex items-center justify-center mb-5">
+                <Zap className="h-7 w-7 text-indigo-600" />
               </div>
               <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">SEO Automation</h2>
-              <p className="text-base text-gray-600 mb-8 leading-relaxed">
+              <p className="text-base text-gray-600 mb-5 leading-relaxed">
                 Automatically crawl and analyze websites to identify technical SEO issues, track keyword rankings, and
                 monitor performance metrics.
               </p>
@@ -109,7 +109,7 @@ export default function FeaturesPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-12">
             <div className="bg-gradient-to-br from-emerald-100 to-teal-100 rounded-2xl p-12 h-80 flex items-center justify-center lg:order-1">
               <div className="text-center">
                 <TrendingUp className="h-20 w-20 text-emerald-600 mx-auto mb-4" />
@@ -117,11 +117,11 @@ export default function FeaturesPage() {
               </div>
             </div>
             <div className="lg:order-2">
-              <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mb-6">
-                <BarChart3 className="h-8 w-8 text-emerald-600" />
+              <div className="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mb-6">
+                <BarChart3 className="h-7 w-7 text-emerald-600" />
               </div>
-              <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-6">AI Insights</h2>
-              <p className="text-base text-gray-600 mb-8 leading-relaxed">
+              <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">AI Insights</h2>
+              <p className="text-base text-gray-600 mb-5 leading-relaxed">
                 Leverage advanced AI algorithms to uncover hidden opportunities, predict trends, and provide actionable
                 recommendations.
               </p>
@@ -148,11 +148,11 @@ export default function FeaturesPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
-              <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mb-6">
-                <FileText className="h-8 w-8 text-purple-600" />
+              <div className="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center mb-6">
+                <FileText className="h-7 w-7 text-purple-600" />
               </div>
-              <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-6">Flexible Report Delivery</h2>
-              <p className="text-base text-gray-600 mb-8 leading-relaxed">
+              <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">Flexible Report Delivery</h2>
+              <p className="text-base text-gray-600 mb-5 leading-relaxed">
                 Deliver reports in the format your clients prefer - Notion pages, PDF documents, or interactive HTML
                 reports.
               </p>
@@ -186,7 +186,7 @@ export default function FeaturesPage() {
       </section>
 
 {/* Additional Features Grid */}
-<section className="py-10 bg-white">
+<section className="pt-6 pb-10 bg-white">
   <div className="max-w-5xl mx-auto px-4 sm:px-5 lg:px-5">
     <div className="text-center mb-10">
       <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-5">More powerful features</h2>

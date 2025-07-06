@@ -59,7 +59,7 @@ export default function DemoPage() {
 
                 {/* Primary Button */}
                 <a
-                 href="/demo#report"
+                 href="/signup"
                 className="w-full sm:w-auto px-10 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-md text-center transition duration-300"
                 >
                 Start Free Trial
@@ -374,41 +374,41 @@ export default function DemoPage() {
         </div>
       </section>
 
-  {/* CTA Section */}       
-         <section className="py-16 bg-indigo-600">
-  <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-    <h2 className="text-2xl lg:text-3xl font-bold text-white mb-5">
-      Experience AI-Powered SEO Reporting Now
-    </h2>
-    <p className="text-base text-indigo-100 mb-8 leading-relaxed">
-      Start your free trial today and generate professional SEO reports in minutes, not hours.
-    </p>
+               {/* CTA Section */}       
+                <section className="py-16 bg-indigo-600">
+                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                 <h2 className="text-3xl lg:text-4xl font-bold text-white mb-5">
+                  Experience AI-Powered SEO Reporting Now
+                 </h2>
+                 <p className="text-base text-indigo-100 mb-8 leading-relaxed">
+                   Start your free trial today and generate professional SEO reports in minutes, not hours.
+                 </p>
 
-    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-      {/* Primary SEO-Friendly CTA */}
-      <a
-        href="/signup"
-        className="inline-flex items-center justify-center bg-white text-indigo-600 hover:bg-gray-100 text-base px-8 py-2 font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
-      >
-        Start Free Trial
-        <ArrowRight className="ml-2 h-5 w-5" />
-      </a>
+                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                   {/* Primary SEO-Friendly CTA */}
+                   <a
+                    href="/signup"
+                     className="inline-flex items-center justify-center bg-white text-indigo-600 hover:bg-gray-100 text-base px-8 py-2 font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                     >
+                       Start Free Trial
+                        <ArrowRight className="ml-2 h-5 w-5" />
+                          </a>
 
-      {/* Secondary SEO-Friendly CTA */}
-      <a
-        href="#sample-report"
-        className="inline-flex items-center justify-center bg-white/10 text-white hover:bg-white hover:text-indigo-600 text-base px-8 py-2 font-semibold rounded-lg border border-white transition-all duration-300"
-      >
-        See Example Report
-      </a>
-    </div>
+                 {/* Secondary SEO-Friendly CTA */}
+                    <a
+                     href="#sample-report"
+                     className="inline-flex items-center justify-center bg-white/10 text-white hover:bg-white hover:text-indigo-600 text-base px-8 py-2 font-semibold rounded-lg border border-white transition-all duration-300"
+                >
+                      See Example Report
+                      </a>
+                      </div>
 
-    {/* Social Proof */}
-    <p className="text-sm text-indigo-100 mt-6">
-      No credit card required. Cancel anytime.
-    </p>
-  </div>
-</section>
+                   {/* Social Proof */}
+                  <p className="text-sm text-indigo-100 mt-6">
+                    No credit card required. Cancel anytime.
+                  </p>
+                  </div>
+                 </section>
 
 
     </div>
