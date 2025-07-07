@@ -221,11 +221,12 @@ export default function HomePage() {
                  <section className="py-12 bg-indigo-600">
                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                      <h2 className="text-3xl lg:text-4xl font-bold text-white mb-5">
-                       Ready to transform your reporting?
+                     
+                       Supercharge your SEO reports with AI – effortlessly.
                      </h2>
                      <p className="text-base text-indigo-100 mb-8 leading-relaxed">
-                      Join thousands of agencies and consultants who trust Sumryze for their client reporting needs.
-                     </p>
+                      Join 1,000+ marketers using Sumryze to automate reporting, impress clients, and reclaim your time.
+                   </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
 

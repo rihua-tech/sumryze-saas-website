@@ -26,12 +26,12 @@ export default function AboutPage() {
 
              
                 {/* CTA Buttons */}
-                <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8 px-4">
+                <div className="flex flex-col sm:flex-row justify-center items-center gap-5 mt-8 px-4">
 
                 {/* Primary Button */}
                  <a
                  href="/pricing"
-                 className="w-full sm:w-auto px-10 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-md text-center transition duration-300"
+                 className="w-full sm:w-auto px-10 py-2 text-base font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-md text-center transition duration-300"
                  aria-label="See pricing plans"
                   >
                   See Plans
@@ -40,17 +40,17 @@ export default function AboutPage() {
                    {/* Secondary Button */}
                    <a
                    href="/contact"
-                   className="w-full sm:w-auto px-8 py-2 text-sm font-semibold text-indigo-600 bg-white border border-indigo-300 hover:bg-gray-50 rounded-lg shadow-sm text-center transition duration-300"
+                   className="w-full sm:w-auto px-8 py-2 text-base font-semibold text-indigo-600 bg-white border border-indigo-300 hover:bg-gray-50 rounded-lg shadow-sm text-center transition duration-300"
                    aria-label="Contact our team"
               >
                   Get in Touch
                  </a>
 
-                </div>            
-
+                </div>              
           </div>
         </div>
       </section>
+
 
       {/* Mission & Vision */}
       <section className=" py-12 bg-white">
@@ -62,21 +62,21 @@ export default function AboutPage() {
               </div>
               <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">Our Mission</h2>
               <p className="text-base text-gray-600 mb-6 leading-relaxed">
-                To empower SEO agencies and consultants with AI-driven reporting tools that save time, deliver deeper
-                insights, and help them scale their businesses while providing exceptional value to their clients.
+                We help businesses scale smarter by automating reporting, uncovering actionable SEO opportunities, and enabling
+                 fully-branded, white-label client deliverables.
               </p>
               <ul className="space-y-4">
                 <li className="flex items-center">
                   <Zap className="h-5 w-5 text-emerald-500 mr-3 flex-shrink-0" />
-                  <span className="text-sm text-gray-700">Automate repetitive reporting tasks</span>
+                  <span className="text-sm text-gray-700"> Automate repetitive SEO reporting tasks</span>
                 </li>
                 <li className="flex items-center">
                   <Zap className="h-5 w-5 text-emerald-500 mr-3 flex-shrink-0" />
-                  <span className="text-base text-gray-700">Provide actionable AI insights</span>
+                  <span className="text-base text-gray-700"> Deliver powerful, data-backed AI insights</span>
                 </li>
                 <li className="flex items-center">
                   <Zap className="h-5 w-5 text-emerald-500 mr-3 flex-shrink-0" />
-                  <span className="text-base text-gray-700">Enable professional white-label solutions</span>
+                  <span className="text-base text-gray-700">Enable professional white-label SEO reports</span>
                 </li>
               </ul>
             </div>
@@ -101,18 +101,17 @@ export default function AboutPage() {
               </div>
               <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">Our Vision</h2>
               <p className="text-base text-gray-600 mb-6 leading-relaxed">
-                To become the global standard for AI-powered SEO reporting, helping thousands of agencies worldwide
-                deliver exceptional results and grow their businesses through intelligent automation and data-driven
-                insights.
+                We aim to set the industry standard for fast, accurate, and beautifully branded SEO performance
+                reports—trusted by agencies worldwide.
               </p>
               <div className="grid grid-cols-2 gap-6">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-indigo-600">5,000+</div>
-                  <div className="text-sm text-gray-600">Reports Generated</div>
+                  <div className="text-2xl font-bold text-indigo-600 mb-2">📈 5,000+</div>
+                  <div className="text-sm text-gray-600">SEO reports generated</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-emerald-600">500+</div>
-                  <div className="text-sm text-gray-600">Happy Agencies</div>
+                  <div className="text-2xl font-bold text-emerald-600 mb-2">🤝 500+ </div>
+                  <div className="text-sm text-gray-600">Happy digital  Agencies</div>
                 </div>
               </div>
             </div>
@@ -136,7 +135,8 @@ export default function AboutPage() {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-4">Customer First</h3>
                 <p className="text-base text-gray-600 leading-relaxed">
-                  Every decision we make is guided by what's best for our customers and their success.
+                  We put our customers at the heart of everything — their goals, their experience, and long-term 
+                  success guide every decision we make.
                 </p>
               </CardContent>
             </Card>
@@ -148,7 +148,7 @@ export default function AboutPage() {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-4">Innovation</h3>
                 <p className="text-base text-gray-600 leading-relaxed">
-                  We continuously push the boundaries of what's possible with AI and automation.
+                  We push the boundaries of what’s possible with AI and SEO automation to deliver smarter, faster, and more insightful reporting.
                 </p>
               </CardContent>
             </Card>
@@ -160,7 +160,8 @@ export default function AboutPage() {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-4">Excellence</h3>
                 <p className="text-base text-gray-600 leading-relaxed">
-                  We strive for excellence in every feature, every report, and every customer interaction.
+                  We hold ourselves to the highest standards — from every feature we build, to every SEO report
+                   we deliver, and every client interaction.
                 </p>
               </CardContent>
             </Card>
@@ -168,63 +169,81 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Team Section */}
-      <section className="pt-5 pb-12 bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-4">
-            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">Meet Our Team</h2>
-            <p className="text-base text-gray-600">The passionate people behind Sumryze</p>
-          </div>
+     
+          
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 text-center">
-              <CardContent className="p-4">
-                <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <span className="text-indigo-600 font-bold text-xl">AS</span>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Alex Smith</h3>
-                <p className="text-indigo-600 font-semibold mb-4">CEO & Founder</p>
-                <p className="text-base text-gray-600 leading-relaxed">
-                  Former SEO agency owner with 10+ years of experience in digital marketing and automation.
-                </p>
-              </CardContent>
-            </Card>
+               {/* Team Section */}  
+<section className="pt-5 pb-12 bg-white">
+  <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="text-center mb-4">
+      <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">Meet Our Team</h2>
+      <p className="text-base text-gray-600">The passionate people behind Sumryze</p>
+    </div>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 text-center">
-              <CardContent className="p-4">
-                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <span className="text-emerald-600 font-bold text-xl">MJ</span>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Maria Johnson</h3>
-                <p className="text-emerald-600 font-semibold mb-4">CTO</p>
-                <p className="text-base text-gray-600 leading-relaxed">
-                  AI and machine learning expert with a passion for building scalable, intelligent systems.
-                </p>
-              </CardContent>
-            </Card>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {/* CEO */}
+      <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 text-center">
+        <CardContent className="p-4">
+          <img
+            src="/images/CEO_Business_Avatar.webp"
+            alt="Alex Smith"
+            className="w-20 h-20 rounded-full mx-auto mb-6 object-cover"
+          />
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Alex Smith</h3>
+          <p className="text-indigo-600 font-semibold mb-4">CEO & Founder</p>
+          <p className="text-base text-gray-600 leading-relaxed">
+            Former SEO agency owner with over 10 years of hands-on experience in digital marketing,
+            automation, and building scalable growth strategies.
+          </p>
+        </CardContent>
+      </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 text-center">
-              <CardContent className="p-4">
-                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <span className="text-purple-600 font-bold text-xl">DL</span>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">David Lee</h3>
-                <p className="text-purple-600 font-semibold mb-4">Head of Product</p>
-                <p className="text-base text-gray-600 leading-relaxed">
-                  Product strategist focused on creating intuitive experiences that solve real business problems.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
+      {/* CTO */}
+      <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 text-center">
+        <CardContent className="p-4">
+          <img
+            src="/images/CTO_Tech_Executive_Avatar.webp"
+            alt="Maria Johnson"
+            className="w-20 h-20 rounded-full mx-auto mb-6 object-cover"
+          />
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Maria Johnson</h3>
+          <p className="text-emerald-600 font-semibold mb-4">CTO</p>
+          <p className="text-base text-gray-600 leading-relaxed">              
+            AI and machine learning expert passionate about building intelligent, scalable systems 
+            that power automated SEO reporting.
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Head of Product */}
+      <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 text-center">
+        <CardContent className="p-4">
+          <img
+            src="/images/Head_of_Product_Avatar.webp"
+            alt="David Lee"
+            className="w-20 h-20 rounded-full mx-auto mb-6 object-cover"
+          />
+          <h3 className="text-xl font-bold text-gray-900 mb-2">David Lee</h3>
+          <p className="text-purple-600 font-semibold mb-4">Head of Product</p>
+          <p className="text-base text-gray-600 leading-relaxed">              
+            Product strategist focused on creating intuitive, user-first experiences that solve real business
+            problems through smart design.
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+</section>
+
+
 
       {/* CTA Section */}
       <section className="py-16 bg-indigo-600">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl lg:text-4xl font-bold text-white mb-5">Ready to join our mission?</h2>
           <p className="text-base text-indigo-100 mb-10 leading-relaxed">
-            Experience the future of SEO reporting and see why agencies worldwide trust Sumryze.
+            Discover how Sumryze is transforming SEO reporting with automation, branding, and AI. 
+            Start your free trial or talk to our team today.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
@@ -241,12 +260,14 @@ export default function AboutPage() {
              <a
              href="/contact"
             className="inline-flex items-center justify-center border border-white text-white hover:bg-white hover:text-indigo-600 text-base px-8 py-2 font-semibold rounded-lg bg-transparent transition-all duration-300" >
-            Contact Sales
+            Contact Us
           </a>
            </div>
 
         </div>
       </section>
+
+
     </div>
   )
 }

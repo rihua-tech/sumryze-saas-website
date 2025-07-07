@@ -27,7 +27,9 @@ export default function ContactPage() {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -48,16 +50,19 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-indigo-50 via-white to-emerald-50 py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="bg-gradient-to-br from-indigo-50 via-white to-emerald-50 py-10">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-             <Badge className="mb-6 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 text-sm px-4 py-2 font-semibold">
+             <Badge 
+               className="mb-4 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 text-xs px-3 py-1.5 font-medium rounded-full shadow-sm transition-all duration-200">  
+              
               💬 Get in Touch
-              </Badge>
-            <h1 className="text-5xl lg:text-6xl font-black text-gray-900 mb-6 leading-tight"> Let’s talk about growing your traffic </h1>
+              </Badge> 
+               <h1 className="text-3xl sm:text-3xl lg:text-4xl font-black text-gray-900 mb-5 leading-tight">
+              Let’s talk about growing your traffic </h1>
                <h2 className="text-3xl lg:text-4xl font-black bg-gradient-to-r from-indigo-600 to-purple-500 bg-clip-text text-transparent mb-8 leading-tight">
               faster, smarter, AI-powered</h2>
-              <p className="text-sm sm:text-base lg:text-lg text-gray-700 mb-12 max-w-3xl mx-auto leading-relaxed">
+                <p className="text-sm sm:text-sm lg:text-sm text-gray-700 mb-8 max-w-3xl mx-auto leading-relaxed">
              Whether you’re an agency, freelancer, or ecom brand — we’ll help you automate SEO reporting, white-label it, and look brilliant to your clients.
             </p>     
 
@@ -83,117 +88,142 @@ export default function ContactPage() {
 
       {/* Contact Form & Info */}
       <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-            {/* Contact Form */}
+           {/* Contact Form */}
+<div id="contact-form">
+  <h2 className="text-3xl font-bold text-gray-900 mb-8">Send us a message</h2>
+
+  {!isSubmitted ? (
+    <Card className="border-0 shadow-xl">
+      <CardContent className="p-8">
+        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+          {/* Honeypot for bots */}
+          <input type="text" name="website" className="hidden" tabIndex={-1} autoComplete="off" />
+
+          {/* Name + Email */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-8">Send us a message</h2>
-
-              {!isSubmitted ? (
-                <Card className="border-0 shadow-xl">
-                  <CardContent className="p-8">
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <Label htmlFor="name">Full Name</Label>
-                          <Input
-                            id="name"
-                            name="name"
-                            type="text"
-                            required
-                            value={formData.name}
-                            onChange={handleInputChange}
-                            className="mt-2"
-                            placeholder="John Doe"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="email">Email Address</Label>
-                          <Input
-                            id="email"
-                            name="email"
-                            type="email"
-                            required
-                            value={formData.email}
-                            onChange={handleInputChange}
-                            className="mt-2"
-                            placeholder="john@company.com"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <Label htmlFor="company">Company Name</Label>
-                        <Input
-                          id="company"
-                          name="company"
-                          type="text"
-                          value={formData.company}
-                          onChange={handleInputChange}
-                          className="mt-2"
-                          placeholder="Your Agency Name"
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="subject">Subject</Label>
-                        <Input
-                          id="subject"
-                          name="subject"
-                          type="text"
-                          required
-                          value={formData.subject}
-                          onChange={handleInputChange}
-                          className="mt-2"
-                          placeholder="How can we help you?"
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="message">Message</Label>
-                        <Textarea
-                          id="message"
-                          name="message"
-                          required
-                          value={formData.message}
-                          onChange={handleInputChange}
-                          className="mt-2 min-h-[120px]"
-                          placeholder="Tell us more about your needs..."
-                        />
-                      </div>
-
-                      <Button
-                        type="submit"
-                        className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold text-lg py-3 shadow-lg hover:shadow-xl transition-all duration-200"
-                        disabled={isLoading}
-                      >
-                        {isLoading ? "Sending..." : "Send Message"}
-                        {!isLoading && <ArrowRight className="ml-2 h-5 w-5" />}
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
-              ) : (
-                <Card className="border-0 shadow-xl">
-                  <CardContent className="p-8 text-center">
-                    <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                      <CheckCircle className="h-8 w-8 text-emerald-600" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-4">Message Sent!</h3>
-                    <p className="text-gray-600 mb-6">
-                      Thank you for reaching out. We'll get back to you within 24 hours.
-                    </p>
-                    <Button
-                      onClick={() => setIsSubmitted(false)}
-                      variant="outline"
-                      className="border-indigo-200 text-indigo-600 hover:bg-indigo-50"
-                    >
-                      Send Another Message
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
+              <Label htmlFor="name"  className="block text-base font-medium text-gray-700 mb-1.5">Full Name</Label>
+              <Input
+                id="name"
+                name="name"
+                type="text"
+                required
+                autoComplete="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                placeholder="John Doe"
+                className="mt-2"
+              />
             </div>
+            <div>
+              <Label htmlFor="email"  className="block text-base font-medium text-gray-700 mb-1.5">Email Address</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                required
+                autoComplete="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="john@company.com"
+                className="mt-2"
+              />
+            </div>
+          </div>
+
+          {/* Company */}
+          <div>
+            <Label htmlFor="company"  className="block text-base font-medium text-gray-700 mb-1.5">Company Name</Label>
+            <Input
+              id="company"
+              name="company"
+              type="text"
+              autoComplete="organization"
+              value={formData.company}
+              onChange={handleInputChange}
+              placeholder="Your Agency Name"
+              className="mt-2"
+            />
+          </div>
+
+          {/* Subject */}
+          <div>
+            <Label htmlFor="subject"  className="block text-base font-medium text-gray-700 mb-1.5">Subject</Label>
+            <select
+              id="subject"
+              name="subject"
+              required
+              value={formData.subject}
+              onChange={handleInputChange}
+              className="mt-2 block w-full rounded-md border border-gray-300 py-2 px-3 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+            >
+              <option value="" disabled>
+                Select a subject
+              </option>
+              <option>General Inquiry</option>
+              <option>Pricing Question</option>
+              <option>Technical Support</option>
+              <option>Partnership Opportunity</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          {/* Message */}
+          <div>
+            <Label htmlFor="message"  className="block text-base font-medium text-gray-700 mb-1.5">Message</Label>
+            <Textarea
+              id="message"
+              name="message"
+              required
+              value={formData.message}
+              onChange={handleInputChange}
+              placeholder="Tell us more about your needs..."
+              className="mt-2 min-h-[140px]"
+            />
+          </div>
+
+          {/* Submit */}
+          <Button
+            type="submit"
+            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold text-lg py-3 shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center"
+            disabled={isLoading}
+            aria-label="Send message"
+          >
+            {isLoading ? (
+              <span className="animate-pulse">Sending...</span>
+            ) : (
+              <>
+                Send Message <ArrowRight className="ml-2 h-5 w-5" />
+              </>
+            )}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  ) : (
+    <Card className="border-0 shadow-xl">
+      <CardContent className="p-8 text-center">
+        <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <CheckCircle className="h-8 w-8 text-emerald-600" />
+        </div>
+        <h3 className="text-2xl font-bold text-gray-900 mb-2">Message Sent!</h3>
+        <p className="text-gray-600 mb-6">Thanks for reaching out — we’ll get back to you within 24 hours.</p>
+        <Button
+          onClick={() => setIsSubmitted(false)}
+          variant="outline"
+          className="border-indigo-200 text-indigo-600 hover:bg-indigo-50"
+        >
+          Send Another Message
+        </Button>
+      </CardContent>
+    </Card>
+  )}
+</div>
+
+
+
 
             {/* Contact Information */}
             <div>
@@ -326,8 +356,11 @@ export default function ContactPage() {
       
       {/* CTA Section */}
       <section className="py-20 bg-indigo-600">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6  leading-relaxed">Ready to automate your SEO reporting with AI?</h2>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+
+          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6  leading-relaxed">
+
+            Ready to automate your SEO reporting with AI?</h2>
           <p className="text-xl text-indigo-100 mb-10 leading-relaxed">
             Join 1,000+ marketers already using Sumryze to save hours every week.
           </p>
