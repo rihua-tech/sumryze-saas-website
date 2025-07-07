@@ -87,12 +87,12 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Form & Info */}
-      <section className="py-20 bg-white">
+      <section className="py-8 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
            {/* Contact Form */}
 <div id="contact-form">
-  <h2 className="text-3xl font-bold text-gray-900 mb-8">Send us a message</h2>
+  <h2 className="text-3xl font-bold text-gray-900 mb-4">Send us a message</h2>
 
   {!isSubmitted ? (
     <Card className="border-0 shadow-xl">
@@ -355,14 +355,15 @@ export default function ContactPage() {
 
       
       {/* CTA Section */}
-      <section className="py-20 bg-indigo-600">
+      <section className="py-16 bg-indigo-600">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
 
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6  leading-relaxed">
+          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-5  leading-relaxed">
 
-            Ready to automate your SEO reporting with AI?</h2>
-          <p className="text-xl text-indigo-100 mb-10 leading-relaxed">
-            Join 1,000+ marketers already using Sumryze to save hours every week.
+            Supercharge your SEO reports with AI – effortlessly
+            </h2>
+          <p className="text-base text-indigo-100 mb-8 leading-relaxed">
+          Join 1,000+ marketers using Sumryze to automate reporting, impress clients, and reclaim your time.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/demo">
