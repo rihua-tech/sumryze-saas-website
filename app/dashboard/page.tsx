@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Plus, FileText, Calendar, TrendingUp, BarChart3, Download, Eye, MoreHorizontal } from "lucide-react"
+import SeoKpiBlock from "@/components/SeoKpiBlock";
+
 
 const recentReports = [
   {
@@ -72,7 +74,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
@@ -90,7 +92,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="border-0 shadow-md">
@@ -153,6 +155,10 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         </div>
+
+
+           {/* ✅ SEO Dashboard KPI Block */}
+      <SeoKpiBlock />
 
         {/* Recent Reports */}
         <Card className="border-0 shadow-md">
