@@ -6,11 +6,24 @@ import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { AffiliateDropdownMenu } from "@/components/ui/AffiliateDropdownMenu";
+import { ChevronDown } from "lucide-react";
+
+
+
 
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
+
+  const user = {
+  role: "Rihua", // temporary mock; replace with real auth data later
+  isAffiliate: false, // or false depending on actual logic
+  isSubscriber: false, // or false depending on actual logic
+}
+
+
 
   const navItems = [
     { href: "/", label: "Home" },
@@ -50,7 +63,7 @@ export function Navigation() {
           </div>
 
           <div className="hidden lg:block">
-            <div className="ml-10flex items-center space-x-6">
+            <div className="ml-10 flex items-center space-x-6">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
@@ -64,23 +77,27 @@ export function Navigation() {
                 </Link>
               ))}
             </div>
-          </div>
-<div className="hidden md:flex items-center space-x-3">
-  <Link href="/login">
-    <Button
-      variant="outline"
-      className="bg-white border border-gray-300 text-gray-900 font-medium text-sm px-5 py-1 rounded-md hover:border-gray-400 hover:bg-gray-100 transition-all"
-    >
-      Login
-    </Button>
-  </Link>
-  <Link href="/signup">
-    <Button
-      className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium text-sm px-6 py-1 rounded-md shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200"
-    >
-      Sign Up
-    </Button>
-  </Link>
+          </div>       
+
+   <div className="hidden md:flex items-center space-x-3">
+
+  {user?.isAffiliate ? (
+    <AffiliateDropdownMenu user={{ ...user, name: user.role }} />
+  ) : (
+    <>
+      <Link href="/login">
+        <Button variant="outline" className="bg-white border border-gray-300 text-gray-900 font-medium">
+          Login
+        </Button>
+      </Link>
+      <Link href="/signup">
+        <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium">
+          Sign Up
+        </Button>
+      </Link>
+    </>
+  )}
+
 </div>
 
          

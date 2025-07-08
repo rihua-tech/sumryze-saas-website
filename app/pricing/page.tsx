@@ -91,7 +91,7 @@ export default function PricingPage() {
             <Badge className="mb-4 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 text-xs px-3 py-1.5 font-medium rounded-full shadow-sm transition-all duration-200">          
               💰 Simple Pricing</Badge>
               
-            <h1 className="text-3xl lg:text-4xl font-black text-gray-900 mb-4 leading-tight">
+            <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-4 leading-tight">
               
              Start Growing with the Right Plan
             </h1>

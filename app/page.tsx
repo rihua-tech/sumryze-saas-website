@@ -36,7 +36,7 @@ export default function HomePage() {
 
 
               {/* ✅ Headline and subheadline keep same size, no change */}
-              <h1 className="text-3xl lg:text-4xl font-black text-gray-900 leading-tight">
+              <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 leading-tight">
                 Automated SEO Reports
               </h1>
 
