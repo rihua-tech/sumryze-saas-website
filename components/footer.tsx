@@ -64,6 +64,7 @@ export function Footer() {
               <li><Link href="/features" className={linkClass("/features")}>Features</Link></li>
               <li><Link href="/pricing" className={linkClass("/pricing")}>Pricing</Link></li>
               <li><Link href="/demo" className={linkClass("/demo")}>Demo</Link></li>
+               <li><Link href="/dashboard1" className={linkClass("/dashboard1")}>Dashboard1</Link></li>
              
             </ul>
           </div>

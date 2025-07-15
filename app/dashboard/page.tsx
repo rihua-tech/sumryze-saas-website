@@ -1,225 +1,146 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { fetchFromAPI } from "@/lib/utils";
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Plus, FileText, Calendar, TrendingUp, BarChart3, Download, Eye, MoreHorizontal } from "lucide-react"
-import SeoKpiBlock from "@/components/SeoKpiBlock";
+import React from "react";
+import TrafficChart from "@/components/dashboard/overview/TrafficChart";
+import KeywordGrowthChart from "@/components/dashboard/overview/KeywordGrowthChart";
+import TopPagesChart from "@/components/dashboard/overview/TopPagesChart";
+import CoreVitalsGauge from "@/components/dashboard/overview/CoreVitalsGauge";
 
 
-const recentReports = [
-  {
-    id: 1,
-    client: "Acme Corp",
-    website: "acmecorp.com",
-    status: "completed",
-    date: "2024-01-15",
-    score: 87,
-    type: "Monthly SEO Report",
-  },
-  {
-    id: 2,
-    client: "TechStart Inc",
-    website: "techstart.io",
-    status: "processing",
-    date: "2024-01-14",
-    score: null,
-    type: "Technical Audit",
-  },
-  {
-    id: 3,
-    client: "Green Solutions",
-    website: "greensolutions.com",
-    status: "completed",
-    date: "2024-01-12",
-    score: 92,
-    type: "Competitor Analysis",
-  },
-  {
-    id: 4,
-    client: "Fashion Forward",
-    website: "fashionforward.com",
-    status: "completed",
-    date: "2024-01-10",
-    score: 78,
-    type: "Monthly SEO Report",
-  },
-]
+// Placeholder visual components — replace with real ones
+const VitalsGauge = () => <div className="h-32 bg-gray-100 rounded-md" />;
+const PieChartLegend = () => <div className="h-32 bg-gray-100 rounded-md" />;
+const StackedBarChart = () => <div className="h-32 bg-gray-100 rounded-md" />;
+const IssueTimeline = () => <div className="h-32 bg-gray-100 rounded-md" />;
 
 export default function DashboardPage() {
-  const [isGenerating, setIsGenerating] = useState(false)
-
-  const handleGenerateReport = () => {
-    setIsGenerating(true)
-    // Simulate report generation
-    setTimeout(() => {
-      setIsGenerating(false)
-    }, 3000)
-  }
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "completed":
-        return <Badge className="bg-emerald-100 text-emerald-700">Completed</Badge>
-      case "processing":
-        return <Badge className="bg-yellow-100 text-yellow-700">Processing</Badge>
-      default:
-        return <Badge className="bg-gray-100 text-gray-700">Unknown</Badge>
-    }
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-              <p className="text-gray-600">Welcome back! Here's what's happening with your reports.</p>
-            </div>
-            <Button
-              onClick={handleGenerateReport}
-              disabled={isGenerating}
-              className="bg-indigo-600 hover:bg-indigo-700"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              {isGenerating ? "Generating..." : "Generate Report"}
-            </Button>
+    <main className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-[1440px] mx-auto space-y-8">
+      {/* AI Summary */}
+      <Card>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">AI Summary</h2>
+          <div className="flex gap-2">
+            <button className="text-sm font-medium px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+              Ask AI Summary
+            </button>
+            <button className="text-sm font-medium px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">
+              Share Report
+            </button>
           </div>
         </div>
-      </div>
+        <ul className="text-sm text-gray-700 list-disc pl-5 space-y-1">
+          <li>+3 Wins this period</li>
+          <li>+3 Warnings / Red Flags</li>
+          <li>"Traffic dropped 12% — top reason: organic loss on 3 key pages"</li>
+        </ul>
+      </Card>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="border-0 shadow-md">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Reports</p>
-                  <p className="text-3xl font-bold text-gray-900">24</p>
-                </div>
-                <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                  <FileText className="h-6 w-6 text-indigo-600" />
-                </div>
-              </div>
-              <p className="text-sm text-emerald-600 mt-2">+12% from last month</p>
-            </CardContent>
-          </Card>
+      {/* KPI Cards */}
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <KPI title="SEO Score" value="78/100" delta="+6" />
+        <KPI title="Top Performing Pages" value="5" delta="+2" />
+        <KPI title="Conversions" value="3.4%" delta="-1%" />
+        <KPI title="Revenue" value="$12,847" delta="+15%" />
+      </section>
 
-          <Card className="border-0 shadow-md">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Active Clients</p>
-                  <p className="text-3xl font-bold text-gray-900">8</p>
-                </div>
-                <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-emerald-600" />
-                </div>
-              </div>
-              <p className="text-sm text-emerald-600 mt-2">+2 new this month</p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-md">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Avg. SEO Score</p>
-                  <p className="text-3xl font-bold text-gray-900">85</p>
-                </div>
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <BarChart3 className="h-6 w-6 text-purple-600" />
-                </div>
-              </div>
-              <p className="text-sm text-emerald-600 mt-2">+3 points improved</p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-md">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">This Month</p>
-                  <p className="text-3xl font-bold text-gray-900">6</p>
-                </div>
-                <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                  <Calendar className="h-6 w-6 text-yellow-600" />
-                </div>
-              </div>
-              <p className="text-sm text-gray-600 mt-2">Reports generated</p>
-            </CardContent>
-          </Card>
-        </div>
-
-
-           {/* ✅ SEO Dashboard KPI Block */}
-      <SeoKpiBlock />
-
-        {/* Recent Reports */}
-        <Card className="border-0 shadow-md">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>Recent Reports</span>
-              <Button variant="outline" size="sm">
-                View All
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recentReports.map((report) => (
-                <div key={report.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                      <FileText className="h-5 w-5 text-indigo-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{report.client}</h3>
-                      <p className="text-sm text-gray-600">
-                        {report.website} • {report.type}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-4">
-                    {getStatusBadge(report.status)}
-                    {report.score && (
-                      <div className="text-right">
-                        <p className="font-semibold text-gray-900">{report.score}</p>
-                        <p className="text-xs text-gray-600">SEO Score</p>
-                      </div>
-                    )}
-                    <div className="text-right">
-                      <p className="text-sm text-gray-900">{new Date(report.date).toLocaleDateString()}</p>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      {report.status === "completed" && (
-                        <>
-                          <Button variant="ghost" size="sm">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <Download className="h-4 w-4" />
-                          </Button>
-                        </>
-                      )}
-                      <Button variant="ghost" size="sm">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
+      {/* Main Data Grid */}
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card >
+          <TrafficChart />
         </Card>
+
+        <Card>
+          <KeywordGrowthChart />
+        </Card>
+
+        
+
+           <Card>
+             <TopPagesChart />
+           </Card>
+
+        <Card >
+          <CoreVitalsGauge />
+        </Card>
+
+        <Card title="Traffic by Channel">
+          <PieChartLegend />
+        </Card>
+
+        <Card title="AI Quick Fixes">
+          <ul className="space-y-3">
+            <QuickFixItem title="Fix Page Speed" impact="High" score="+15%" time="~2h" />
+            <QuickFixItem title="Add Meta Descriptions" impact="Medium" score="+8%" time="~1h" />
+          </ul>
+        </Card>
+      </section>
+
+      {/* Bottom Section */}
+      <section className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <Card title="Ranking Distribution">
+          <StackedBarChart />
+        </Card>
+        <Card title="Issue Timeline">
+          <IssueTimeline />
+        </Card>
+      </section>
+
+      {/* Footer CTA */}
+      <div className="flex flex-wrap gap-3 justify-center mt-6">
+        <button className="px-5 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 text-sm">
+          Download Full Report
+        </button>
+        <button className="px-5 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 text-sm">
+          Go to Technical Dashboard
+        </button>
+      </div>
+    </main>
+  );
+}
+
+// ✅ Reusable KPI Card
+function KPI({ title, value, delta }: { title: string; value: string; delta: string }) {
+  const isPositive = delta.startsWith("+");
+  return (
+    <Card>
+      <div className="text-sm text-gray-500">{title}</div>
+      <div className="text-2xl font-bold text-gray-900">{value}</div>
+      <div className={`text-xs mt-1 ${isPositive ? "text-green-600" : "text-red-500"}`}>
+        {isPositive ? "▲" : "▼"} {delta}
+      </div>
+    </Card>
+  );
+}
+
+// ✅ Generic Card Wrapper with Consistent Border
+function Card({ title, children }: { title?: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 space-y-3">
+      {title && <h3 className="text-sm font-semibold text-gray-800">{title}</h3>}
+      {children}
+    </div>
+  );
+}
+
+// ✅ Quick Fix Item
+function QuickFixItem({ title, impact, score, time }: { title: string; impact: string; score: string; time: string }) {
+  return (
+    <div className="bg-gray-50 p-3 rounded-lg flex flex-col gap-1 border border-gray-200">
+      <div className="flex justify-between text-sm font-medium text-gray-800">
+        <span>{title}</span>
+        <span
+          className={`text-xs font-semibold ${
+            impact === "High" ? "text-red-600" : impact === "Medium" ? "text-yellow-600" : "text-gray-500"
+          }`}
+        >
+          {impact} Impact
+        </span>
+      </div>
+      <div className="text-xs text-gray-500 flex justify-between">
+        <span>{score} SEO</span>
+        <span>{time}</span>
       </div>
     </div>
-  )
+  );
 }
