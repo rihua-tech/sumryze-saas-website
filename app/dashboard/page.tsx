@@ -1,20 +1,30 @@
 "use client";
 
+import AISuggestions from "@/components/dashboard/AISuggestions";
+
 import dynamic from "next/dynamic";
 import React from "react";
 
 
 // Placeholder visual components — replace with real ones
 const TrafficChart = dynamic(() => import("@/components/dashboard/overview/TrafficChart"), { ssr: false });
+const CoreVitalsGauge = dynamic(() => import("@/components/dashboard/overview/CoreVitalsGauge"), { ssr: false });
 const KeywordGrowthChart = dynamic(() => import("@/components/dashboard/overview/KeywordGrowthChart"), { ssr: false });
 const TopPagesChart = dynamic(() => import("@/components/dashboard/overview/TopPagesChart"), { ssr: false });
-const CoreVitalsGauge = dynamic(() => import("@/components/dashboard/overview/CoreVitalsGauge"), { ssr: false });
+const TrafficByChannel = dynamic(() => import("@/components/dashboard/overview/TrafficByChannel"), { ssr: false });
+const BacklinkSummary = dynamic(() => import("@/components/dashboard/overview/BacklinkSummary"), { ssr: false });
+const ConversionFunnel = dynamic(() => import("@/components/dashboard/overview/ConversionFunnel"), { ssr: false });
+
 
 
 const VitalsGauge = () => <div className="h-32 bg-gray-100 rounded-md" />;
 const PieChartLegend = () => <div className="h-32 bg-gray-100 rounded-md" />;
 const StackedBarChart = () => <div className="h-32 bg-gray-100 rounded-md" />;
-const IssueTimeline = () => <div className="h-32 bg-gray-100 rounded-md" />;
+
+
+
+
+const AIinsights = () => <div className="h-32 bg-gray-100 rounded-md" />;
 
 export default function DashboardPage() {
   return (
@@ -52,43 +62,54 @@ export default function DashboardPage() {
        
 
         <Card>
-  <TrafficChart />
-</Card>
-
-<Card>
-  <KeywordGrowthChart />
-</Card>
-
-<Card>
-  <TopPagesChart />
-</Card>
-
-<Card>
-  <CoreVitalsGauge />
-</Card>
-
-
-        <Card title="Traffic by Channel">
-          <PieChartLegend />
+        <TrafficChart />
         </Card>
 
-        <Card title="AI Quick Fixes">
+
+      <Card>
+      <KeywordGrowthChart />
+      </Card>
+
+      <Card title="AI Suggestions">
+        <AIinsights />
+      </Card>
+
+      <Card>
+      <CoreVitalsGauge />
+      </Card>
+
+
+        <Card >
+          <TrafficByChannel />
+        </Card>
+
+        <Card title="AI Predictions">
           <ul className="space-y-3">
             <QuickFixItem title="Fix Page Speed" impact="High" score="+15%" time="~2h" />
             <QuickFixItem title="Add Meta Descriptions" impact="Medium" score="+8%" time="~1h" />
           </ul>
         </Card>
+
+        <Card>
+       <TopPagesChart />
+         </Card>
+
+
+        <Card >
+         <BacklinkSummary />
+         </Card>
+         
+
+         <Card >
+          <ConversionFunnel />
+         </Card>
+
+
       </section>
 
-      {/* Bottom Section */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <Card title="Ranking Distribution">
-          <StackedBarChart />
-        </Card>
-        <Card title="Issue Timeline">
-          <IssueTimeline />
-        </Card>
-      </section>
+     
+
+
 
       {/* Footer CTA */}
       <div className="flex flex-wrap gap-3 justify-center mt-6">

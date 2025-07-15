@@ -36,7 +36,7 @@ export default function CoreWebVitalsChart() {
 
   return (
     <div className="p-4">
-      <h3 className="text-md font-semibold text-gray-900 mb-4">
+      <h3 className="text-md font-semibold text-gray-900 mb-14">
         Core Web Vitals
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -103,7 +103,7 @@ export default function CoreWebVitalsChart() {
                 options={options}
                 series={[percent]}
                 type="radialBar"
-                height={180}
+                height={150}
               />
               <p className="text-sm text-gray-600 mt-1">
                 {vital.value}
