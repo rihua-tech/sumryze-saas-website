@@ -1,13 +1,16 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import React from "react";
-import TrafficChart from "@/components/dashboard/overview/TrafficChart";
-import KeywordGrowthChart from "@/components/dashboard/overview/KeywordGrowthChart";
-import TopPagesChart from "@/components/dashboard/overview/TopPagesChart";
-import CoreVitalsGauge from "@/components/dashboard/overview/CoreVitalsGauge";
 
 
 // Placeholder visual components — replace with real ones
+const TrafficChart = dynamic(() => import("@/components/dashboard/overview/TrafficChart"), { ssr: false });
+const KeywordGrowthChart = dynamic(() => import("@/components/dashboard/overview/KeywordGrowthChart"), { ssr: false });
+const TopPagesChart = dynamic(() => import("@/components/dashboard/overview/TopPagesChart"), { ssr: false });
+const CoreVitalsGauge = dynamic(() => import("@/components/dashboard/overview/CoreVitalsGauge"), { ssr: false });
+
+
 const VitalsGauge = () => <div className="h-32 bg-gray-100 rounded-md" />;
 const PieChartLegend = () => <div className="h-32 bg-gray-100 rounded-md" />;
 const StackedBarChart = () => <div className="h-32 bg-gray-100 rounded-md" />;
@@ -46,23 +49,24 @@ export default function DashboardPage() {
 
       {/* Main Data Grid */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card >
-          <TrafficChart />
-        </Card>
+       
 
         <Card>
-          <KeywordGrowthChart />
-        </Card>
+  <TrafficChart />
+</Card>
 
-        
+<Card>
+  <KeywordGrowthChart />
+</Card>
 
-           <Card>
-             <TopPagesChart />
-           </Card>
+<Card>
+  <TopPagesChart />
+</Card>
 
-        <Card >
-          <CoreVitalsGauge />
-        </Card>
+<Card>
+  <CoreVitalsGauge />
+</Card>
+
 
         <Card title="Traffic by Channel">
           <PieChartLegend />
