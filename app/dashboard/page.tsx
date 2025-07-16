@@ -1,6 +1,6 @@
 "use client";
 
-import AISuggestions from "@/components/dashboard/AISuggestions";
+import AISuggestions from "@/components/dashboard/AISuggestions0";
 
 import dynamic from "next/dynamic";
 import React from "react";
@@ -14,6 +14,11 @@ const TopPagesChart = dynamic(() => import("@/components/dashboard/overview/TopP
 const TrafficByChannel = dynamic(() => import("@/components/dashboard/overview/TrafficByChannel"), { ssr: false });
 const BacklinkSummary = dynamic(() => import("@/components/dashboard/overview/BacklinkSummary"), { ssr: false });
 const ConversionFunnel = dynamic(() => import("@/components/dashboard/overview/ConversionFunnel"), { ssr: false });
+const AIPredictions = dynamic(() => import("@/components/dashboard/overview/AIPredictions"), { ssr: false });
+const AISuggestions = dynamic(() => import("@/components/dashboard/overview/AISuggestions"), { ssr: false });
+
+
+
 
 
 
@@ -70,8 +75,8 @@ export default function DashboardPage() {
       <KeywordGrowthChart />
       </Card>
 
-      <Card title="AI Suggestions">
-        <AIinsights />
+      <Card >
+        <AISuggestions />
       </Card>
 
       <Card>
@@ -83,11 +88,8 @@ export default function DashboardPage() {
           <TrafficByChannel />
         </Card>
 
-        <Card title="AI Predictions">
-          <ul className="space-y-3">
-            <QuickFixItem title="Fix Page Speed" impact="High" score="+15%" time="~2h" />
-            <QuickFixItem title="Add Meta Descriptions" impact="Medium" score="+8%" time="~1h" />
-          </ul>
+        <Card >
+         <AIPredictions />
         </Card>
 
         <Card>

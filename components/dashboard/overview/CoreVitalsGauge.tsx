@@ -57,7 +57,7 @@ export default function CoreWebVitalsChart() {
             },
             plotOptions: {
               radialBar: {
-                hollow: { size: "65%" },
+                hollow: { size: "60%" },
                 track: { background: "#f3f4f6" },
                 dataLabels: {
                   name: {

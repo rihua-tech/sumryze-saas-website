@@ -7,7 +7,7 @@ import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import QuickSetup from "@/components/dashboard/QuickSetup";
-import AISuggestions from "@/components/dashboard/AISuggestions";
+import AISuggestions from "@/components/dashboard/AISuggestions0";
 import { AvatarDropdown } from "@/components/dashboard/AvatarDropdown"
 import FixGuideModal from "@/components/dashboard/FixGuideModal";
 
