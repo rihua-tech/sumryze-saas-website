@@ -8,11 +8,11 @@ export default function AIPredictions() {
   const forecastValue = "+22%";
   const forecastLabel = "Traffic Growth (Next 30 Days)";
 
-  // ✅ Chart Configuration
+  // ✅ Chart Options
   const chartOptions: ApexCharts.ApexOptions = {
     chart: {
       type: "area",
-      sparkline: { enabled: true },
+      sparkline: { enabled: true }, // ✅ Minimal design
     },
     stroke: {
       curve: "smooth",
@@ -23,17 +23,27 @@ export default function AIPredictions() {
       gradient: {
         shade: "light",
         type: "vertical",
-        shadeIntensity: 0.8,
+        shadeIntensity: 0.5,
         gradientToColors: ["#ffffff"],
         inverseColors: false,
-        opacityFrom: 0.6,
-        opacityTo: 0.2,
+        opacityFrom: 0.5,
+        opacityTo: 0.1,
         stops: [0, 100],
       },
     },
-    colors: ["#4f46e5"], // Indigo (brand color)
+    colors: ["#4f46e5"], // Indigo color
     tooltip: {
-      enabled: true,
+      enabled: true, // ✅ Enable hover tooltips
+      theme: "light",
+      y: {
+        formatter: (value) => `${value.toLocaleString()} Visitors`, // Show formatted value
+      },
+    },
+    markers: {
+      size: 0,
+      hover: {
+        size: 6, // Show marker on hover
+      },
     },
   };
 
@@ -68,17 +78,17 @@ export default function AIPredictions() {
   return (
     <div className="p-6">
       {/* Title */}
-      <h3 className="text-lg font-semibold text-gray-900 mb-10">AI Predictions</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-6">AI Predictions</h3>
 
       {/* Highlight */}
       <div className="text-center mb-4">
-        <p className="text-xl font-bold text-green-600">{forecastValue}</p>
-        <p className="text-xs text-gray-500">{forecastLabel}</p>
+        <p className="text-2xl font-bold text-green-600">{forecastValue}</p>
+        <p className="text-sm text-gray-500">{forecastLabel}</p>
       </div>
 
       {/* Chart */}
-      <div className="mb-5">
-        <Chart options={chartOptions} series={chartSeries} type="area" height={110} />
+      <div className="mb-6">
+        <Chart options={chartOptions} series={chartSeries} type="area" height={130} />
       </div>
 
       {/* Metrics */}
