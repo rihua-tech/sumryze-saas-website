@@ -15,61 +15,67 @@ export default function TrafficByChannel() {
   const totalTraffic = data.series.reduce((a, b) => a + b, 0);
 
   // Chart Options
-  const options: ApexCharts.ApexOptions = {
-    chart: {
-      type: "donut",
-      sparkline: { enabled: false },
+ const options: ApexCharts.ApexOptions = {
+  chart: {
+    type: "donut",
+    sparkline: { enabled: false },
+  },
+  labels: data.labels,
+  colors: data.colors,
+  legend: { show: false }, // We'll build custom legend below
+  dataLabels: {
+    enabled: true,
+    formatter: (val: number) => `${val.toFixed(1)}%`,
+    style: { fontSize: "10px", fontWeight: 600 },
+  },
+  tooltip: {
+    y: {
+      formatter: (val: number) => `${val.toLocaleString()} visits`,
     },
-    labels: data.labels,
-    colors: data.colors,
-    legend: { show: false }, // We'll build custom legend below
-    dataLabels: {
-      enabled: true,
-      formatter: (val: number) => `${val.toFixed(1)}%`,
-      style: { fontSize: "12px", fontWeight: 600 },
-    },
-    tooltip: {
-      y: {
-        formatter: (val: number) => `${val.toLocaleString()} visits`,
-      },
-    },
-    plotOptions: {
-      pie: {
-        donut: {
-          size: "55%", // Thinner inner ring for readability
-          labels: {
+  },
+  plotOptions: {
+    pie: {
+      donut: {
+        size: "55%",
+        labels: {
+          show: true,
+          name: {
+            show: true, // We don't need extra name because "Total" is shown
+          },
+          value: {
+          show: true, // Hide default value to use custom total  
+          fontSize: "18px",
+          fontWeight: 700,
+          color: "#111827", // Gray-900
+
+          offsetY: -5, // Move it closer DOWN
+        
+          },
+          total: {
             show: true,
-            name: {
-              show: true,
-              offsetY: -10,
-              fontSize: "14px",
-              color: "#6B7280",
-              formatter: () => "Total",
-            },
-            value: {
-              show: true,
-              fontSize: "18px",
-              fontWeight: 600,
-              color: "#374151",
-              offsetY: 10,
-              formatter: () => totalTraffic.toLocaleString(),
-            },
+            label: "Total",
+            fontSize: "14px",
+            fontWeight: 500,
+            color: "#6B7280",
+            formatter: () => totalTraffic.toLocaleString(),
           },
         },
       },
     },
-  };
+  },
+};
+
 
   return (
     <div className=" p-5 flex flex-col gap-4">
       {/* Title */}
-      <h3 className="text-base font-semibold text-gray-800 mb-2">Traffic by Channel</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-3">Traffic by Channel</h3>
 
       {/* Donut Chart */}
       <Chart options={options} series={data.series} type="donut" height={200} />
 
       {/* Custom Legend with Stats */}
-      <div className="mt-3 flex flex-col gap-2 text-xs">
+      <div className="mt-1 flex flex-col gap-2 text-xs">
         {data.labels.map((label, i) => (
           <div key={i} className="flex justify-between items-center border-b last:border-none pb-2 last:pb-0">
             {/* Left: Label with color dot */}

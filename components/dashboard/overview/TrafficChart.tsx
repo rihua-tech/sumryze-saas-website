@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Chart from "react-apexcharts";
+import { ApexOptions } from "apexcharts";
 
 const TrafficChart = () => {
   const [activeTab, setActiveTab] = useState("weekly");
@@ -27,14 +28,13 @@ const TrafficChart = () => {
     },
   ];
 
-  const options = {
+  const options: ApexOptions = {
     chart: {
       type: "area",
       toolbar: { show: false },
       zoom: { enabled: false },
       animations: {
         enabled: true,
-        easing: "easeinout",
         speed: 800,
         animateGradually: { enabled: true, delay: 150 },
         dynamicAnimation: { enabled: true, speed: 350 },
@@ -117,7 +117,7 @@ const TrafficChart = () => {
   {/* Title and Toggle aligned in one row */}
   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
     {/* Left: Title */}
-    <h3 className="text-md font-semibold text-gray-900">Traffic Overview</h3>
+    <h3 className="text-lg font-semibold text-gray-900">Traffic Overview</h3>
 
     {/* Right: Toggle */}
     <div className="flex gap-2 text-sm justify-end mt-2 sm:mt-0">

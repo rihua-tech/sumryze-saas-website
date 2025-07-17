@@ -2,6 +2,7 @@
 
 import React from "react";
 import Chart from "react-apexcharts";
+import { ApexOptions } from "apexcharts";
 
 export default function ConversionFunnel() {
   const stages = ["Traffic", "Leads", "Conversions"];
@@ -83,7 +84,7 @@ export default function ConversionFunnel() {
   return (
     <div className="p-5 flex flex-col gap-4">
       {/* Title */}
-      <h3 className="text-sm font-semibold text-gray-800 mb-2">
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">
         Conversion Funnel
       </h3>
 

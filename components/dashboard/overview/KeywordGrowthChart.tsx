@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Chart from "react-apexcharts";
+import { ApexOptions } from "apexcharts";
 
 
 export default function KeywordGrowthChart() {
@@ -12,14 +13,14 @@ export default function KeywordGrowthChart() {
     },
   ]);
 
-  const [options] = useState({
+ 
+ const [options] = useState<ApexOptions>({
     chart: {
       type: "area",
       toolbar: { show: false },
       zoom: { enabled: false },
       animations: {
         enabled: true,
-        easing: "easeinout",
         speed: 800,
         animateGradually: { enabled: true, delay: 150 },
         dynamicAnimation: { enabled: true, speed: 350 },
@@ -101,7 +102,7 @@ export default function KeywordGrowthChart() {
 
   return (
     <div className="p-4">
-      <h3 className="text-md font-semibold text-gray-900 mb-2">Keyword Growth</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">Keyword Growth</h3>
       <Chart options={options} series={series} type="area" height={260} />
     </div>
   );

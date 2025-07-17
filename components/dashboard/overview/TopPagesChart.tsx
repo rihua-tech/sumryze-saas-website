@@ -68,7 +68,7 @@ export default function TopPagesChart() {
 
   return (
     <div className="p-4 flex flex-col gap-4">
-      <h3 className="text-sm font-semibold text-gray-800 mb-4">Top Pages</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Pages</h3>
 
       {/* ApexChart */}
       <Chart options={options} series={series} type="bar" height={250} />

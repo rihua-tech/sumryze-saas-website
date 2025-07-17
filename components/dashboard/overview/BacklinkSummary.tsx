@@ -49,7 +49,7 @@ export default function BacklinkSummary() {
     <div className="p-4 flex flex-col gap-4">
       {/* Header */}
       <div className="flex justify-between mb-6 items-center">
-        <h3 className="text-sm font-semibold text-gray-800">Backlink Summary</h3>
+        <h3 className="text-lg font-semibold text-gray-900">Backlink Summary</h3>
         <select className="text-xs border border-gray-300 rounded-md px-2 py-1 text-gray-600">
           <option>Last 90 Days</option>
           <option>Last 30 Days</option>

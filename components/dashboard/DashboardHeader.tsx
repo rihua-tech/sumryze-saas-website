@@ -71,44 +71,7 @@ export default function DashboardHeader() {
               <option>Last Month</option>
             </select>
 
-            {/* Ask AI Button */}
-            <button
-              onClick={handleAskAI}
-              disabled={loading}
-              className={`text-sm font-medium flex items-center gap-2 px-4 py-2 rounded-xl transition shadow-md w-full sm:w-auto justify-center
-                ${
-                  loading
-                    ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                    : "bg-gradient-to-br from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700"
-                }`}
-            >
-              {loading ? (
-                <svg
-                  className="animate-spin h-4 w-4 text-white"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                    fill="none"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                  />
-                </svg>
-              ) : (
-                <>
-                  <AutoAwesomeIcon fontSize="small" />
-                  <span>Ask AI</span>
-                </>
-              )}
-            </button>
+            
           </div>
 
           {/* Right: Avatar Only */}
