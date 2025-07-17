@@ -12,7 +12,7 @@ export default function AIPredictions() {
   const chartOptions: ApexCharts.ApexOptions = {
     chart: {
       type: "area",
-      sparkline: { enabled: false },
+      sparkline: { enabled: true },
     },
     stroke: {
       curve: "smooth",
