@@ -6,6 +6,7 @@ import { useState } from "react";
 import { AvatarDropdown } from "@/components/dashboard/AvatarDropdown";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 
+
 export default function DashboardHeader() {
   const [client, setClient] = useState("Client A");
   const [dateRange, setDateRange] = useState("Last 30 days");

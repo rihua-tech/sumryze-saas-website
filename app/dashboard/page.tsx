@@ -22,7 +22,7 @@ export default function DashboardPage() {
   const [shareModalOpen, setShareModalOpen] = React.useState(false);
 
   return (
-    <main className="px-4 sm:px-6 lg:px-8 w-full max-w-[1440px] mx-auto space-y-6">
+    <main className="px-4 sm:px-6 lg:px-8 w-full max-w-[1440px] mx-auto mb-10 space-y-6">
       {/* ✅ AI Summary Section */}
       <AISummary />
 

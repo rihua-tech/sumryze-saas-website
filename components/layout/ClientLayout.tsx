@@ -17,8 +17,10 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
       <main className="min-h-screen">{children}</main>
 
-      {/* Always show Footer */}
-      <Footer />
+        {/* Show Footer only if NOT dashboard */}
+      {!isDashboard && <Footer />}
+
+      
     </>
   )
 }
