@@ -1,8 +1,13 @@
 "use client";
 
 import React from "react";
-import Chart from "react-apexcharts";
 import { useTheme } from "next-themes";
+import dynamic from "next/dynamic";
+
+// ✅ Load ApexCharts dynamically (no SSR)
+const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
+
+
 
 export default function CoreWebVitalsChart() {
   const { theme } = useTheme();

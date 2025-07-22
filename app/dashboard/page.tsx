@@ -2,9 +2,7 @@
 
 import { useState } from "react"
 import { ThemeProvider } from "next-themes"
-import Header from "./components/header"
-import Sidebar from "./components/sidebar"
-import Footer from "./components/footer"
+
 import { RefreshCw, TrendingUp, TrendingDown, BarChart3, ArrowRight, ExternalLink, Download } from "lucide-react"
 
 import CoreWebVitals from "./components/overview/CoreWebVitals"
@@ -43,16 +41,15 @@ export default function Dashboard() {
   const recommendation = "consider optimizing page speed and meta descriptions"
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+    
       <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-        {/* Header */}
-        <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
+        
+       
 
-        {/* Sidebar */}
-        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+    
 
         {/* Main Content */}
-        <main className="flex-1 lg:ml-64 pt-16 transition-colors">
+        <main className="flex-1  pt-16 transition-colors">
           <div className="max-w-7xl mx-auto px-6 py-6 space-y-8">
           
 
@@ -658,8 +655,7 @@ export default function Dashboard() {
         
         </main>
 
-        {/* Footer */}
-        <Footer />
+          
 
         {/* Mobile Sidebar Overlay */}
         {sidebarOpen && (
@@ -669,6 +665,6 @@ export default function Dashboard() {
           />
         )}
       </div>
-    </ThemeProvider>
+  
   )
 }

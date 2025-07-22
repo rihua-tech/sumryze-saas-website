@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 
-export default function ClientLayout({ children }: { children: React.ReactNode }) {
+export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isDashboard = pathname.startsWith("/dashboard")
 
@@ -18,7 +18,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       <main className="min-h-screen">{children}</main>
 
         {/* Show Footer only if NOT dashboard */}
-      {!isDashboard && <Footer />}
+      {!isDashboard && <Footer/>}
 
       
     </>
