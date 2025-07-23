@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ThemeProvider } from "next-themes"
+
 
 import { RefreshCw, TrendingUp, TrendingDown, BarChart3, ArrowRight, ExternalLink, Download } from "lucide-react"
 
@@ -42,68 +42,48 @@ export default function Dashboard() {
 
   return (
     
-      <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-        
-       
+   <div className="px-5 py-5 space-y-8">
 
-    
+                {/* AI Insights Banner */}
+      <div className="bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl p-6 text-white shadow-lg flex flex-col gap-4">
+        <div className="flex justify-between items-start">
+          <h2 className="text-lg font-semibold flex items-center gap-2">
+            <span className="text-xl">✨</span> AI Insights
+          </h2>
+          <div className="flex items-center gap-4">
+            <button className="px-5 py-2 rounded-lg text-white font-medium bg-gradient-to-r from-pink-500 to-purple-500 hover:scale-105 hover:shadow-lg transition-all duration-300">
+              Ask AI
+            </button>
+            <Button variant="ghost" size="sm" className="text-white hover:bg-white/20 transition-all duration-300">
+              <Share className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="sm" className="text-white hover:bg-white/20 transition-all duration-300">
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+        <p className="text-white text-base font-medium leading-relaxed">
+          <span className="font-semibold">Your SEO score improved by </span>
+          <span className="text-green-300 font-bold">+{positiveChange}</span> this week.<br />
+          <span className="font-semibold">But traffic dropped </span>
+          <span className="text-red-300 font-bold">{negativeChange}%</span> on {affectedPages} key pages — 
+          <span className="text-indigo-100 font-semibold"> {recommendation}</span>.
+        </p>
+        <div className="flex flex-wrap gap-2 mt-3">
+          <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold shadow-sm hover:scale-105">
+            ✅ +3 Wins
+          </div>
+          <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-semibold shadow-sm hover:scale-105">
+            ⚠️ 3 Warnings
+          </div>
+          <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold shadow-sm hover:scale-105">
+            📉 Traffic -12%
+          </div>
+        </div>
+      </div> 
 
-        {/* Main Content */}
-        <main className="flex-1  pt-16 transition-colors">
-          <div className="max-w-7xl mx-auto px-6 py-6 space-y-8">
-          
 
 
-
-{/* AI Insights Banner */}
-<div className="bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl p-6 text-white shadow-lg flex flex-col gap-4">
-  {/* Title & Buttons */}
-  <div className="flex justify-between items-start">
-    <h2 className="text-lg font-semibold flex items-center gap-2">
-      <span className="text-xl">✨</span> AI Insights
-    </h2>
-   
-
-<div className="flex items-center gap-4">
-  {/* Ask AI Button */}
-  <button className="px-5 py-2 rounded-lg text-white font-medium bg-gradient-to-r from-pink-500 to-purple-500 hover:scale-105 hover:shadow-lg transition-all duration-300">
-    Ask AI
-  </button>
-
-  <Button variant="ghost" size="sm" className="text-white hover:bg-white/20 transition-all duration-300">
-                  <Share className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="sm" className="text-white hover:bg-white/20 transition-all duration-300">
-                  <RefreshCw className="h-4 w-4" />
-                </Button>
-
-</div>
-
-  </div>
-
-  {/* Summary Text */}
-  {/* Summary Text */}
-  <p className="text-white text-base font-medium leading-relaxed">
-    <span className="font-semibold">Your SEO score improved by </span>
-    <span className="text-green-300 font-bold">+{positiveChange}</span> this week.<br />
-    <span className="font-semibold">But traffic dropped </span>
-    <span className="text-red-300 font-bold">{negativeChange}%</span> on {affectedPages} key pages — 
-    <span className="text-indigo-100 font-semibold"> {recommendation}</span>.
-  </p>
-
-  {/* Badges */}
-  <div className="flex flex-wrap gap-2 mt-3">
-    <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold shadow-sm cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-md hover:bg-green-200">
-      ✅ +3 Wins
-    </div>
-    <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-semibold shadow-sm cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-md hover:bg-yellow-200">
-      ⚠️ 3 Warnings
-    </div>
-    <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold shadow-sm cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-md hover:bg-red-200">
-      📉 Traffic -12%
-    </div>
-  </div>
-</div>
 
 
             {/* Section 2: Key Performance Metrics */}
@@ -393,8 +373,8 @@ export default function Dashboard() {
 
 
     
-  {/* Core Web Vitals + Traffic by Channel */}
-<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+    {/* Core Web Vitals + Traffic by Channel */}
+   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch"> 
   {/* Core Web Vitals Card */}
   <motion.div
     initial={{ opacity: 0, y: 20 }}
@@ -476,15 +456,15 @@ export default function Dashboard() {
         </div>
       </CardContent>
     </Card>
-  </motion.div>
-</div>
+    </motion.div>
+    </div>
 
       
       
       
       
       
-               
+           
 
                 {/* AI Predictions Banner */}
       <motion.div
@@ -520,8 +500,8 @@ export default function Dashboard() {
       </motion.div>
 
 
-{/* Bottom Cards Section */}
-<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+   {/* Bottom Cards Section */}
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
   {/* Card 1: Top Pages */}
   <motion.div
     initial={{ opacity: 0, y: 20 }}
@@ -615,9 +595,9 @@ export default function Dashboard() {
           ))}
         </div>
       </CardContent>
-    </Card>
-  </motion.div>
-</div>
+      </Card>
+      </motion.div>
+    </div>
 
           
             
@@ -651,20 +631,16 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-          </div>
         
-        </main>
+        
+          
+      
 
           
-
-        {/* Mobile Sidebar Overlay */}
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden transition-opacity"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-      </div>
-  
+            {sidebarOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
+      )}
+    </div>
   )
 }
+       

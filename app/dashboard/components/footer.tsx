@@ -1,155 +1,82 @@
-import { Globe } from "lucide-react"
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import { Globe, TrendingUp } from "lucide-react";
 
 export default function Footer() {
+  const [selectedLanguage, setSelectedLanguage] = useState("EN");
+  const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
+  const languageDropdownRef = useRef<HTMLDivElement>(null);
+
+  const languageOptions = [
+    { code: "EN", name: "English" },
+    { code: "ES", name: "Español" },
+    { code: "FR", name: "Français" },
+    { code: "DE", name: "Deutsch" },
+  ];
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (languageDropdownRef.current && !languageDropdownRef.current.contains(event.target as Node)) {
+        setIsLanguageDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
-    <footer className="mt-auto bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 transition-colors lg:pl-64">
-      <div className="px-4 sm:px-6 lg:px-8 py-6">
-        {/* Desktop Layout */}
-        <div className="hidden md:flex items-center justify-between">
-          {/* Left - Logo and Copyright */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <img src="/images/sumryze-logo.png" alt="Sumryze" className="h-5 w-auto" />
-              <span className="text-sm text-gray-600 dark:text-gray-400">© 2024 Sumryze. All rights reserved.</span>
-            </div>
-          </div>
-
-          {/* Center - Navigation Links */}
-          <div className="flex items-center gap-8">
-            <a
-              href="/help"
-              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline underline-offset-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded-sm"
-            >
-              Help Center
-            </a>
-            <a
-              href="/api-docs"
-              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline underline-offset-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded-sm"
-            >
-              API Docs
-            </a>
-            <a
-              href="/status"
-              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline underline-offset-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded-sm"
-            >
-              Status
-            </a>
-            <a
-              href="/blog"
-              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline underline-offset-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded-sm"
-            >
-              Blog
-            </a>
-          </div>
-
-          {/* Right - Legal Links + Language Selector */}
-          <div className="flex items-center gap-6">
-            <a
-              href="/privacy"
-              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline underline-offset-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded-sm"
-            >
-              Privacy Policy
-            </a>
-            <a
-              href="/terms"
-              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline underline-offset-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded-sm"
-            >
-              Terms of Service
-            </a>
-            <a
-              href="/support"
-              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline underline-offset-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded-sm"
-            >
-              Support
-            </a>
-
-            {/* Language Selector */}
-            <div className="relative">
-              <button className="flex items-center gap-1.5 px-2 py-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
-                <Globe className="h-3.5 w-3.5" />
-                <span>EN</span>
-                <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Layout */}
-        <div className="md:hidden space-y-4">
-          {/* Logo and Copyright */}
+    <footer className="bg-white dark:bg-[#12141C] border-t border-gray-200 dark:border-[#2C2F36] transition-colors duration-300">
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* ✅ Desktop & Tablet */}
+        <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-gray-500 dark:text-gray-400">
+          {/* Left */}
           <div className="flex items-center gap-2">
-            <img src="/images/sumryze-logo.png" alt="Sumryze" className="h-5 w-auto" />
-            <span className="text-sm text-gray-600 dark:text-gray-400">© 2024 Sumryze. All rights reserved.</span>
+            <div className="flex items-center justify-center w-5 h-5 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg">
+              <TrendingUp className="h-3 w-3 text-white" />
+            </div>
+            <span>© 2024 Sumryze. All rights reserved.</span>
           </div>
 
-          {/* Divider */}
-          <div className="border-t border-gray-200 dark:border-gray-700"></div>
-
-          {/* Navigation Links */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-3">
-              <a
-                href="/help"
-                className="block text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline underline-offset-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded-sm"
-              >
-                Help Center
-              </a>
-              <a
-                href="/api-docs"
-                className="block text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline underline-offset-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded-sm"
-              >
-                API Docs
-              </a>
-              <a
-                href="/status"
-                className="block text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline underline-offset-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded-sm"
-              >
-                Status
-              </a>
-              <a
-                href="/blog"
-                className="block text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline underline-offset-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded-sm"
-              >
-                Blog
-              </a>
-            </div>
-
-            <div className="space-y-3">
-              <a
-                href="/privacy"
-                className="block text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline underline-offset-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded-sm"
-              >
-                Privacy Policy
-              </a>
-              <a
-                href="/terms"
-                className="block text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline underline-offset-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded-sm"
-              >
-                Terms of Service
-              </a>
-              <a
-                href="/support"
-                className="block text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline underline-offset-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded-sm"
-              >
-                Support
-              </a>
-            </div>
+          {/* Center */}
+          <div className="flex flex-wrap justify-center gap-6">
+            <a href="/help" className="hover:text-gray-700 dark:hover:text-gray-200">Help Center</a>
+            <a href="/api-docs" className="hover:text-gray-700 dark:hover:text-gray-200">API Docs</a>
+            <a href="/status" className="hover:text-gray-700 dark:hover:text-gray-200">Status</a>
+            <a href="/blog" className="hover:text-gray-700 dark:hover:text-gray-200">Blog</a>
+            <a href="/privacy" className="hover:text-gray-700 dark:hover:text-gray-200">Privacy Policy</a>
+            <a href="/terms" className="hover:text-gray-700 dark:hover:text-gray-200">Terms</a>
+            <a href="/support" className="hover:text-gray-700 dark:hover:text-gray-200">Support</a>
           </div>
 
-          {/* Language Selector - Mobile */}
-          <div className="flex justify-center pt-2 border-t border-gray-200 dark:border-gray-700">
-            <button className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
-              <Globe className="h-3.5 w-3.5" />
-              <span>English</span>
-              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          {/* Right - Language */}
+          <div className="relative" ref={languageDropdownRef}>
+            <button
+              onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-[#1C1F27]"
+            >
+              <Globe className="h-4 w-4" />
+              <span>{selectedLanguage}</span>
+              <svg className={`h-3 w-3 transition-transform ${isLanguageDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
+            {isLanguageDropdownOpen && (
+              <div className="absolute bottom-full right-0 mb-2 w-40 bg-white dark:bg-[#1C1F27] border rounded-lg shadow-lg">
+                {languageOptions.map(option => (
+                  <button
+                    key={option.code}
+                    onClick={() => { setSelectedLanguage(option.code); setIsLanguageDropdownOpen(false); }}
+                    className="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-[#2C2F36]"
+                  >
+                    {option.name}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
     </footer>
-  )
+  );
 }

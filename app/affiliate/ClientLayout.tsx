@@ -4,7 +4,7 @@ import { useState } from "react"
 import type React from "react"
 
 import Header from "@/app/dashboard/components/Header1";
-import Sidebar from "@/app/dashboard/components/Sidebar";
+import Sidebar from "@/app/dashboard/components/Sidebar1";
 import Footer from "@/app/dashboard/components/Footer";
 
 

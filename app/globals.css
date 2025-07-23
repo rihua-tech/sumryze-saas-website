@@ -79,3 +79,11 @@
 html {
   scroll-behavior: smooth;
 }
+
+@media (max-width: 400px) {
+  main {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+}
+
