@@ -26,7 +26,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       <div className="flex flex-col lg:flex-row min-h-[calc(100vh-2rem)]">
         {/* Sidebar */}
         <Sidebar
-          isCollapsed={sidebarOpen}
+          isCollapsed={!sidebarOpen}
           toggleSidebar={toggleSidebar}
           isMobileOpen={isMobileSidebarOpen}
           onMobileClose={closeMobileSidebar}

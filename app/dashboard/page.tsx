@@ -42,7 +42,13 @@ export default function Dashboard() {
 
   return (
     
-   <div className="px-5 py-5 space-y-8">
+   
+  
+
+      
+        <div className="max-w-7xl mx-auto px-5 py-5 space-y-8">
+
+
 
                 {/* AI Insights Banner */}
       <div className="bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl p-6 text-white shadow-lg flex flex-col gap-4">
@@ -631,12 +637,7 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-        
-        
-          
-      
-
-          
+                
             {sidebarOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}

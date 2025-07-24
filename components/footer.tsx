@@ -86,7 +86,7 @@ export function Footer() {
           <div>
             <h3 className="text-sm font-bold text-gray-900 tracking-wider uppercase mb-2">Legal</h3>
            <ul className="pt-3 space-y-3">
-              <li><Link href="/privacy-policy" className={linkClass("/privacy-policy")}>Privacy Policy</Link></li>
+              <li><Link href="/legal/privacy" className={linkClass("/legal/privacy")}>Privacy Policy</Link></li>
               <li><Link href="/terms" className={linkClass("/terms")}>Terms of Service</Link></li>
               <li><Link href="/cookie-policy" className={linkClass("/cookie-policy")}>Cookie Policy</Link></li>
             </ul>

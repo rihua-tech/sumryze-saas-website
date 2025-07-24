@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Globe, TrendingUp } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import { Globe } from "lucide-react";
 
 export default function Footer() {
   const [selectedLanguage, setSelectedLanguage] = useState("EN");
@@ -27,37 +29,70 @@ export default function Footer() {
 
   return (
     <footer className="bg-white dark:bg-[#12141C] border-t border-gray-200 dark:border-[#2C2F36] transition-colors duration-300">
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* ✅ Desktop & Tablet */}
-        <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-gray-500 dark:text-gray-400">
-          {/* Left */}
-          <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-5 h-5 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg">
-              <TrendingUp className="h-3 w-3 text-white" />
-            </div>
-            <span>© 2024 Sumryze. All rights reserved.</span>
+      
+        <div className="max-w-7xl mx-auto px-5 py-5 space-y-8">
+
+        <div className="flex flex-wrap items-center justify-between gap-6 text-sm text-gray-500 dark:text-gray-400">
+
+          
+          {/* ✅ Left: Logo + Brand + Copyright */}
+          <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+              <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-md shadow-md shadow-purple-500/20">
+                <Image
+                  src="/images/Logo/Sumryze-Logo.svg"
+                  alt="Sumryze Logo"
+                  width={20}
+                  height={20}
+                  className="object-contain"
+                />
+              </div>
+              <span className="text-base sm:text-lg font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-purple-500 dark:to-blue-500 bg-clip-text text-transparent">
+                Sumryze
+              </span>
+            </Link>
+            <span>© {new Date().getFullYear()} Sumryze. All rights reserved.</span>
           </div>
 
-          {/* Center */}
+          {/* ✅ Center: Navigation Links */}
           <div className="flex flex-wrap justify-center gap-6">
-            <a href="/help" className="hover:text-gray-700 dark:hover:text-gray-200">Help Center</a>
-            <a href="/api-docs" className="hover:text-gray-700 dark:hover:text-gray-200">API Docs</a>
-            <a href="/status" className="hover:text-gray-700 dark:hover:text-gray-200">Status</a>
-            <a href="/blog" className="hover:text-gray-700 dark:hover:text-gray-200">Blog</a>
-            <a href="/privacy" className="hover:text-gray-700 dark:hover:text-gray-200">Privacy Policy</a>
-            <a href="/terms" className="hover:text-gray-700 dark:hover:text-gray-200">Terms</a>
-            <a href="/support" className="hover:text-gray-700 dark:hover:text-gray-200">Support</a>
+           {[
+             { name: "Help Center", href: "/dashboard/help" },
+             { name: "API Docs", href: "/dashboard/api-docs" },
+             { name: "Status", href: "/status" },         
+             { name: "Privacy Policy", href: "/dashboard/privacy" },
+             { name: "Terms", href: "/terms" },
+             { name: "Support", href: "/support" },
+             ].map((link) => (
+            <Link
+             key={link.name}
+             href={link.href}
+            prefetch={false}
+            className="hover:underline hover:text-blue-500 dark:hover:text-blue-400"
+       >
+
+            {link.name}
+          </Link>
+  ))}
+
+
           </div>
 
-          {/* Right - Language */}
+          {/* ✅ Right: Language Selector */}
           <div className="relative" ref={languageDropdownRef}>
             <button
               onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
+              aria-label="Select Language"
               className="flex items-center gap-1.5 px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-[#1C1F27]"
             >
               <Globe className="h-4 w-4" />
               <span>{selectedLanguage}</span>
-              <svg className={`h-3 w-3 transition-transform ${isLanguageDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className={`h-3 w-3 transition-transform ${isLanguageDropdownOpen ? "rotate-180" : ""}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
@@ -75,6 +110,7 @@ export default function Footer() {
               </div>
             )}
           </div>
+
         </div>
       </div>
     </footer>

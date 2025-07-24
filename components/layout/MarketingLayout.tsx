@@ -20,6 +20,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
         {/* Show Footer only if NOT dashboard */}
       {!isDashboard && <Footer/>}
 
+     
       
     </>
   )

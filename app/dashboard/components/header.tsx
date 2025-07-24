@@ -133,8 +133,9 @@ interface HeaderProps {
                   }}
                   className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium border transition-all duration-300 ${
                     activeMode === mode.name
-                      ? "border-transparent bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-md"
-                      : "border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      
+                       ? "border-transparent bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-md hover:brightness-110"
+                       : "border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                   }`}
                 >
                   <mode.icon className="h-3 w-3" />
