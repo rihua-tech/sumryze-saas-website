@@ -6,7 +6,9 @@ import { Inter } from "next/font/google"
 
 import "./globals.css"
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+
+
 
 export const metadata: Metadata = {
   title: "Sumryze | SEO Reports & AI Content Automation",
@@ -50,14 +52,8 @@ export default function RootLayout({
 }) {
   
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-
-       
-          {children}
-       
-
-      </body>
+   <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <body className="font-sans">{children}</body>
     </html>
   )
 }

@@ -1,4 +1,4 @@
-import TermsOfServicePage from "@/components/Legal/TermsOfServicePage";
+import TermsContent from "@/components/Legal/TermsContent";
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 
@@ -6,8 +6,8 @@ export default function TermsPage() {
   return (
     <>
       <Navigation />
-      
-      <TermsOfServicePage/>
+
+      <TermsContent />
 
       <Footer />
     </>

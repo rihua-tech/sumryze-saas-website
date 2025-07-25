@@ -29,7 +29,7 @@ export function Navigation() {
     { href: "/", label: "Home" },
     { href: "/features", label: "Features" },
     { href: "/pricing", label: "Pricing" },
-    { href: "/demo", label: "Demo" },
+    
     { href: "/blog", label: "Blog" },
     { href: "/dashboard", label: "Dashboard" },
   ]
@@ -43,7 +43,7 @@ export function Navigation() {
 
   return (
     <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
 
           <div className="flex items-center ">

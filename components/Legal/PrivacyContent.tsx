@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { ThemeProvider } from "next-themes";
+import { useState, useEffect, useCallback } from "react";
+import Head from "next/head";
 import {
   Calendar,
   Shield,
@@ -11,22 +11,81 @@ import {
   Lock,
   Users,
   Globe,
-  ChevronRight,
   Menu,
   X,
 } from "lucide-react";
+import clsx from "clsx";
 
-import Header from "@/app/dashboard/components/Header";
-import Footer from "@/app/dashboard/components/Footer";
+// ✅ Define TOC item type
+interface TOCItem {
+  id: string;
+  title: string;
+  icon: React.ElementType;
+}
 
+// ✅ TOC Component
+const TOCLinks = ({
+  items,
+  activeSection,
+  onClick,
+}: {
+  items: TOCItem[];
+  activeSection: string;
+  onClick: (id: string) => void;
+}) => (
+  <nav role="navigation" aria-label="Table of Contents" className="space-y-2">
+    {items.map((item) => {
+      const Icon = item.icon;
+      return (
+        <a
+          key={item.id}
+          href={`#${item.id}`}
+          onClick={(e) => {
+            e.preventDefault();
+            onClick(item.id);
+          }}
+          aria-label={`Go to ${item.title}`}
+          className={clsx(
+            "flex items-center gap-3 px-3 py-2 rounded-lg text-left border-l-4 transition text-sm font-medium tracking-tight",
+            activeSection === item.id
+              ? "border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-600"
+              : "border-transparent text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+          )}
+        >
+          <Icon className="h-4 w-4" />
+          {item.title}
+        </a>
+      );
+    })}
+  </nav>
+);
+
+// ✅ Section Component
+const Section = ({
+  id,
+  title,
+  children,
+}: {
+  id: string;
+  title: string;
+  children: React.ReactNode;
+}) => (
+  <section id={id} className="scroll-mt-24 space-y-6">
+    <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
+      {title}
+    </h2>
+    <div className="text-base leading-relaxed text-gray-700 dark:text-gray-300">
+      {children}
+    </div>
+  </section>
+);
 
 export default function PrivacyPolicyPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("introduction");
+  const lastUpdated = "June 1, 2024";
 
-  const lastUpdated = "January 15, 2024";
-
-  const tableOfContents = [
+  const tableOfContents: TOCItem[] = [
     { id: "introduction", title: "Introduction", icon: FileText },
     { id: "information-we-collect", title: "Information We Collect", icon: Database },
     { id: "how-we-use-information", title: "How We Use Your Information", icon: Eye },
@@ -39,16 +98,15 @@ export default function PrivacyPolicyPage() {
     { id: "contact-us", title: "Contact Us", icon: Users },
   ];
 
-  // Highlight active section on scroll
+  // ✅ Scroll Highlight
   useEffect(() => {
     const handleScroll = () => {
-      const sections = tableOfContents.map((item) => item.id);
-      for (const sectionId of sections) {
-        const element = document.getElementById(sectionId);
-        if (element) {
-          const rect = element.getBoundingClientRect();
+      for (const item of tableOfContents) {
+        const el = document.getElementById(item.id);
+        if (el) {
+          const rect = el.getBoundingClientRect();
           if (rect.top <= 120 && rect.bottom >= 120) {
-            setActiveSection(sectionId);
+            setActiveSection(item.id);
             break;
           }
         }
@@ -56,93 +114,81 @@ export default function PrivacyPolicyPage() {
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [tableOfContents]);
 
-  const scrollToSection = (id: string) => {
+  const scrollToSection = useCallback((id: string) => {
     const el = document.getElementById(id);
     if (!el) return;
-    const offset = 100;
+    const offset = document.querySelector("header")?.clientHeight || 80;
     const position = el.getBoundingClientRect().top + window.scrollY - offset;
     window.scrollTo({ top: position, behavior: "smooth" });
-    setSidebarOpen(false); // Close mobile menu
-  };
+    setSidebarOpen(false);
+  }, []);
 
-  const Section = ({
-    id,
-    title,
-    children,
-  }: {
-    id: string;
-    title: string;
-    children: React.ReactNode;
-  }) => (
-    <section id={id} className="mb-12 scroll-mt-24">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
-        {title}
-      </h2>
-      <div className="space-y-4 text-gray-700 dark:text-gray-300">{children}</div>
-    </section>
-  );
+  // ✅ Lock background scroll when sidebar open
+  useEffect(() => {
+    document.body.style.overflow = sidebarOpen ? "hidden" : "auto";
+  }, [sidebarOpen]);
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-      <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
-        {/* ✅ Header */}
-        <Header onMenuClick={() => setSidebarOpen(true)} />
+    <>
+      {/* ✅ SEO */}
+      <Head>
+        <title>Privacy Policy | Sumryze</title>
+        <meta
+          name="description"
+          content="Learn how Sumryze collects, uses, and protects your personal information. Read our Privacy Policy for details on data handling and your rights."
+        />
+        <meta property="og:title" content="Privacy Policy | Sumryze" />
+        <meta
+          property="og:description"
+          content="Learn how Sumryze collects, uses, and protects your personal information."
+        />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content="https://sumryze.com/legal/privacy" />
+        <meta property="og:image" content="/images/privacy-og.png" />
+        <link rel="canonical" href="https://sumryze.com/legal/privacy" />
+      </Head>
 
-        <div className="flex flex-1 pt-16">
+      <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 font-sans">
+        <div className="flex flex-1">
           {/* ✅ Desktop Sidebar */}
-          <aside className="hidden lg:block w-72 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
-            <div className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-                Table of Contents
-              </h3>
-              <nav className="space-y-2">
-                {tableOfContents.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => scrollToSection(item.id)}
-                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition ${
-                        activeSection === item.id
-                          ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-300"
-                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      }`}
-                    >
-                      <Icon className="h-4 w-4" />
-                      {item.title}
-                    </button>
-                  );
-                })}
-              </nav>
-            </div>
+          <aside className="hidden lg:block w-72 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 sticky top-0 h-screen overflow-y-auto p-6">
+            <h3 className="text-lg font-semibold tracking-tight mt-6 mb-6 text-gray-900 dark:text-gray-100">
+              Table of Contents
+            </h3>
+            <TOCLinks
+              items={tableOfContents}
+              activeSection={activeSection}
+              onClick={scrollToSection}
+            />
           </aside>
 
           {/* ✅ Main Content */}
-          <main className="flex-1 max-w-4xl mx-auto px-6 py-10">
-            {/* ✅ Mobile Menu Button */}
+          <main className="flex-1 max-w-5xl mx-auto px-6 py-10">
+            {/* ✅ Mobile TOC Button */}
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden mb-6 flex items-center gap-2 px-4 py-2 border rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+              className="lg:hidden mb-6 flex items-center gap-2 px-4 py-2 border rounded-lg bg-white dark:bg-gray-800"
+              aria-label="Open Table of Contents"
             >
               <Menu className="h-5 w-5" /> Table of Contents
             </button>
 
             {/* ✅ Page Header */}
-            <div className="text-center mb-12">
-              <Shield className="h-10 w-10 text-blue-600 dark:text-blue-400 mx-auto mb-3" />
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
+            <header className="text-center mb-16">
+              <Shield className="h-10 w-10 text-blue-600 dark:text-blue-400 mx-auto mb-1" />
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
                 Privacy Policy
               </h1>
-              <div className="flex items-center justify-center gap-2 text-gray-500 dark:text-gray-400 mt-2">
+              <div className="flex items-center justify-center gap-2 text-gray-500 dark:text-gray-400 mt-2 text-sm">
                 <Calendar className="h-4 w-4" />
                 Last updated: {lastUpdated}
               </div>
-            </div>
+            </header>
 
-            {/* ✅ Sections */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 lg:p-10 space-y-10">
+            {/* ✅ Content Sections */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 md:p-6 lg:p-10 space-y-10">
               <Section id="introduction" title="Introduction">
                 <p>
                   At Sumryze, we are committed to protecting your privacy and ensuring the
@@ -159,7 +205,7 @@ export default function PrivacyPolicyPage() {
               </Section>
 
               <Section id="how-we-use-information" title="How We Use Your Information">
-                <ul className="list-disc list-inside">
+                <ul className="list-disc list-inside space-y-2">
                   <li>Provide and improve our services</li>
                   <li>Communicate important updates</li>
                   <li>Ensure security and compliance</li>
@@ -196,48 +242,65 @@ export default function PrivacyPolicyPage() {
               <Section id="contact-us" title="Contact Us">
                 <p>Email: privacy@sumryze.com</p>
               </Section>
+
+            
             </div>
+             <div className="text-center mt-8">
+              <a
+              href="/legal/privacy/privacy-full"
+             className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-gray-100 font-medium rounded-lg transition"
+             >
+           View Full Privacy Policy
+            </a>
+           </div>
+
+            {/* Footer Links */}
+            <div className="text-center mt-6 text-gray-600 dark:text-gray-400 text-sm">
+              Related:{" "}
+              <a href="/legal/cookies" className="text-blue-600 hover:underline">
+                Cookies Policy
+              </a>{" "}
+              |{" "}
+              <a href="/legal/terms" className="text-blue-600 hover:underline">
+                Terms of Service
+              </a>
+              |{" "}
+              <a href="/legal/cookies/cookies-full" className="text-blue-600 hover:underline">
+                Full Cookies
+              </a>
+            </div>
+
           </main>
         </div>
-
-        {/* ✅ Footer */}
-        <Footer />
 
         {/* ✅ Mobile Sidebar */}
         {sidebarOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden flex">
             <div className="bg-white dark:bg-gray-800 w-80 p-6 h-full overflow-y-auto">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
                   Table of Contents
                 </h3>
-                <button onClick={() => setSidebarOpen(false)}>
+                <button onClick={() => setSidebarOpen(false)} aria-label="Close sidebar">
                   <X className="h-6 w-6 text-gray-500 dark:text-gray-400" />
                 </button>
               </div>
-              <nav className="space-y-2">
-                {tableOfContents.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => scrollToSection(item.id)}
-                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left ${
-                        activeSection === item.id
-                          ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600"
-                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      }`}
-                    >
-                      <Icon className="h-4 w-4" />
-                      {item.title}
-                    </button>
-                  );
-                })}
-              </nav>
+              <TOCLinks
+                items={tableOfContents}
+                activeSection={activeSection}
+                onClick={scrollToSection}
+              />
             </div>
           </div>
         )}
       </div>
-    </ThemeProvider>
+
+      {/* ✅ Global Smooth Scroll */}
+      <style jsx global>{`
+        html {
+          scroll-behavior: smooth;
+        }
+      `}</style>
+    </>
   );
 }

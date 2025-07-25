@@ -1,13 +1,13 @@
-import TermsOfServicePage from "@/components/Legal/TermsOfServicePage";
+import CookiesFull from "@/components/Legal/CookieFull";
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 
-export default function TermsPage() {
+export default function CookieFullPage() {
   return (
     <>
       <Navigation />
-      
-      <TermsOfServicePage/>
+
+      <CookiesFull />
 
       <Footer />
     </>

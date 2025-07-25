@@ -1,10 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { ThemeProvider } from "next-themes"
+
 import { Calendar, Clock, User, ArrowRight, ChevronLeft, ChevronRight, Tag, TrendingUp } from "lucide-react"
-import Header from "../dashboard/components/header"
-import Footer from "../dashboard/components/footer"
+
+import { Navigation } from "@/components/navigation"
+import { Footer } from "@/components/footer"
+
 
 export default function BlogPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -226,10 +228,9 @@ export default function BlogPage() {
   )
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+    
       <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-        {/* Header */}
-        <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
+       
 
         {/* Main Content */}
         <main className="flex-1 pt-16 transition-colors">
@@ -419,8 +420,7 @@ export default function BlogPage() {
           </div>
         </main>
 
-        {/* Footer */}
-        <Footer />
+       
 
         {/* Mobile Sidebar Overlay */}
         {sidebarOpen && (
@@ -430,6 +430,6 @@ export default function BlogPage() {
           />
         )}
       </div>
-    </ThemeProvider>
+   
   )
 }

@@ -16,7 +16,7 @@ export function Footer() {
 
   return (
     <footer className="bg-gray-50 border-t">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {/* ✅ Grid with 5 columns */}
         
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-7 gap-x-3 gap-y-4 items-start">
@@ -63,8 +63,7 @@ export function Footer() {
 
               <li><Link href="/features" className={linkClass("/features")}>Features</Link></li>
               <li><Link href="/pricing" className={linkClass("/pricing")}>Pricing</Link></li>
-              <li><Link href="/demo" className={linkClass("/demo")}>Demo</Link></li>
-               <li><Link href="/dashboard1" className={linkClass("/dashboard1")}>Dashboard1</Link></li>
+              
              
             </ul>
           </div>
@@ -76,8 +75,7 @@ export function Footer() {
               <li><Link href="/blog" className={linkClass("/blog")}>Blog</Link></li>
               <li><Link href="/about" className={linkClass("/about")}>About</Link></li>
               <li><Link href="/contact" className={linkClass("/contact")}>Contact</Link></li>
-              <li><Link href="/affiliate" className={linkClass("/affiliate")}>Affiliate</Link></li>
-              <li><Link href="/affiliate/dashboard" className={linkClass("/affiliate/dashboard")}>Affiliate Dashboard</Link></li>
+              
 
             </ul>
           </div>
@@ -87,8 +85,8 @@ export function Footer() {
             <h3 className="text-sm font-bold text-gray-900 tracking-wider uppercase mb-2">Legal</h3>
            <ul className="pt-3 space-y-3">
               <li><Link href="/legal/privacy" className={linkClass("/legal/privacy")}>Privacy Policy</Link></li>
-              <li><Link href="/terms" className={linkClass("/terms")}>Terms of Service</Link></li>
-              <li><Link href="/cookie-policy" className={linkClass("/cookie-policy")}>Cookie Policy</Link></li>
+              <li><Link href="/legal/terms" className={linkClass("/legal/terms")}>Terms of Service</Link></li>
+              <li><Link href="/legal/cookies" className={linkClass("/legal/cookies")}>Cookie Policy</Link></li>
             </ul>
           </div>
 
