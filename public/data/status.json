@@ -1,0 +1,30 @@
+{
+  "systemStatus": {
+    "status": "operational",
+    "message": "All systems operational",
+    "lastUpdated": "2024-01-18T14:30:00Z"
+  },
+  "services": [
+    { "name": "Dashboard", "status": "operational", "uptime": "99.98%", "responseTime": "245ms" },
+    { "name": "API", "status": "operational", "uptime": "99.95%", "responseTime": "180ms" },
+    { "name": "Reports", "status": "partial", "uptime": "99.87%", "responseTime": "520ms" },
+    { "name": "Authentication", "status": "operational", "uptime": "99.99%", "responseTime": "95ms" }
+  ],
+  "uptimeHistory": {
+    "labels": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    "data": [99.92, 99.95, 99.99, 99.97, 99.93, 99.98, 99.96]
+  },
+  "recentIncidents": [
+    {
+      "id": 1,
+      "title": "Report generation delays",
+      "status": "resolved",
+      "severity": "minor",
+      "startTime": "2024-01-18T12:45:00Z",
+      "updates": [
+        { "time": "2024-01-18T14:30:00Z", "message": "Issue resolved and performance restored." },
+        { "time": "2024-01-18T13:15:00Z", "message": "Investigating root cause." }
+      ]
+    }
+  ]
+}

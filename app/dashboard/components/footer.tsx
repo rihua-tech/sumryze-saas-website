@@ -57,11 +57,12 @@ export default function Footer() {
         <div className="flex flex-wrap justify-center gap-5 text-sm text-gray-500 dark:text-gray-400">
           {[
             { name: "Help Center", href: "/dashboard/help" },
-            { name: "Support", href: "/support" },
+            { name: "Support", href: "/dashboard/support" },
+
             { name: "API Docs", href: "/dashboard/api-docs" },
-            { name: "Status", href: "/status" },
+            { name: "Status", href: "/dashboard/status" },
             { name: "Privacy Policy", href: "/dashboard/privacy" },
-            { name: "Terms", href: "/terms" },
+            { name: "Terms", href: "/dashboard/terms" },
           ].map((link) => (
             <Link
               key={link.name}
