@@ -1,50 +1,35 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-const handler = NextAuth({
+export const authOptions = {
   providers: [
     CredentialsProvider({
-      name: "Admin Login",
+      name: "Credentials",
       credentials: {
         username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        // Validate admin credentials from environment variables
-        const ADMIN_USER = process.env.ADMIN_USER;
-        const ADMIN_PASS = process.env.ADMIN_PASS;
-
         if (
-          credentials?.username === ADMIN_USER &&
-          credentials?.password === ADMIN_PASS
+          credentials?.username === process.env.ADMIN_USER &&
+          credentials?.password === process.env.ADMIN_PASS
         ) {
-          return { id: "1", name: "Admin", role: "admin" };
+          return { id: "1", name: "Admin" };
         }
         return null;
       },
     }),
   ],
-  session: {
-    strategy: "jwt",
-  },
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.role = user.role || "user";
-      }
-      return token;
-    },
-    async session({ session, token }) {
+    async session({ session }) {
       if (session.user) {
-        session.user.role = token.role;
+        session.user.role = "admin"; // ✅ Assign role
       }
       return session;
     },
   },
-  pages: {
-    signIn: "/login", // Redirect to custom login page if needed
-  },
   secret: process.env.NEXTAUTH_SECRET,
-});
+};
 
+const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };

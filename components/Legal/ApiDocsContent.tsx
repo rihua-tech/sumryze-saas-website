@@ -178,7 +178,7 @@ https://api.sumryze.com/v1/websites`}
 
           
             <main className="flex-1 px-5 py-6">
-            <div className="max-w-7xl mx-auto space-y-8">
+            <div className="max-w-6xl mx-auto space-y-8">
 
           {/* Mobile Toggle */}
           <button

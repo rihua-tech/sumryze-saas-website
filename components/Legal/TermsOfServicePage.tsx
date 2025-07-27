@@ -12,32 +12,37 @@ export default function TermsSummaryPage() {
     {
       id: "acceptance",
       title: "1. Acceptance of Terms",
-      content:
-        "By using Sumryze, you agree to our Terms. If you do not agree, please discontinue use of our platform.",
+      content: `
+        By using Sumryze, you confirm that you have read and agree to these Terms. If you do not agree, please discontinue use of our platform. Continued use after updates constitutes acceptance of any changes.
+      `,
     },
     {
       id: "service",
       title: "2. Description of Service",
-      content:
-        "Sumryze provides SEO analytics, AI-powered recommendations, and automated reports for agencies and businesses.",
+      content: `
+        Sumryze provides SEO analytics, AI-powered recommendations, and automated reporting tools for agencies and businesses.
+      `,
     },
     {
       id: "billing",
       title: "3. Payment and Billing",
-      content:
-        "Services are subscription-based. Fees are billed monthly or annually in advance. Refund policy applies as per your plan.",
+      content: `
+        Services are subscription-based. Fees are billed monthly or annually in advance. Refunds are generally not available unless required by law. See <a href="/legal/terms/terms-full" class="text-blue-600 hover:underline">Full Terms</a> for details.
+      `,
     },
     {
       id: "privacy",
       title: "4. Privacy and Data Protection",
-      content:
-        'Your data is handled per our <a href="/legal/privacy" class="text-blue-600 hover:underline">Privacy Policy</a>.',
+      content: `
+        Your data is handled in accordance with our <a href="/legal/privacy" class="text-blue-600 hover:underline">Privacy Policy</a>. Learn how we protect your data and your rights.
+      `,
     },
     {
       id: "law",
       title: "5. Governing Law",
-      content:
-        "These Terms are governed by California law and subject to arbitration.",
+      content: `
+        These Terms are governed by California law and subject to binding arbitration. Please review the <a href="/legal/terms/terms-full" class="text-blue-600 hover:underline">Full Terms</a> for complete legal provisions.
+      `,
     },
   ];
 
@@ -108,7 +113,7 @@ export default function TermsSummaryPage() {
 
       <main className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans">
         <div className="max-w-6xl mx-auto px-6 py-12 flex flex-col lg:flex-row gap-10">
-          {/* ✅ Table of Contents */}
+          {/* ✅ Sidebar */}
           <aside className="hidden lg:block w-72">
             <div className="sticky top-24 bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">

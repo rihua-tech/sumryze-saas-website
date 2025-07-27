@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Head from "next/head";
+import { Download, Cookie, GlobeLock, Settings } from "lucide-react";
 import clsx from "clsx";
-import { Calendar, Shield, Settings } from "lucide-react";
+import jsPDF from "jspdf";
 
 const Section = ({
   id,
@@ -15,38 +16,30 @@ const Section = ({
   children: React.ReactNode;
 }) => (
   <section id={id} className="scroll-mt-24 space-y-6">
-    <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
+    <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
       {title}
     </h2>
-    <div className="text-base leading-relaxed text-gray-700 dark:text-gray-300">
-      {children}
-    </div>
+    <div className="text-base leading-relaxed text-gray-700 dark:text-gray-300">{children}</div>
   </section>
 );
 
-export default function PrivacyFullPolicyPage() {
-  const lastUpdated = "June 1, 2024";
+export default function CookiesFullPolicyPage() {
+  const lastUpdated = "January 15, 2024";
 
   const sections = [
-    { id: "intro", title: "1. Introduction" },
-    { id: "collect", title: "2. Information We Collect" },
-    { id: "use", title: "3. How We Use Your Information" },
-    { id: "storage", title: "4. Data Storage & Security" },
-    { id: "sharing", title: "5. Information Sharing" },
-    { id: "rights", title: "6. Your Rights & Choices" },
-    { id: "transfers", title: "7. International Transfers" },
-    { id: "children", title: "8. Children’s Privacy" },
-    { id: "changes", title: "9. Changes to This Policy" },
-    { id: "contact", title: "10. Contact Us" },
+    { id: "introduction", title: "1. Introduction" },
+    { id: "types", title: "2. Types of Cookies We Use" },
+    { id: "ai-cookies", title: "3. AI & Tracking Cookies" },
+    { id: "gdpr", title: "4. GDPR Compliance" },
+    { id: "ccpa", title: "5. CCPA Compliance" },
+    { id: "manage", title: "6. How to Manage Cookies" },
+    { id: "contact", title: "7. Contact Information" },
   ];
 
-  const [activeSection, setActiveSection] = useState(sections[0].id);
-  const [manualActive, setManualActive] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>(sections[0].id);
 
-  // ✅ Scroll Spy with Manual Lock
+  // ✅ Scroll Spy
   useEffect(() => {
-    if (manualActive) return;
-
     const handleScroll = () => {
       for (const section of sections) {
         const el = document.getElementById(section.id);
@@ -59,68 +52,95 @@ export default function PrivacyFullPolicyPage() {
         }
       }
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [manualActive, sections]);
+  }, [sections]);
 
-  // ✅ Scroll to Section with Lock
   const scrollToSection = useCallback((id: string) => {
-    setManualActive(true);
     setActiveSection(id);
-
     const el = document.getElementById(id);
-    if (el) {
-      const offset = document.querySelector("header")?.clientHeight || 80;
-      const position = el.getBoundingClientRect().top + window.scrollY - offset;
-      window.scrollTo({ top: position, behavior: "smooth" });
-    }
-
-    // ✅ Unlock after smooth scroll
-    setTimeout(() => setManualActive(false), 1000);
+    if (!el) return;
+    const offset = document.querySelector("header")?.clientHeight || 80;
+    const position = el.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top: position, behavior: "smooth" });
   }, []);
+
+  // ✅ Dynamic PDF Download
+  const downloadPDF = () => {
+    const doc = new jsPDF({ unit: "pt", format: "a4" });
+
+    // Header
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text("Full Cookie Policy - Sumryze", 40, 50);
+    doc.setFontSize(12);
+    doc.text(`Last Updated: ${lastUpdated}`, 40, 70);
+
+    let y = 100;
+
+    // Extract from DOM dynamically
+    const allSections = document.querySelectorAll("section");
+    allSections.forEach((section: any) => {
+      const title = section.querySelector("h2")?.textContent || "";
+      const content = section.querySelector("div")?.innerText || "";
+
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text(title, 40, y);
+      y += 20;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
+
+      const splitContent = doc.splitTextToSize(content, 500);
+      splitContent.forEach((line: string) => {
+        if (y > 750) {
+          doc.addPage();
+          y = 40;
+        }
+        doc.text(line, 40, y);
+        y += 15;
+      });
+      y += 15;
+    });
+
+    // Footer
+    doc.setFontSize(10);
+    doc.text("© 2024 Sumryze Inc. | All rights reserved", 40, 800);
+
+    doc.save("Sumryze-Cookie-Policy.pdf");
+  };
 
   return (
     <>
-      {/* ✅ SEO Metadata */}
       <Head>
-        <title>Privacy Policy | Sumryze</title>
+        <title>Full Cookie Policy | Sumryze</title>
         <meta
           name="description"
-          content="Full Privacy Policy of Sumryze. Learn how we collect, use, and protect your data in compliance with GDPR and CCPA."
+          content="Comprehensive Cookie Policy for Sumryze covering GDPR & CCPA compliance, AI cookie usage, and user rights."
         />
-        <link rel="canonical" href="https://sumryze.com/legal/privacy-full" />
-        <meta property="og:title" content="Privacy Policy | Sumryze" />
-        <meta
-          property="og:description"
-          content="Full Privacy Policy for GDPR & CCPA compliance. Learn about data collection, rights, and security practices."
-        />
-        <meta property="og:url" content="https://sumryze.com/legal/privacy-full" />
-        <meta property="og:type" content="website" />
-        <meta property="og:image" content="/images/og-image.png" />
+        <link rel="canonical" href="https://sumryze.com/legal/cookies-full" />
       </Head>
 
       <main className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans">
         <div className="max-w-6xl mx-auto px-6 py-12 flex flex-col lg:flex-row gap-10">
-          {/* ✅ Sidebar Table of Contents */}
-          <aside className="hidden lg:block w-72 flex-shrink-0">
+          {/* ✅ TOC */}
+          <aside className="hidden lg:block w-64">
             <div className="sticky top-24 bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Table of Contents
-              </h3>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-4 text-lg">Table of Contents</h3>
               <nav className="space-y-2">
-                {sections.map((item) => (
+                {sections.map((section) => (
                   <button
-                    key={item.id}
-                    onClick={() => scrollToSection(item.id)}
+                    key={section.id}
+                    onClick={() => scrollToSection(section.id)}
                     className={clsx(
-                      "block w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition",
-                      activeSection === item.id
-                        ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 font-semibold"
-                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      "block w-full text-left px-3 py-2 rounded-lg text-gray-600 dark:text-gray-400 transition",
+                      activeSection === section.id
+                        ? "bg-blue-50 dark:bg-blue-900 text-blue-600 font-semibold border-l-4 border-blue-500"
+                        : "hover:bg-gray-100 dark:hover:bg-gray-700"
                     )}
                   >
-                    {item.title}
+                    {section.title}
                   </button>
                 ))}
               </nav>
@@ -131,92 +151,109 @@ export default function PrivacyFullPolicyPage() {
           <div className="flex-1">
             <header className="text-center mb-10">
               <div className="flex items-center justify-center gap-3 mb-4">
-                <Shield className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                  Privacy Policy
-                </h1>
+                <Cookie className="h-8 w-8 text-orange-500" />
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Full Cookie Policy</h1>
               </div>
-              <p className="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto">
-                Learn how we collect, use, and protect your data in compliance with global privacy regulations.
+              <p className="text-gray-600 dark:text-gray-400 text-lg">
+                How Sumryze uses cookies for functionality, analytics, and AI-driven personalization.
               </p>
-              <div className="mt-2 text-gray-500 dark:text-gray-400 text-sm flex justify-center items-center gap-2">
-                <Calendar className="h-4 w-4" /> Last updated: {lastUpdated}
+              <div className="mt-2 text-gray-500 text-sm flex justify-center items-center gap-2">
+                <GlobeLock className="h-4 w-4" /> Last updated: {lastUpdated}
+              </div>
+              <div className="mt-6">
+                <button
+                  onClick={downloadPDF}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md"
+                >
+                  <Download className="h-4 w-4" /> Download PDF
+                </button>
               </div>
             </header>
 
-            {/* ✅ Policy Sections */}
+            {/* ✅ Sections */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 lg:p-10 space-y-10">
-              <Section id="intro" title="1. Introduction">
+              <Section id="introduction" title="1. Introduction">
                 <p>
-                  At Sumryze, your privacy is our priority. This policy explains how we handle your personal information responsibly.
+                  This Cookie Policy explains how Sumryze uses cookies and similar technologies to deliver services,
+                  including AI-powered features, improve performance, and comply with applicable laws.
                 </p>
               </Section>
 
-              <Section id="collect" title="2. Information We Collect">
+              <Section id="types" title="2. Types of Cookies We Use">
                 <ul className="list-disc pl-6 space-y-2">
-                  <li>Personal details (name, email, account info)</li>
-                  <li>Usage data (logs, analytics)</li>
-                  <li>Device & browser information</li>
+                  <li><strong>Essential:</strong> Core functionality (login, security).</li>
+                  <li><strong>Analytics:</strong> Monitor usage and improve performance.</li>
+                  <li><strong>Advertising:</strong> Deliver relevant ads and marketing.</li>
                 </ul>
               </Section>
 
-              <Section id="use" title="3. How We Use Your Information">
-                <p>We use your data to improve services, personalize experiences, and ensure security compliance.</p>
-              </Section>
-
-              <Section id="storage" title="4. Data Storage & Security">
-                <p>We use encryption and secure hosting for all user data, adhering to industry standards.</p>
-              </Section>
-
-              <Section id="sharing" title="5. Information Sharing">
-                <p>We do not sell your data. Limited sharing occurs with trusted partners for operational purposes.</p>
-              </Section>
-
-              <Section id="rights" title="6. Your Rights & Choices">
-                <p>Access, correct, delete, or export your data anytime. Opt out of marketing emails easily.</p>
-              </Section>
-
-              <Section id="transfers" title="7. International Transfers">
-                <p>Your data may be processed globally but under strict compliance measures.</p>
-              </Section>
-
-              <Section id="children" title="8. Children’s Privacy">
-                <p>Our services are not directed to children under 13. We do not knowingly collect their data.</p>
-              </Section>
-
-              <Section id="changes" title="9. Changes to This Policy">
-                <p>We may update this policy periodically. Significant changes will be notified via email or app alert.</p>
-              </Section>
-
-              <Section id="contact" title="10. Contact Us">
+              <Section id="ai-cookies" title="3. AI & Tracking Cookies">
                 <p>
-                  Email us at{" "}
-                  <a href="mailto:privacy@sumryze.com" className="text-blue-600 hover:underline">
-                    privacy@sumryze.com
+                  Some cookies enable AI-driven SEO recommendations and personalization. These cookies do not make
+                  legally significant decisions but enhance your experience. You can disable them anytime.
+                </p>
+              </Section>
+
+              <Section id="gdpr" title="4. GDPR Compliance">
+                <p>
+                  We only use non-essential cookies with your consent. EU users can withdraw consent anytime in{" "}
+                  <a href="/cookie-preferences" className="text-blue-600 hover:underline">
+                    Cookie Settings
+                  </a>.
+                </p>
+              </Section>
+
+              <Section id="ccpa" title="5. CCPA Compliance">
+                <p>
+                  California residents can opt out of data sharing for advertising by visiting our{" "}
+                  <a href="/legal/ccpa" className="text-blue-600 hover:underline">
+                    Do Not Sell My Info
+                  </a> page.
+                </p>
+              </Section>
+
+              <Section id="manage" title="6. How to Manage Cookies">
+                <p>
+                  Manage preferences via our{" "}
+                  <a href="/cookie-preferences" className="text-blue-600 hover:underline">
+                    Cookie Preferences Center
+                  </a>{" "}
+                  or your browser. Disabling essential cookies may impact site functionality.
+                </p>
+              </Section>
+
+              <Section id="contact" title="7. Contact Information">
+                <p>
+                  For questions, email us at{" "}
+                  <a href="mailto:support@sumryze.com" className="text-blue-600 hover:underline">
+                    support@sumryze.com
                   </a>
                 </p>
               </Section>
             </div>
+
+            <div className="text-center mt-6 text-gray-600 dark:text-gray-400 text-sm">
+              Related:{" "}
+              <a href="/legal/privacy" className="text-blue-600 hover:underline">
+                Privacy Policy
+              </a>{" "}
+              |{" "}
+              <a href="/legal/terms" className="text-blue-600 hover:underline">
+                Terms of Service
+              </a>
+            </div>
           </div>
         </div>
 
-        {/* ✅ Sticky Manage Preferences CTA */}
         <div className="fixed bottom-6 right-6">
           <a
             href="/cookie-preferences"
-            className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full shadow-lg transition"
+            className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full shadow-lg"
           >
-            <Settings className="h-5 w-5" />
-            Manage Cookie Preferences
+            <Settings className="h-5 w-5" /> Manage Cookie Preferences
           </a>
         </div>
       </main>
-
-      <style jsx global>{`
-        html {
-          scroll-behavior: smooth;
-        }
-      `}</style>
     </>
   );
 }

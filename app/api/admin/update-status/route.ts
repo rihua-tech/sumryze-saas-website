@@ -1,36 +1,35 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../auth/[...nextauth]/route";
+import fs from "fs/promises";
 import path from "path";
 
 export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    const { status, message } = body;
+  const session = await getServerSession(authOptions);
 
+  if (!session || session.user.role !== "admin") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const { status, message } = await req.json();
     if (!status || !message) {
-      return NextResponse.json(
-        { error: "Status and message are required." },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
 
-    // ✅ Path to status.json
-    const filePath = path.join(process.cwd(), "public", "data", "status.json");
+    const filePath = path.join(process.cwd(), "public/data/status.json");
+    const data = await fs.readFile(filePath, "utf-8");
+    const json = JSON.parse(data);
 
-    // ✅ Read current data
-    const data = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    json.systemStatus.status = status;
+    json.systemStatus.message = message;
+    json.systemStatus.lastUpdated = new Date().toISOString();
 
-    // ✅ Update values
-    data.systemStatus.status = status;
-    data.systemStatus.message = message;
-    data.systemStatus.lastUpdated = new Date().toISOString();
+    await fs.writeFile(filePath, JSON.stringify(json, null, 2), "utf-8");
 
-    // ✅ Save updated file
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-
-    return NextResponse.json({ success: true, message: "Status updated." });
+    return NextResponse.json({ message: "✅ Status updated successfully!" });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Failed to update status." }, { status: 500 });
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useState, useEffect, useCallback } from "react";
 import Head from "next/head";
 import {
@@ -16,14 +17,12 @@ import {
 } from "lucide-react";
 import clsx from "clsx";
 
-// ✅ Define TOC item type
 interface TOCItem {
   id: string;
   title: string;
   icon: React.ElementType;
 }
 
-// ✅ TOC Component
 const TOCLinks = ({
   items,
   activeSection,
@@ -60,7 +59,6 @@ const TOCLinks = ({
   </nav>
 );
 
-// ✅ Section Component
 const Section = ({
   id,
   title,
@@ -70,11 +68,11 @@ const Section = ({
   title: string;
   children: React.ReactNode;
 }) => (
-  <section id={id} className="scroll-mt-24 space-y-6">
-    <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
+  <section id={id} className="scroll-mt-24 space-y-4">
+    <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">
       {title}
     </h2>
-    <div className="text-base leading-relaxed text-gray-700 dark:text-gray-300">
+    <div className="text-gray-700 dark:text-gray-300 leading-relaxed text-base">
       {children}
     </div>
   </section>
@@ -83,22 +81,20 @@ const Section = ({
 export default function PrivacyPolicyPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("introduction");
-  const lastUpdated = "June 1, 2024";
+  const lastUpdated = "January 15, 2024";
 
   const tableOfContents: TOCItem[] = [
     { id: "introduction", title: "Introduction", icon: FileText },
-    { id: "information-we-collect", title: "Information We Collect", icon: Database },
-    { id: "how-we-use-information", title: "How We Use Your Information", icon: Eye },
-    { id: "data-storage-security", title: "Data Storage & Security", icon: Lock },
-    { id: "sharing-disclosure", title: "Information Sharing", icon: Users },
-    { id: "user-rights", title: "Your Rights & Choices", icon: Shield },
-    { id: "international-transfers", title: "International Transfers", icon: Globe },
-    { id: "children-privacy", title: "Children's Privacy", icon: Users },
-    { id: "policy-changes", title: "Changes to This Policy", icon: FileText },
-    { id: "contact-us", title: "Contact Us", icon: Users },
+    { id: "data-we-collect", title: "Data We Collect", icon: Database },
+    { id: "how-we-use", title: "How We Use Data", icon: Eye },
+    { id: "your-rights", title: "Your Rights (GDPR/CCPA)", icon: Shield },
+    { id: "data-security", title: "Data Security", icon: Lock },
+    { id: "sharing", title: "Third-Party Sharing", icon: Users },
+    { id: "children", title: "Children’s Privacy", icon: Users },
+    { id: "policy-changes", title: "Policy Changes", icon: FileText },
+    { id: "contact", title: "Contact Us", icon: Globe },
   ];
 
-  // ✅ Scroll Highlight
   useEffect(() => {
     const handleScroll = () => {
       for (const item of tableOfContents) {
@@ -125,7 +121,6 @@ export default function PrivacyPolicyPage() {
     setSidebarOpen(false);
   }, []);
 
-  // ✅ Lock background scroll when sidebar open
   useEffect(() => {
     document.body.style.overflow = sidebarOpen ? "hidden" : "auto";
   }, [sidebarOpen]);
@@ -137,24 +132,16 @@ export default function PrivacyPolicyPage() {
         <title>Privacy Policy | Sumryze</title>
         <meta
           name="description"
-          content="Learn how Sumryze collects, uses, and protects your personal information. Read our Privacy Policy for details on data handling and your rights."
+          content="Learn how Sumryze collects, uses, and protects your data. GDPR and CCPA compliant privacy practices."
         />
-        <meta property="og:title" content="Privacy Policy | Sumryze" />
-        <meta
-          property="og:description"
-          content="Learn how Sumryze collects, uses, and protects your personal information."
-        />
-        <meta property="og:type" content="article" />
-        <meta property="og:url" content="https://sumryze.com/legal/privacy" />
-        <meta property="og:image" content="/images/privacy-og.png" />
         <link rel="canonical" href="https://sumryze.com/legal/privacy" />
       </Head>
 
-      <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 font-sans">
+      <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="flex flex-1">
           {/* ✅ Desktop Sidebar */}
-          <aside className="hidden lg:block w-72 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 sticky top-0 h-screen overflow-y-auto p-6">
-            <h3 className="text-lg font-semibold tracking-tight mt-6 mb-6 text-gray-900 dark:text-gray-100">
+          <aside className="hidden lg:block w-72 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 sticky top-0 h-screen overflow-y-auto p-6">
+            <h3 className="text-lg font-semibold mb-6 text-gray-900 dark:text-white">
               Table of Contents
             </h3>
             <TOCLinks
@@ -175,87 +162,102 @@ export default function PrivacyPolicyPage() {
               <Menu className="h-5 w-5" /> Table of Contents
             </button>
 
-            {/* ✅ Page Header */}
-            <header className="text-center mb-16">
-              <Shield className="h-10 w-10 text-blue-600 dark:text-blue-400 mx-auto mb-1" />
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-                Privacy Policy
+            {/* ✅ Header */}
+            <header className="text-center mb-12">
+              <Shield className="h-10 w-10 text-blue-600 dark:text-blue-400 mx-auto mb-2" />
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                Privacy Policy (Simplified)
               </h1>
-              <div className="flex items-center justify-center gap-2 text-gray-500 dark:text-gray-400 mt-2 text-sm">
-                <Calendar className="h-4 w-4" />
-                Last updated: {lastUpdated}
+              <div className="flex justify-center items-center gap-2 text-gray-500 dark:text-gray-400 mt-2 text-sm">
+                <Calendar className="h-4 w-4" /> Last updated: {lastUpdated}
               </div>
             </header>
 
-            {/* ✅ Content Sections */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 md:p-6 lg:p-10 space-y-10">
+            {/* ✅ Sections */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 md:p-10 space-y-10 border border-gray-200 dark:border-gray-700">
               <Section id="introduction" title="Introduction">
                 <p>
-                  At Sumryze, we are committed to protecting your privacy and ensuring the
-                  security of your personal information. This policy explains how we
-                  collect, use, and protect your data when you use our services.
+                  We respect your privacy and are committed to protecting your personal
+                  data. This policy provides a simplified summary of our practices under
+                  GDPR and CCPA.
                 </p>
               </Section>
 
-              <Section id="information-we-collect" title="Information We Collect">
-                <p>
-                  We collect personal details like name, email, and usage data to improve
-                  our services.
-                </p>
-              </Section>
-
-              <Section id="how-we-use-information" title="How We Use Your Information">
-                <ul className="list-disc list-inside space-y-2">
-                  <li>Provide and improve our services</li>
-                  <li>Communicate important updates</li>
-                  <li>Ensure security and compliance</li>
+              <Section id="data-we-collect" title="Data We Collect">
+                <ul className="list-disc pl-5 space-y-2">
+                  <li>Account details: name, email, login info</li>
+                  <li>Billing details (for subscriptions)</li>
+                  <li>Usage data (analytics, cookies)</li>
                 </ul>
               </Section>
 
-              <Section id="data-storage-security" title="Data Storage & Security">
-                <p>We implement advanced encryption and secure hosting to protect data.</p>
-              </Section>
-
-              <Section id="sharing-disclosure" title="Information Sharing">
-                <p>We never sell your personal data. We only share with trusted partners.</p>
-              </Section>
-
-              <Section id="user-rights" title="Your Rights & Choices">
-                <p>You have the right to access, correct, or delete your data anytime.</p>
-              </Section>
-
-              <Section id="international-transfers" title="International Transfers">
+              <Section id="how-we-use" title="How We Use Data">
                 <p>
-                  Your data may be stored in the US/EU with full compliance to privacy
-                  laws.
+                  To provide and improve services, process payments, ensure security, and
+                  comply with legal requirements.
                 </p>
               </Section>
 
-              <Section id="children-privacy" title="Children's Privacy">
-                <p>Our services are not intended for children under 13 years old.</p>
+              <Section id="your-rights" title="Your Rights (GDPR & CCPA)">
+                <p>
+                  You can request access, correction, deletion, or data export. California
+                  residents can opt out of “data sale” (we do not sell data). Contact us
+                  anytime.
+                </p>
+              </Section>
+
+              <Section id="data-security" title="Data Security">
+                <p>
+                  We use encryption, secure servers, and strict access controls to
+                  safeguard your information.
+                </p>
+              </Section>
+
+              <Section id="sharing" title="Third-Party Sharing">
+                <p>
+                  We share data only with trusted partners (e.g., payment processors) under
+                  strict agreements. We never sell personal data.
+                </p>
+              </Section>
+
+              <Section id="children" title="Children’s Privacy">
+                <p>
+                  Our services are not directed to children under 13 (or 16 in the EU). We
+                  do not knowingly collect their data.
+                </p>
               </Section>
 
               <Section id="policy-changes" title="Changes to This Policy">
-                <p>We will notify you of significant updates via email or platform notice.</p>
+                <p>
+                  Updates will be posted here and significant changes communicated by email
+                  or platform notice.
+                </p>
               </Section>
 
-              <Section id="contact-us" title="Contact Us">
-                <p>Email: privacy@sumryze.com</p>
+              <Section id="contact" title="Contact Us">
+                <p>
+                  Email:{" "}
+                  <a
+                    href="mailto:privacy@sumryze.com"
+                    className="text-blue-600 hover:underline"
+                  >
+                    privacy@sumryze.com
+                  </a>
+                </p>
+                <p>
+                  Full details:{" "}
+                  <a
+                    href="/legal/privacy/privacy-full"
+                    className="text-blue-600 hover:underline"
+                  >
+                    View Full Privacy Policy
+                  </a>
+                </p>
               </Section>
-
-            
             </div>
-             <div className="text-center mt-8">
-              <a
-              href="/legal/privacy/privacy-full"
-             className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-gray-100 font-medium rounded-lg transition"
-             >
-           View Full Privacy Policy
-            </a>
-           </div>
 
-            {/* Footer Links */}
-            <div className="text-center mt-6 text-gray-600 dark:text-gray-400 text-sm">
+            {/* ✅ Footer Links */}
+            <div className="text-center mt-8 text-gray-600 dark:text-gray-400 text-sm">
               Related:{" "}
               <a href="/legal/cookies" className="text-blue-600 hover:underline">
                 Cookies Policy
@@ -264,12 +266,7 @@ export default function PrivacyPolicyPage() {
               <a href="/legal/terms" className="text-blue-600 hover:underline">
                 Terms of Service
               </a>
-              |{" "}
-              <a href="/legal/cookies/cookies-full" className="text-blue-600 hover:underline">
-                Full Cookies
-              </a>
             </div>
-
           </main>
         </div>
 
@@ -278,7 +275,7 @@ export default function PrivacyPolicyPage() {
           <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden flex">
             <div className="bg-white dark:bg-gray-800 w-80 p-6 h-full overflow-y-auto">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Table of Contents
                 </h3>
                 <button onClick={() => setSidebarOpen(false)} aria-label="Close sidebar">
