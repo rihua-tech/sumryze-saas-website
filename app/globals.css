@@ -80,6 +80,12 @@ html {
   scroll-behavior: smooth;
 }
 
+html, body {
+  overflow-x: hidden;
+}
+
+
+
 @media (max-width: 400px) {
   main {
     padding-left: 0.5rem !important;

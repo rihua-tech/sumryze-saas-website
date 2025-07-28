@@ -42,7 +42,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         )}
 
         {/* ✅ Main Content + Footer */}
-        <div className="flex-1 flex flex-col transition-all duration-300">
+      
+          <div className="w-full lg:flex-1 flex flex-col transition-all duration-300">
           <main className={`flex-1  ${hideSidebar ? "p-0" : "p-0"}`}>{children}</main>
           <Footer />
         </div>

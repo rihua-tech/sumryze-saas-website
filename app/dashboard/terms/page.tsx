@@ -1,34 +1,24 @@
 "use client";
 
-import type React from "react";
 import { useState, useEffect } from "react";
-import Head from "next/head";
-import {
-  Calendar,
-  Scale,
-  FileText,
-  Users,
-  CreditCard,
-  Shield,
-  AlertTriangle,
-  ChevronRight,
-  Gavel,
-  Mail,
-} from "lucide-react";
+import { Calendar, Scale, ChevronRight, Download, ArrowUpCircle, Mail } from "lucide-react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
-export default function TermsOfServicePage() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+
+export default function DashboardTermsPage() {
   const [activeSection, setActiveSection] = useState("acceptance");
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
   const lastUpdated = "January 15, 2024";
   const effectiveDate = "January 1, 2024";
 
-  const tableOfContents = [
-    { id: "acceptance", title: "1. Acceptance of Terms", icon: FileText },
+  const sections = [
+    { id: "acceptance", title: "1. Acceptance of Terms" },
     {
       id: "description-of-service",
       title: "2. Description of Service",
-      icon: Users,
       subsections: [
         { id: "service-overview", title: "2.1 Service Overview" },
         { id: "service-availability", title: "2.2 Service Availability" },
@@ -38,7 +28,6 @@ export default function TermsOfServicePage() {
     {
       id: "user-accounts",
       title: "3. User Accounts",
-      icon: Users,
       subsections: [
         { id: "account-creation", title: "3.1 Account Creation" },
         { id: "account-security", title: "3.2 Account Security" },
@@ -48,7 +37,6 @@ export default function TermsOfServicePage() {
     {
       id: "acceptable-use",
       title: "4. Acceptable Use Policy",
-      icon: Shield,
       subsections: [
         { id: "permitted-uses", title: "4.1 Permitted Uses" },
         { id: "prohibited-activities", title: "4.2 Prohibited Activities" },
@@ -58,7 +46,6 @@ export default function TermsOfServicePage() {
     {
       id: "payment-billing",
       title: "5. Payment and Billing",
-      icon: CreditCard,
       subsections: [
         { id: "subscription-fees", title: "5.1 Subscription Fees" },
         { id: "payment-methods", title: "5.2 Payment Methods" },
@@ -68,29 +55,26 @@ export default function TermsOfServicePage() {
     {
       id: "intellectual-property",
       title: "6. Intellectual Property Rights",
-      icon: Scale,
       subsections: [
         { id: "our-ip", title: "6.1 Our Intellectual Property" },
         { id: "user-content", title: "6.2 User Content" },
         { id: "license-grant", title: "6.3 License Grant" },
       ],
     },
-    { id: "privacy-data", title: "7. Privacy and Data Protection", icon: Shield },
+    { id: "privacy-data", title: "7. Privacy and Data Protection" },
     {
       id: "disclaimers",
       title: "8. Disclaimers and Warranties",
-      icon: AlertTriangle,
       subsections: [
         { id: "service-disclaimers", title: "8.1 Service Disclaimers" },
         { id: "warranty-disclaimers", title: "8.2 Warranty Disclaimers" },
       ],
     },
-    { id: "limitation-liability", title: "9. Limitation of Liability", icon: AlertTriangle },
-    { id: "indemnification", title: "10. Indemnification", icon: Shield },
+    { id: "limitation-liability", title: "9. Limitation of Liability" },
+    { id: "indemnification", title: "10. Indemnification" },
     {
       id: "termination",
       title: "11. Termination",
-      icon: AlertTriangle,
       subsections: [
         { id: "termination-by-user", title: "11.1 Termination by User" },
         { id: "termination-by-us", title: "11.2 Termination by Sumryze" },
@@ -100,7 +84,6 @@ export default function TermsOfServicePage() {
     {
       id: "governing-law",
       title: "12. Governing Law and Disputes",
-      icon: Gavel,
       subsections: [
         { id: "governing-law-clause", title: "12.1 Governing Law" },
         { id: "dispute-resolution", title: "12.2 Dispute Resolution" },
@@ -110,405 +93,549 @@ export default function TermsOfServicePage() {
     {
       id: "general-provisions",
       title: "13. General Provisions",
-      icon: FileText,
       subsections: [
         { id: "entire-agreement", title: "13.1 Entire Agreement" },
         { id: "severability", title: "13.2 Severability" },
         { id: "force-majeure", title: "13.3 Force Majeure" },
       ],
     },
-    { id: "contact-information", title: "14. Contact Information", icon: Users },
+    { id: "contact-information", title: "14. Contact Information" },
   ];
 
   useEffect(() => {
     const handleScroll = () => {
-      const sections = tableOfContents.flatMap((section) => [
-        section.id,
-        ...(section.subsections?.map((sub) => sub.id) || []),
-      ]);
-      for (const sectionId of sections) {
-        const element = document.getElementById(sectionId);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          if (rect.top <= 100 && rect.bottom >= 100) {
-            setActiveSection(sectionId);
+      const allIds = sections.flatMap((sec) => [sec.id, ...(sec.subsections?.map((s) => s.id) || [])]);
+      for (const id of allIds) {
+        const el = document.getElementById(id);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= 120 && rect.bottom >= 120) {
+            setActiveSection(id);
             break;
           }
         }
       }
+      setShowBackToTop(window.scrollY > 300);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [sections]);
 
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      const headerOffset = 100;
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-      window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      window.scrollTo({ top: el.offsetTop - 80, behavior: "smooth" });
     }
   };
 
-  const Section = ({ id, title, children }: { id: string; title: string; children: React.ReactNode }) => (
+  // ✅ PDF Generator
+
+
+const downloadPDF = async () => {
+  const doc = new jsPDF("p", "pt", "a4");
+  const margin = 40;
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const usableWidth = pageWidth - margin * 2;
+  const pageHeight = doc.internal.pageSize.getHeight();
+  let y = margin;
+
+  // ✅ Title & Dates
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(20);
+  doc.text("Sumryze Terms of Service", pageWidth / 2, y + 10, { align: "center" });
+
+  y += 40;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(12);
+  doc.text("Effective Date: January 1, 2024", pageWidth / 2, y, { align: "center" });
+  y += 16;
+  doc.text("Last Updated: January 15, 2024", pageWidth / 2, y, { align: "center" });
+  y += 40; // space before sections
+
+  // ✅ Footer helper
+  let pageNumber = 1;
+  const addFooter = () => {
+    doc.setFontSize(10);
+    doc.setTextColor(80);
+    doc.text(`Page ${pageNumber}`, pageWidth / 2, pageHeight - 20, { align: "center" });
+    doc.text("© 2024 Sumryze Inc. | All rights reserved", pageWidth / 2, pageHeight - 35, { align: "center" });
+  };
+
+  // ✅ Section rendering with page-break handling
+  const addContent = (textArray: string[], fontStyle = "normal", extraSpacing = 6) => {
+    doc.setFont("helvetica", fontStyle);
+    doc.setFontSize(11);
+    doc.setTextColor(0);
+    textArray.forEach((line) => {
+      const wrappedLines = doc.splitTextToSize(line, usableWidth);
+      wrappedLines.forEach((l: string) => {
+        if (y > 750) {
+          addFooter();
+          doc.addPage();
+          pageNumber++;
+          y = margin;
+        }
+        doc.text(l, margin, y);
+        y += 14;
+      });
+      y += extraSpacing;
+    });
+  };
+
+  const sections = document.querySelectorAll("section");
+
+  sections.forEach((section) => {
+    const sectionTitle = section.querySelector("h2")?.textContent?.trim() || "";
+    const elements = section.querySelectorAll("p, li");
+
+    // ✅ Check if new section fits current page (title + divider + content estimate)
+    if (y > 700) {
+      addFooter();
+      doc.addPage();
+      pageNumber++;
+      y = margin;
+    }
+
+    // ✅ Section Heading
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text(sectionTitle, margin, y);
+    y += 14;
+
+    // Divider
+    doc.setDrawColor(180);
+    doc.line(margin, y, margin + usableWidth, y);
+    y += 12;
+
+    // ✅ Section Content
+    elements.forEach((el) => {
+      let text = el.textContent?.trim() || "";
+      if (!text) return;
+
+      // Handle bullets
+      if (el.tagName === "LI") {
+        text = `• ${text}`;
+      }
+
+      // Highlight "Important:"
+      if (text.toLowerCase().startsWith("important")) {
+        addContent([text], "bold");
+      } else {
+        addContent([text], "normal");
+      }
+    });
+
+    y += 12; // space after section
+  });
+
+  // ✅ Add footer on last page
+  addFooter();
+
+  // ✅ Save PDF
+  doc.save("Sumryze-Terms-of-Service.pdf");
+};
+
+
+
+
+
+  const Section = ({ id, title, children }: any) => (
     <section id={id} className="mb-12 scroll-mt-24">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 pb-3 border-b border-gray-200 dark:border-gray-700">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
         {title}
       </h2>
-      <div className="prose prose-gray dark:prose-invert max-w-none">{children}</div>
+      <div className="space-y-4 text-gray-700 dark:text-gray-300">{children}</div>
     </section>
   );
 
-  const Subsection = ({ id, title, children }: { id: string; title: string; children: React.ReactNode }) => (
-    <div id={id} className="mb-8 scroll-mt-24">
-      <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">{title}</h3>
-      <div className="prose prose-gray dark:prose-invert max-w-none">{children}</div>
-    </div>
-  );
+ 
+
+  const Subsection = ({ id, title, children }: any) => (
+  <div id={id} className="mb-6">
+    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">{title}</h3>
+    <div className="space-y-3 text-gray-700 dark:text-gray-300">{children}</div> {/* ✅ FIXED */}
+  </div>
+);
+
 
   return (
-    <>
-      {/* ✅ SEO Meta Tags */}
-      <Head>
-        <title>Terms of Service | Sumryze</title>
-        <meta
-          name="description"
-          content="Read Sumryze's Terms of Service for legal agreements, usage guidelines, and compliance policies."
-        />
-        <meta name="robots" content="noindex,nofollow" />
-      </Head>
-
-      <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-        <div className="flex flex-1 pt-0">
-          {/* Sidebar */}
-          <aside className="hidden lg:block w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
-            <div className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Table of Contents</h3>
-              <nav className="space-y-2">
-                {tableOfContents.map((section) => {
-                  const Icon = section.icon;
-                  return (
-                    <div key={section.id}>
+    <div className="flex bg-gray-50 dark:bg-gray-900 min-h-screen">
+      {/* Sidebar */}
+      <aside className="hidden lg:block w-72 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 h-screen sticky top-0 overflow-y-auto">
+        <div className="p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Contents</h3>
+          <nav className="space-y-2">
+            {sections.map((section) => (
+              <div key={section.id}>
+                <button
+                  onClick={() => scrollToSection(section.id)}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition ${
+                    activeSection === section.id
+                      ? "bg-blue-600 text-white"
+                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  }`}
+                >
+                  {section.title}
+                </button>
+                {section.subsections && (
+                  <div className="ml-4 mt-1 space-y-1">
+                    {section.subsections.map((sub) => (
                       <button
-                        aria-label={`Scroll to ${section.title}`}
-                        onClick={() => scrollToSection(section.id)}
-                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-all duration-200 ${
-                          activeSection === section.id
-                            ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
-                            : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        key={sub.id}
+                        onClick={() => scrollToSection(sub.id)}
+                        className={`block text-xs px-3 py-1 rounded ${
+                          activeSection === sub.id
+                            ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                            : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
                         }`}
                       >
-                        <Icon className="h-4 w-4 flex-shrink-0" />
-                        <span className="text-sm font-medium">{section.title}</span>
+                        <ChevronRight className="inline w-3 h-3 mr-1" />
+                        {sub.title}
                       </button>
-                      {section.subsections && (
-                        <div className="ml-7 mt-1 space-y-1">
-                          {section.subsections.map((subsection) => (
-                            <button
-                              key={subsection.id}
-                              aria-label={`Scroll to ${subsection.title}`}
-                              onClick={() => scrollToSection(subsection.id)}
-                              className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-md text-left transition-all duration-200 ${
-                                activeSection === subsection.id
-                                  ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
-                                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                              }`}
-                            >
-                              <ChevronRight className="h-3 w-3 flex-shrink-0" />
-                              <span className="text-sm">{subsection.title}</span>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </nav>
-            </div>
-          </aside>
-
-          {/* Main Content */}
-          <main className="flex-1 max-w-4xl mx-auto px-6 py-8">
-            <div className="text-center mb-12">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <Scale className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-                <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">Terms of Service</h1>
+                    ))}
+                  </div>
+                )}
               </div>
-              <div className="flex flex-col items-center text-gray-600 dark:text-gray-400 text-sm">
-                <p>
-                  <Calendar className="inline h-4 w-4 mr-1" /> Effective: {effectiveDate} | Last Updated: {lastUpdated}
-                </p>
-              </div>
-            </div>
+            ))}
+          </nav>
+        </div>
+      </aside>
 
-            {/* ✅ Insert improved legal sections */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 lg:p-12">
-              {/* ✅ Use the full improved section block from previous message */}
+      {/* Main */}
+      <main className="flex-1 px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-5xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <Scale className="w-10 h-10 text-blue-600 dark:text-blue-400 mx-auto mb-2" />
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Terms of Service</h1>
+            <p className="text-gray-500 dark:text-gray-400 flex items-center justify-center gap-2 mt-1">
+              <Calendar className="w-4 h-4" /> Effective: {effectiveDate} | Last Updated: {lastUpdated}
+            </p>
+          </div>
 
-                      {/* Section 1: Acceptance of Terms */}
+          {/* Download PDF */}
+          <div className="flex justify-center md:justify-end mb-6">
+            <button
+              onClick={downloadPDF}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md"
+            >
+              <Download className="w-4 h-4" /> Download PDF
+            </button>
+          </div>
+
+        {/* ✅ All 14 Sections */}
+<div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 sm:p-8 space-y-8">
+
+  {/* -------------------- Section 1: Acceptance of Terms -------------------- */}
+ {/* -------------------- Section 1: Acceptance of Terms -------------------- */}
 <Section id="acceptance" title="1. Acceptance of Terms">
   <p>
-    Welcome to Sumryze. These Terms of Service (“Terms”) govern your use of the Sumryze platform and
-    services (“Service”) operated by Sumryze Inc. (“we,” “us,” or “our”).
+    Welcome to <strong>Sumryze</strong>. These Terms of Service (“Terms”) govern your use of the Sumryze platform and related services (“Service”) provided by Sumryze Inc. (“we,” “us,” or “our”).
   </p>
+
   <p>
-    By using our Service, you confirm that you are at least 18 years old (or the age of majority in your jurisdiction),
-    have the legal capacity to enter into this agreement, and, if you act on behalf of an entity, that you have authority
-    to bind that entity. If you do not agree to these Terms, do not use our Service.
+    By accessing or using our Service, you agree to these Terms. If you do not agree, do not use the Service. You represent that you are at least <strong>18 years old</strong> (or the age of majority in your jurisdiction) and have the legal authority to enter into this agreement. If acting on behalf of an entity, you confirm you are authorized to bind that entity.
   </p>
+
   <p>
-    Continued use after changes means you accept the updated Terms. If you access the Service from outside the U.S.,
-    you are responsible for compliance with local laws.
+    By using <strong>AI-powered features</strong> within the Service, you acknowledge and agree that AI outputs are for informational purposes only. These suggestions do not constitute legal, financial, or professional advice, and you are solely responsible for any actions or decisions based on such outputs.
   </p>
-  <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-lg p-4 mt-4">
-    <p className="text-amber-700 dark:text-amber-200">
-      <strong>Important:</strong> These Terms form a legally binding contract between you and Sumryze.
+
+  <p>
+    We may update these Terms periodically. Continued use after updates constitutes your acceptance. If you access the Service outside the U.S., you are responsible for complying with local laws and regulations.
+  </p>
+
+  {/* Highlighted Important Note */}
+  <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mt-4">
+    <p className="text-amber-700 dark:text-amber-200 font-semibold">
+      <strong>Important:</strong> These Terms form a legally binding agreement between you and Sumryze.
     </p>
   </div>
 </Section>
 
-{/* Section 2: Description of Service */}
+{/* -------------------- Section 2: Description of Service -------------------- */}
 <Section id="description-of-service" title="2. Description of Service">
-  <Subsection id="service-overview" title="2.1 Service Overview">
+  {/* Subsection 2.1 */}
+  <div id="service-overview" className="mb-8">
+    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">2.1 Service Overview</h3>
     <p>
-      Sumryze provides analytics and optimization tools to assist businesses in monitoring SEO performance
-      and website health. We do not guarantee specific ranking improvements, traffic increases, or financial outcomes.
+      Sumryze provides <strong>analytics and optimization tools</strong> for website performance monitoring, SEO analysis, and AI-powered recommendations.
     </p>
-    <p>Our services include but are not limited to:</p>
-    <ul className="list-disc list-inside space-y-2 mt-4">
-      <li>SEO performance monitoring and reporting</li>
-      <li>Website technical analysis and recommendations</li>
-      <li>Keyword tracking and competitive analysis</li>
-      <li>Core Web Vitals monitoring</li>
-      <li>AI-powered SEO insights and recommendations</li>
+
+    <p>Our Service may include, but is not limited to:</p>
+    <ul className="list-disc list-inside space-y-2">
+      <li>SEO performance monitoring and automated reporting</li>
+      <li>Website technical audits and optimization suggestions</li>
+      <li>Keyword tracking and competitive benchmarking</li>
+      <li>Core Web Vitals and performance metrics analysis</li>
+      <li>AI-powered SEO insights, trend forecasts, and automation suggestions</li>
     </ul>
-  </Subsection>
-  <Subsection id="service-availability" title="2.2 Service Availability">
-    <p>
-      We aim for high availability but do not guarantee uninterrupted access. Downtime may occur for maintenance,
-      security updates, or circumstances beyond our control.
+
+    <p className="font-semibold text-amber-600 dark:text-amber-400 mt-3">
+      Important: AI-generated insights are for informational purposes only and do not guarantee results.
     </p>
-  </Subsection>
-  <Subsection id="service-modifications" title="2.3 Service Modifications">
+  </div>
+
+  {/* Subsection 2.2 */}
+  <div id="service-availability" className="mb-8">
+    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">2.2 Service Availability</h3>
     <p>
-      We may modify, suspend, or discontinue any part of the Service at any time, with or without notice.
-      Significant changes will be communicated where feasible.
+      We strive to maintain high service uptime and reliability; however, occasional downtime may occur for maintenance or unforeseen issues.
     </p>
-  </Subsection>
+  </div>
+
+  {/* Subsection 2.3 */}
+  <div id="service-modifications">
+    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">2.3 Service Modifications</h3>
+    <p>
+      We reserve the right to update, enhance, suspend, or discontinue any part of the Service at any time with or without notice.
+    </p>
+  </div>
 </Section>
 
-{/* Section 3: User Accounts */}
-<Section id="user-accounts" title="3. User Accounts">
-  <Subsection id="account-creation" title="3.1 Account Creation">
-    <p>You agree to:</p>
-    <ul className="list-disc list-inside space-y-2">
-      <li>Provide accurate and up-to-date information</li>
-      <li>Not impersonate another person or entity</li>
-      <li>Not use the Service for unlawful purposes</li>
-    </ul>
-  </Subsection>
-  <Subsection id="account-security" title="3.2 Account Security">
-    <p>
-      You are responsible for all activity under your account, even if performed by others with your credentials.
-      You must:
-    </p>
-    <ul className="list-disc list-inside space-y-2">
-      <li>Use a strong, unique password</li>
-      <li>Enable two-factor authentication where available</li>
-      <li>Notify us immediately of unauthorized access</li>
-    </ul>
-  </Subsection>
-  <Subsection id="account-termination" title="3.3 Account Termination">
-    <p>
-      You may terminate your account anytime via settings. We may suspend or terminate without liability for
-      violations, fraud, legal compliance, or risk concerns.
-    </p>
-  </Subsection>
-</Section>
 
-{/* Section 4: Acceptable Use */}
-<Section id="acceptable-use" title="4. Acceptable Use Policy">
-  <Subsection id="permitted-uses" title="4.1 Permitted Uses">
-    <ul className="list-disc list-inside space-y-2">
-      <li>Monitoring your own or authorized websites</li>
-      <li>Generating reports for clients with consent</li>
-      <li>Using our API within documented limits</li>
-    </ul>
-  </Subsection>
-  <Subsection id="prohibited-activities" title="4.2 Prohibited Activities">
-    <ul className="list-disc list-inside space-y-2">
-      <li>Violating any law or regulation</li>
-      <li>Scraping beyond API allowances</li>
-      <li>Using Service to spam or distribute harmful content</li>
-      <li>Generating illegal, infringing, or defamatory AI outputs</li>
-      <li>Breaching export control or sanctions laws</li>
-    </ul>
-  </Subsection>
-  <Subsection id="compliance" title="4.3 Compliance Requirements">
-    <p>
-      You must comply with all privacy, security, and data protection laws (including GDPR and CCPA).
-    </p>
-  </Subsection>
-</Section>
+  {/* -------------------- Section 3: User Accounts -------------------- */}
+  <Section id="user-accounts" title="3. User Accounts">
+    <Subsection id="account-creation" title="3.1 Account Creation">
+      <p>You agree to:</p>
+      <ul className="list-disc list-inside space-y-2">
+        <li>Provide accurate and current information</li>
+        <li>Not impersonate another person or entity</li>
+        <li>Not use the Service for unlawful purposes</li>
+      </ul>
+    </Subsection>
+    <Subsection id="account-security" title="3.2 Account Security">
+      <p>You are responsible for maintaining account confidentiality and for all activity under your credentials. You agree to:</p>
+      <ul className="list-disc list-inside space-y-2">
+        <li>Use strong, unique passwords</li>
+        <li>Enable two-factor authentication where available</li>
+        <li>Notify us immediately of any unauthorized access</li>
+      </ul>
+    </Subsection>
+    <Subsection id="account-termination" title="3.3 Account Termination">
+      <p>
+        You may terminate your account anytime via dashboard settings. We may suspend or terminate your account without notice for violations, fraud, legal requirements, or security risks.
+      </p>
+    </Subsection>
+  </Section>
 
-{/* Section 5: Payment and Billing */}
+  {/* -------------------- Section 4: Acceptable Use Policy -------------------- */}
+  <Section id="acceptable-use" title="4. Acceptable Use Policy">
+    <Subsection id="permitted-uses" title="4.1 Permitted Uses">
+      <ul className="list-disc list-inside space-y-2">
+        <li>Monitoring authorized websites</li>
+        <li>Generating reports for clients with consent</li>
+        <li>Using our API within documented limits</li>
+      </ul>
+    </Subsection>
+    <Subsection id="prohibited-activities" title="4.2 Prohibited Activities">
+      <ul className="list-disc list-inside space-y-2">
+        <li>Violating any applicable law or regulation</li>
+        <li>Scraping beyond permitted API limits</li>
+        <li>Spamming or distributing harmful content</li>
+        <li>Using AI features to generate unlawful or defamatory content</li>
+        <li>Engaging in fraudulent or abusive activities</li>
+      </ul>
+    </Subsection>
+    <Subsection id="compliance" title="4.3 Compliance Requirements">
+      <p>You must comply with GDPR, CCPA, and all applicable data protection and privacy laws.</p>
+    </Subsection>
+  </Section>
+  {/* ✅ Continue Sections 5–14 in this same format... */}
+  {/* -------------------- Section 5: Payment and Billing -------------------- */}
+
+  {/* -------------------- Section 5: Payment and Billing -------------------- */}
 <Section id="payment-billing" title="5. Payment and Billing">
   <Subsection id="subscription-fees" title="5.1 Subscription Fees">
     <ul className="list-disc list-inside space-y-2">
-      <li>Billed in advance monthly or annually</li>
-      <li>Auto-renews unless canceled before renewal date</li>
-      <li>Taxes applied where applicable</li>
+      <li>All subscription fees are billed in advance on a recurring basis (monthly or annually).</li>
+      <li>Your plan will automatically renew unless canceled before the renewal date.</li>
+      <li>Applicable taxes and fees will be added as required by law.</li>
     </ul>
   </Subsection>
   <Subsection id="payment-methods" title="5.2 Payment Methods">
     <p>
-      You authorize recurring charges to your payment method until canceled.
+      By providing payment details, you authorize us to charge your designated payment method on a recurring basis until you cancel your subscription.
+      It is your responsibility to maintain valid payment details and sufficient funds.
     </p>
   </Subsection>
   <Subsection id="refunds-cancellation" title="5.3 Refunds and Cancellation">
-    <p>Cancel anytime in your dashboard. Refund policy:</p>
+    <p>You may cancel your subscription at any time via your account dashboard. Our refund policy:</p>
     <ul className="list-disc list-inside space-y-2">
-      <li>30-day money-back for first subscription</li>
-      <li>No refunds after 30 days or for partial periods</li>
+      <li>A full refund is available within 30 days of your first subscription payment.</li>
+      <li>No refunds are provided after 30 days or for partial billing periods.</li>
     </ul>
   </Subsection>
 </Section>
 
-{/* Section 6: Intellectual Property */}
+{/* -------------------- Section 6: Intellectual Property -------------------- */}
 <Section id="intellectual-property" title="6. Intellectual Property Rights">
   <Subsection id="our-ip" title="6.1 Our Intellectual Property">
     <p>
-      The Service and related IP belong to Sumryze and are protected by law.
+      All rights, title, and interest in the Service, including trademarks, content, software, and technology, are owned by Sumryze or its licensors and protected by copyright and other intellectual property laws. Unauthorized use is prohibited.
     </p>
   </Subsection>
   <Subsection id="user-content" title="6.2 User Content">
     <p>
-      You own your content but grant us a limited license to operate the Service. Ends when account closes.
+      You retain ownership of your content. By submitting content, you grant us a limited, non-exclusive, revocable license to store, process, and display such content solely to provide the Service.
     </p>
   </Subsection>
   <Subsection id="license-grant" title="6.3 License Grant">
     <p>
-      We grant you a limited, revocable, non-transferable license to use the Service. Feedback may be used without obligation.
+      We grant you a limited, revocable, non-transferable license to access and use the Service in accordance with these Terms. Feedback you provide may be used without obligation or attribution.
     </p>
   </Subsection>
 </Section>
 
-{/* Section 7: Privacy */}
+{/* -------------------- Section 7: Privacy and Data Protection -------------------- */}
 <Section id="privacy-data" title="7. Privacy and Data Protection">
   <p>
-    Our Privacy Policy explains how we handle your data. If you are in the EU or California, you have specific rights
-    under GDPR and CCPA. A Data Processing Addendum (DPA) is available upon request. By using our Service, you consent to data transfer to the U.S.
+    Your privacy is a core priority at Sumryze. The collection, processing, and storage of your personal data are governed by our{" "}
+    <a href="/legal/privacy" className="text-blue-600 hover:underline">Privacy Policy</a>. This includes details on the types of data we collect, how it is used, and your choices.
   </p>
-  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mt-4">
+  <p className="mt-4">
+    <strong>Data Protection Rights:</strong> If you are located in the European Union (EU) or European Economic Area (EEA), you are entitled to rights under the General Data Protection Regulation (GDPR), including:
+  </p>
+  <ul className="list-disc list-inside space-y-1 mt-2">
+    <li>The right to access, correct, or delete your personal data</li>
+    <li>The right to restrict or object to processing</li>
+    <li>The right to data portability</li>
+    <li>The right to lodge a complaint with your local data protection authority</li>
+  </ul>
+  <p className="mt-4">If you are a California resident, you have rights under the California Consumer Privacy Act (CCPA), including:</p>
+  <ul className="list-disc list-inside space-y-1 mt-2">
+    <li>The right to know what personal data we collect and how we use it</li>
+    <li>The right to request deletion of your personal data</li>
+    <li>The right to opt-out of the sale or sharing of personal information (we do not sell your data)</li>
+  </ul>
+  <p className="mt-4">
+    <strong>AI-Powered Features:</strong> Any data processed for AI-driven insights (e.g., automated SEO suggestions) is used solely to generate reports and recommendations for your account.
+  </p>
+  <p className="mt-4">
+    By using our Service, you consent to the transfer and processing of your data in the United States and other jurisdictions as necessary to deliver the Service in compliance with applicable laws.
+  </p>
+  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mt-4">
     <p>
-      <strong>Privacy Policy:</strong>{" "}
-      <a href="/privacy" className="underline hover:no-underline">
-        View here
-      </a>
+      <strong>Need a Data Processing Addendum (DPA)?</strong> Businesses requiring a DPA for GDPR compliance can request one by contacting us at{" "}
+      <a href="mailto:privacy@sumryze.com" className="text-blue-600 hover:underline">privacy@sumryze.com</a>.
     </p>
   </div>
 </Section>
 
-{/* Section 8: Disclaimers */}
+{/* -------------------- Section 8: Disclaimers and Warranties -------------------- */}
 <Section id="disclaimers" title="8. Disclaimers and Warranties">
   <Subsection id="service-disclaimers" title="8.1 Service Disclaimers">
     <ul className="list-disc list-inside space-y-2">
-      <li>Service is provided “as is” and “as available.”</li>
-      <li>No guarantee of accuracy, uptime, or error-free performance</li>
-      <li>We do not guarantee AI-generated content legality or accuracy</li>
-      <li>No compatibility guarantee for third-party integrations</li>
+      <li>The Service is provided on an “as is” and “as available” basis without warranties of any kind.</li>
+      <li>We do not guarantee uninterrupted or error-free operation, accuracy of reports, or specific SEO results.</li>
+      <li>AI-powered features provide insights and suggestions only. They do not constitute legal, financial, or professional advice.</li>
+      <li><strong>Important:</strong> <em>AI-powered features cannot predict future results with certainty. Use at your discretion.</em></li>
+      <li>No guarantee of compatibility with third-party tools or integrations.</li>
     </ul>
   </Subsection>
   <Subsection id="warranty-disclaimers" title="8.2 Warranty Disclaimers">
-    <p>
-      To the fullest extent permitted by law, we disclaim all warranties, including merchantability, fitness for a
-      particular purpose, and non-infringement.
-    </p>
+    <p>To the fullest extent permitted by law, we disclaim all implied warranties, including merchantability, fitness for a particular purpose, and non-infringement.</p>
   </Subsection>
 </Section>
 
-{/* Section 9: Limitation of Liability */}
+{/* -------------------- Section 9: Limitation of Liability -------------------- */}
 <Section id="limitation-liability" title="9. Limitation of Liability">
-  <p>
-    Our liability for any claims shall not exceed the amount you paid us in the past 12 months. You waive the right to
-    participate in class actions or jury trials. Nothing limits liability for gross negligence or fraud. Certain jurisdictions may not allow these limitations, in which case they apply to the maximum extent permitted.
-  </p>
+  <p>To the maximum extent permitted by law, Sumryze and its affiliates shall not be liable for indirect, incidental, special, or consequential damages, including loss of profits or data, arising from use of the Service.</p>
+  <p>Our total liability for any claims will not exceed the amount you paid for the Service in the last 12 months.</p>
 </Section>
 
-{/* Section 10: Indemnification */}
+{/* -------------------- Section 10: Indemnification -------------------- */}
 <Section id="indemnification" title="10. Indemnification">
-  <p>
-    You agree to indemnify Sumryze against any claims or damages from your misuse of the Service or breach of these
-    Terms.
-  </p>
+  <p>You agree to indemnify and hold harmless Sumryze, its officers, employees, and affiliates from any claims, liabilities, damages, losses, and expenses (including reasonable attorneys’ fees) arising from:</p>
+  <ul className="list-disc list-inside space-y-2 mt-2">
+    <li>Your violation of these Terms</li>
+    <li>Misuse of the Service or API</li>
+    <li>Content you submit or actions you perform using our Service</li>
+    <li>Infringement of any third-party rights</li>
+  </ul>
 </Section>
 
-{/* Section 11: Termination */}
+{/* -------------------- Section 11: Termination -------------------- */}
 <Section id="termination" title="11. Termination">
   <Subsection id="termination-by-user" title="11.1 Termination by User">
-    <p>You may cancel anytime via your dashboard.</p>
+    <p>You may terminate your account at any time through your dashboard settings. Upon termination, subscription fees already paid are non-refundable unless covered by our refund policy.</p>
   </Subsection>
   <Subsection id="termination-by-us" title="11.2 Termination by Sumryze">
-    <p>We may terminate access immediately for violations or legal risk without liability.</p>
+    <p>We reserve the right to suspend or terminate your access immediately, without liability, for:</p>
+    <ul className="list-disc list-inside space-y-2 mt-2">
+      <li>Violation of these Terms</li>
+      <li>Legal or regulatory compliance</li>
+      <li>Fraudulent, abusive, or harmful activity</li>
+      <li>Security threats to the platform or other users</li>
+    </ul>
   </Subsection>
   <Subsection id="effect-of-termination" title="11.3 Effect of Termination">
-    <p>Access ends immediately; data may be deleted after 30 days. We may retain aggregated or anonymized data for analytics.</p>
+    <p>Upon termination, your access to the Service will cease immediately. We may permanently delete your account data within 30 days unless otherwise required by law.</p>
   </Subsection>
 </Section>
 
-{/* Section 12: Governing Law */}
+{/* -------------------- Section 12: Governing Law and Disputes -------------------- */}
 <Section id="governing-law" title="12. Governing Law and Disputes">
   <Subsection id="governing-law-clause" title="12.1 Governing Law">
-    <p>These Terms follow California law.</p>
+    <p>These Terms are governed by and construed in accordance with the laws of the State of California, U.S.A.</p>
   </Subsection>
   <Subsection id="dispute-resolution" title="12.2 Dispute Resolution">
-    <p>Contact us first for resolution. Claims must be filed within 1 year.</p>
+    <p>Before initiating any legal action, you agree to attempt to resolve disputes informally by contacting us at <a href="mailto:privacy@sumryze.com" className="text-blue-600 hover:underline">privacy@sumryze.com</a>.</p>
   </Subsection>
-  <Subsection id="arbitration" title="12.3 Arbitration">
-    <p>
-      Disputes will be resolved individually by binding arbitration under AAA rules. You may opt out within 30 days by
-      emailing legal@sumryze.com. You waive the right to a jury trial.
-    </p>
+  <Subsection id="arbitration" title="12.3 Arbitration and Class-Action Waiver">
+    <p>Any disputes arising out of these Terms shall be resolved exclusively through binding arbitration under the American Arbitration Association (AAA) rules. <strong>You waive your right to a jury trial and agree that all claims must be brought individually.</strong></p>
+    <p>Arbitration shall take place in California, U.S.A. You may opt out within 30 days by emailing <a href="mailto:privacy@sumryze.com" className="text-blue-600 hover:underline">privacy@sumryze.com</a>.</p>
   </Subsection>
 </Section>
 
-{/* Section 13: General */}
+{/* -------------------- Section 13: General Provisions -------------------- */}
 <Section id="general-provisions" title="13. General Provisions">
   <Subsection id="entire-agreement" title="13.1 Entire Agreement">
-    <p>These Terms and our Privacy Policy are the entire agreement.</p>
+    <p>These Terms, together with our Privacy Policy and any supplemental agreements, represent the entire agreement between you and Sumryze.</p>
   </Subsection>
   <Subsection id="severability" title="13.2 Severability">
-    <p>If any part is invalid, the rest remains enforceable.</p>
+    <p>If any provision of these Terms is found to be invalid, the remaining provisions shall continue in full force.</p>
   </Subsection>
   <Subsection id="force-majeure" title="13.3 Force Majeure">
-    <p>We are not liable for events beyond our control.</p>
+    <p>We are not liable for delays caused by events beyond our control, including natural disasters, war, pandemics, cyberattacks, or government actions.</p>
   </Subsection>
 </Section>
 
-{/* Section 14: Contact */}
+{/* -------------------- Section 14: Contact Information -------------------- */}
 <Section id="contact-information" title="14. Contact Information">
-  <p>Questions? Contact us:</p>
-  <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-6">
+  <p>If you have any questions about these Terms, please contact us:</p>
+  <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-6 mt-4">
     <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Email Support</h4>
     <div className="flex items-center gap-3">
       <Mail className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-      <a
-        href="mailto:support@sumryze.com"
-        aria-label="Send an email to Sumryze Support"
-        className="text-blue-600 dark:text-blue-400 font-medium hover:underline"
-      >
-        support@sumryze.com
-      </a>
+      <a href="mailto:support@sumryze.com" className="text-blue-600 dark:text-blue-400 font-medium hover:underline">support@sumryze.com</a>
     </div>
+  </div>
+  <div className="mt-6 border-t border-gray-200 dark:border-gray-700 pt-4">
+    <p className="text-gray-700 dark:text-gray-300 text-sm mb-2 font-medium">Related Links:</p>
+    <ul className="space-y-2 text-sm">
+      <li><a href="/legal/privacy" className="text-blue-600 hover:underline">Privacy Policy</a></li>
+      <li><a href="/legal/cookies" className="text-blue-600 hover:underline">Cookie Policy</a></li>
+      <li><a href="/legal/refund" className="text-blue-600 hover:underline">Refund & Cancellation Policy</a></li>
+    </ul>
   </div>
 </Section>
 
 
-            </div>
-          </main>
+          
+          </div>
         </div>
-      </div>
-    </>
+      </main>
+
+      {/* Back to Top */}
+      {showBackToTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg"
+        >
+          <ArrowUpCircle className="w-6 h-6" />
+        </button>
+      )}
+    </div>
   );
 }

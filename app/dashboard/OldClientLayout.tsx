@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Header from "@/app/dashboard/components/Header";
-import Sidebar from "@/app/dashboard/components/Sidebar";
+import Sidebar from "@/app/dashboard/components/Sidebar0";
 import Footer from "@/app/dashboard/components/Footer";
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
