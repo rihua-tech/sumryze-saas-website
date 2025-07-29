@@ -1,7 +1,7 @@
 "use client";
 
 import { ThemeProvider } from "next-themes";
-import Header from "@/app/dashboard/components/Header";
+import Header from "@/app/dashboard/components/Header00";
 import Footer from "@/app/dashboard/components/Footer";
 
 export default function LegalLayout({ children }: { children: React.ReactNode }) {

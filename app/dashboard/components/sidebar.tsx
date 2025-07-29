@@ -5,14 +5,14 @@ import ShowChart from '@mui/icons-material/ShowChart'; // or another you choose
 import SettingsSuggestIcon from "@mui/icons-material/SettingsSuggest";
 import HubIcon from "@mui/icons-material/Hub";
 
+
+
+
 import {
   Dashboard as DashboardIcon,
   Description as DescriptionIcon,
   SmartToy as SmartToyIcon,
-  Settings as SettingsIcon,
   Group as GroupIcon,
-  Build as BuildIcon,
-  Link as LinkIcon,
   Menu,
   Close as CloseIcon,
 } from "@mui/icons-material";
@@ -29,10 +29,11 @@ interface SidebarProps {
 
 
 const menuItems = [
-  { name: "Overview", icon: DashboardIcon, href: "/dashboard" },
+ 
+  { name: "Dashboard", icon: DashboardIcon, href: "/dashboard" },
   { name: "Reports", icon: DescriptionIcon, href: "/dashboard/reports" },
-  { name: "AI SEO", icon: SmartToyIcon, href: "/dashboard/ai-seo" },
   { name: "Analytics", icon: ShowChart, href: "/dashboard/analytics" },
+  { name: "AI SEO", icon: SmartToyIcon, href: "/dashboard/ai-seo" },
   { name: "Clients", icon: GroupIcon, href: "/dashboard/clients" },
   { name: "Quick Setup", icon: SettingsSuggestIcon, href: "/dashboard/setup" },
   { name: "Integrations", icon: HubIcon, href: "/dashboard/integrations" },
@@ -75,7 +76,8 @@ export default function Sidebar({
         <nav className="px-3 space-y-3">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href;
+           const isActive = pathname.startsWith(item.href);
+
             return (
              <a
               key={item.name}
@@ -91,13 +93,11 @@ export default function Sidebar({
           >
              <Icon className="h-5 w-5" />
              {!isCollapsed && <span className="ml-3">{item.name}</span>}
-            </a>
-
-
-              
+            </a>             
             );
           })}
         </nav>
+
       </aside>
 
       {/* ✅ Mobile Sidebar - still overlay */}
@@ -117,7 +117,9 @@ export default function Sidebar({
         <nav className="p-4 space-y-3">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href;
+            const isActive = pathname.startsWith(item.href);
+
+          
             return (
               <a
                 key={item.name}

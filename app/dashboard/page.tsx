@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 
 
 import { RefreshCw, TrendingUp, TrendingDown, BarChart3, ArrowRight, ExternalLink, Download } from "lucide-react"
@@ -8,20 +8,45 @@ import { RefreshCw, TrendingUp, TrendingDown, BarChart3, ArrowRight, ExternalLin
 import CoreWebVitals from "./components/overview/CoreWebVitals"
 
 
+import DashboardHeaderCenter from "./components/DashboardHeaderCenter";
+
+
+
+// SectionTab component for navigation tabs
+type SectionTabProps = {
+  href: string
+  label: string
+  icon: React.ElementType
+  active?: boolean
+}
+function SectionTab({ href, label, icon: Icon, active }: SectionTabProps) {
+  return (
+    <a
+      href={href}
+      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+        active
+          ? "bg-blue-600 text-white shadow"
+          : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+      }`}
+    >
+      <Icon className="h-5 w-5" />
+      {label}
+    </a>
+  )
+}
+
+
 import {
-  
-  Eye,
-  MousePointer,
-  DollarSign,
-  AlertTriangle,
-  CheckCircle,
-  Share,
-  
-  Sparkles,
-  ArrowUp,
-  ArrowDown,
-  
-} from "lucide-react"
+  Dashboard as DashboardIcon,
+  Description as DescriptionIcon,
+  SmartToy as SmartToyIcon,
+  Group as GroupIcon,
+  Menu,
+  Close as CloseIcon,
+  ExpandMore,
+} from "@mui/icons-material";
+
+import { Share,} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -30,9 +55,18 @@ import { motion } from "framer-motion"
 
 
 
+import { usePathname } from "next/navigation"
+
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [trafficPeriod, setTrafficPeriod] = useState("Weekly")
+  const pathname = usePathname();
+
+  // Add missing state and ref for client dropdown
+  const [isClientDropdownOpen, setIsClientDropdownOpen] = useState(false);
+  const [selectedClient, setSelectedClient] = useState("Client A");
+  const clientOptions = ["Client A", "Client B", "Client C"];
+  const clientDropdownRef = useRef<HTMLDivElement>(null);
 
   // Example values for AI Insights summary
   const positiveChange = 6
@@ -47,7 +81,10 @@ export default function Dashboard() {
 
       
         <div className="max-w-7xl mx-auto px-5 py-5 space-y-8">
-
+          
+        
+         
+ <DashboardHeaderCenter />
 
 
                 {/* AI Insights Banner */}
