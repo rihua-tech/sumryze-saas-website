@@ -92,7 +92,7 @@ interface HeaderProps {
   // ✅ FIX: Now return is valid
   return (
     <header className="sticky top-0 z-50 w-full bg-white dark:bg-[#12141C] border-b border-gray-200 dark:border-[#2C2F36] shadow-sm dark:shadow-xl backdrop-blur-sm transition-colors duration-300">
-      <div className="w-full px-6 py-4">
+      <div className="w-full px-0 py-0">
         <div className="flex items-center justify-between w-full">
 
           {/* Left Section (Unchanged) */}
@@ -124,6 +124,7 @@ interface HeaderProps {
           {/* Center Section */}
           <div className="hidden lg:flex justify-center items-center gap-4">
             
+            
             {/* Mode Switch */}
             <div className="flex items-center gap-3">
               {modes.map((mode) => (
@@ -149,29 +150,29 @@ interface HeaderProps {
 
             
            {/* Client Dropdown */}
-<div className="relative" ref={clientDropdownRef}>
-  <button
-    onClick={() => setIsClientDropdownOpen(!isClientDropdownOpen)}
-    aria-haspopup="true"
-    aria-expanded={isClientDropdownOpen}
-    aria-controls="client-menu"
-    className="flex items-center space-x-2 px-3 py-1.5 dark:bg-[#1C1F27] border border-gray-200 dark:border-[#2C2F36] rounded-full text-sm hover:bg-gray-100 dark:hover:bg-[#2C2F36] focus:outline-none"
-  >
-    <GroupIcon sx={{ fontSize: 18 }} className="text-gray-400" />
-    <span className="text-gray-700 dark:text-gray-200">{selectedClient}</span>
-    <ExpandMore
+    <div className="relative" ref={clientDropdownRef}>
+     <button
+       onClick={() => setIsClientDropdownOpen(!isClientDropdownOpen)}
+       aria-haspopup="true"
+       aria-expanded={isClientDropdownOpen}
+       aria-controls="client-menu"
+       className="flex items-center space-x-2 px-3 py-1.5 dark:bg-[#1C1F27] border border-gray-200 dark:border-[#2C2F36] rounded-full text-sm hover:bg-gray-100 dark:hover:bg-[#2C2F36] focus:outline-none"
+      >
+       <GroupIcon sx={{ fontSize: 18 }} className="text-gray-400" />
+       <span className="text-gray-700 dark:text-gray-200">{selectedClient}</span>
+       <ExpandMore
       sx={{ fontSize: 20 }}
       className={`text-gray-400 transition-transform duration-300 ${isClientDropdownOpen ? "rotate-180" : ""}`}
-    />
-  </button>
+       />
+       </button>
 
-  {isClientDropdownOpen && (
-    <div
+       {isClientDropdownOpen && (
+      <div
       id="client-menu"
       role="menu"
       aria-label="Client Selection"
       className="absolute top-full mt-2 w-48 bg-white dark:bg-[#1C1F27] border border-gray-200 dark:border-[#2C2F36] rounded-lg shadow-lg dark:shadow-xl z-10"
-    >
+     >
       {clientOptions.map((option) => (
         <button
           key={option}
@@ -196,10 +197,8 @@ interface HeaderProps {
         </button>
       ))}
     </div>
-  )}
-</div>
-
-
+   )}
+   </div>
  </div>
 
         

@@ -28,18 +28,19 @@ function SectionTab({
   return (
     <button
       onClick={() => router.push(href)}
-      className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-300 ${
+      className={`flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium transition-all duration-300 ${
         active
-        ? "bg-blue-500/15 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400"
-        : "text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800 hover:text-black dark:hover:text-white"
+          ? "bg-blue-500/15 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400"
+          : "text-gray-600 bg-gray-200 dark:bg-gray-800 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-black dark:hover:text-white"
       }`}
       title={label}
     >
-      <Icon className="h-4 w-4" />
-      {label}
+      <Icon sx={{ fontSize: 14 }} />
+      <span className="tracking-tight">{label}</span>
     </button>
   );
 }
+
 
 
 // ✅ Main Header Center
@@ -70,60 +71,66 @@ export default function DashboardHeaderCenter() {
   if (!mounted) return null;
 
   return (
-    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-      {/* ✅ Client Selector */}
-      <div className="relative" ref={dropdownRef}>
-        <button
-          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className="flex items-center gap-2 px-3 py-1.5 text-sm border rounded-full dark:bg-[#1C1F27] border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-[#2C2F36]"
-        >
-          <GroupIcon sx={{ fontSize: 18 }} className="text-gray-400" />
-          <span className="text-gray-700 dark:text-gray-200">{selectedClient}</span>
-          <ExpandMore
-            sx={{ fontSize: 20 }}
-            className={`text-gray-400 transition-transform ${isDropdownOpen ? "rotate-180" : "rotate-0"}`}
-          />
-        </button>
-        {isDropdownOpen && (
-          <div className="absolute mt-2 w-48 bg-white dark:bg-[#1C1F27] border border-gray-300 dark:border-[#2C2F36] rounded-lg shadow z-10">
-            {clientOptions.map((option) => (
-              <button
-                key={option}
-                onClick={() => {
-                  setSelectedClient(option);
-                  setIsDropdownOpen(false);
-                }}
-                className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#2C2F36] hover:text-purple-600 dark:hover:text-purple-300"
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+    <div className="flex flex-wrap items-center justify-start gap-2">
+  {/* ✅ Client Selector */}
+  <div className="relative" ref={dropdownRef}>
 
-     {/* ✅ Section Tabs */}
-<div className="flex flex-wrap gap-2">
-  <SectionTab
-    href="/dashboard/reports"
-    label="Reports"
-    icon={DescriptionIcon}
-    active={pathname.startsWith("/dashboard/reports")}
-  />
-  <SectionTab
-    href="/dashboard/analytics"
-    label="Analytics"
-    icon={BarChart3}
-    active={pathname.startsWith("/dashboard/analytics")}
-  />
-  <SectionTab
-    href="/dashboard/ai-seo"
-    label="AI SEO"
-    icon={SmartToyIcon}
-    active={pathname.startsWith("/dashboard/ai-seo")}
-  />
+    <button
+      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+      className="flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium text-gray-800 bg-gray-200 dark:bg-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-[#2A2F3A] transition-all duration-200"
+    >
+      <GroupIcon sx={{ fontSize: 14 }} className="text-gray-500" />
+      <span>{selectedClient}</span>
+      <ExpandMore
+        sx={{ fontSize: 14 }}
+        className={`text-gray-400 transition-transform ${
+          isDropdownOpen ? "rotate-180" : "rotate-0"
+        }`}
+      />
+    </button>
+
+    {isDropdownOpen && (
+      <div className="absolute mt-2 w-48 bg-white dark:bg-[#1C1F27] border border-gray-300 dark:border-[#2C2F36] rounded-lg shadow z-10">
+        {clientOptions.map((option) => (
+          <button
+            key={option}
+            onClick={() => {
+              setSelectedClient(option);
+              setIsDropdownOpen(false);
+            }}
+            className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#2C2F36] hover:text-purple-600 dark:hover:text-purple-300"
+          >
+            {option}
+          </button>
+        ))}
+      </div>
+    )}
+  </div>
+
+  {/* ✅ Section Tabs */}
+  <div className="flex gap-2 flex-wrap">
+    <SectionTab
+      href="/dashboard/reports"
+      label="Reports"
+      icon={DescriptionIcon}
+      active={pathname.startsWith("/dashboard/reports")}
+    />
+    <SectionTab
+      href="/dashboard/analytics"
+      label="Analytics"
+      icon={BarChart3}
+      active={pathname.startsWith("/dashboard/analytics")}
+    />
+    <SectionTab
+      href="/dashboard/ai-seo"
+      label="AI SEO"
+      icon={SmartToyIcon}
+      active={pathname.startsWith("/dashboard/ai-seo")}
+    />
+  </div>
 </div>
 
-    </div>
+    
+   
   );
 }

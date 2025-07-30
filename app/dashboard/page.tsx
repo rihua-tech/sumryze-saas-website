@@ -1,55 +1,18 @@
 "use client"
 
 import { useState, useRef } from "react"
-
-
 import { RefreshCw, TrendingUp, TrendingDown, BarChart3, ArrowRight, ExternalLink, Download } from "lucide-react"
-
 import CoreWebVitals from "./components/overview/CoreWebVitals"
-
-
 import DashboardHeaderCenter from "./components/DashboardHeaderCenter";
+import UrlSearchBar from "./components/UrlSearchBar";
+import { useUserContext } from "@/app/context/UserContext";
 
 
-
-// SectionTab component for navigation tabs
-type SectionTabProps = {
-  href: string
-  label: string
-  icon: React.ElementType
-  active?: boolean
-}
-function SectionTab({ href, label, icon: Icon, active }: SectionTabProps) {
-  return (
-    <a
-      href={href}
-      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-        active
-          ? "bg-blue-600 text-white shadow"
-          : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
-      }`}
-    >
-      <Icon className="h-5 w-5" />
-      {label}
-    </a>
-  )
-}
-
-
-import {
-  Dashboard as DashboardIcon,
-  Description as DescriptionIcon,
-  SmartToy as SmartToyIcon,
-  Group as GroupIcon,
-  Menu,
-  Close as CloseIcon,
-  ExpandMore,
-} from "@mui/icons-material";
 
 import { Share,} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+
 import { Progress } from "@/components/ui/progress"
 import { motion } from "framer-motion"
 
@@ -58,6 +21,8 @@ import { motion } from "framer-motion"
 import { usePathname } from "next/navigation"
 
 export default function Dashboard() {
+
+  const { isFreeUser } = useUserContext(); 
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [trafficPeriod, setTrafficPeriod] = useState("Weekly")
   const pathname = usePathname();
@@ -74,17 +39,34 @@ export default function Dashboard() {
   const affectedPages = 3
   const recommendation = "consider optimizing page speed and meta descriptions"
 
-  return (
-    
-   
-  
-
-      
+  return (    
         <div className="max-w-7xl mx-auto px-5 py-5 space-y-8">
-          
-        
+
+
+        <div className="w-full px-4 pt-8">
+  <div className="max-w-screen-xl mx-auto w-full space-y-4">
+
+    {/* ✅ Search bar centered */}
+    <div className="w-full flex justify-center">
+      <UrlSearchBar isFreeUser={isFreeUser} />
+    </div>
+
+    {/* ✅ Controls centered */}
+    <div className="w-full pt-0 flex justify-center">
+      <div className="flex flex-wrap gap-5 justify-center w-full max-w-7xl">
+        <DashboardHeaderCenter />
+      </div>
+    </div>
+
+  </div>
+
+ </div>
+
          
- <DashboardHeaderCenter />
+
+
+
+
 
 
                 {/* AI Insights Banner */}
@@ -124,8 +106,6 @@ export default function Dashboard() {
           </div>
         </div>
       </div> 
-
-
 
 
 

@@ -1,9 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
 
 interface UrlSearchBarProps {
   isFreeUser: boolean;
@@ -65,22 +62,41 @@ export default function UrlSearchBar({ isFreeUser }: UrlSearchBarProps) {
   };
 
   return (
-    
-      <div className="flex items-center bg-gray-800 rounded-md px-3 py-1.5 space-x-2 w-full max-w-xl">
-      <input
-        type="text"
-        placeholder="Enter website URL (https://...)"
-        className="bg-transparent flex-1 text-sm text-white placeholder-gray-400 outline-none"
-      />
-      <button className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm px-3 py-1 rounded-md transition-all">
-        🔍 Search
-      </button>
-      
-      {getUsageMessage() && (
-        <span className="text-sm text-gray-400">
+             <div 
+                className="flex items-center rounded-md px-4 py-1 space-x-2 w-full max-w-full sm:max-w-2xl md:max-w-4xl 
+               bg-white dark:bg-gray-900
+               border border-gray-200 dark:border-gray-700 
+                shadow-sm dark:shadow-none transition-colors mx-auto"
+
+                >
+
+
+
+               <input
+             type="text"
+             value={url}
+             onChange={(e) => setUrl(e.target.value)}
+             placeholder="Enter website URL (https://...)"
+               className="bg-transparent flex-1 text-xs text-gray-900 dark:text-white 
+               placeholder-gray-400 outline-none"
+               />
+
+               
+
+               <button
+              onClick={handleSearch}
+              className="bg-indigo-500 hover:bg-indigo-600 text-white text-xs px-2 py-1.5 rounded-md transition-all whitespace-nowrap"
+                    >
+              🔍 Search
+             </button>
+
+             {getUsageMessage() && (
+            <span className="text-sm text-gray-500 dark:text-gray-400">
           {getUsageMessage()}
-        </span>
+       </span>
       )}
-    </div>
+   </div>
+    
   );
 }
+

@@ -5,6 +5,7 @@ import Header from "@/app/dashboard/components/Header";
 import Sidebar from "@/app/dashboard/components/Sidebar";
 import Footer from "@/app/dashboard/components/Footer";
 import { usePathname } from "next/navigation";
+import { UserProvider } from "@/app/context/UserContext"; // ✅ Import your provider
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -21,6 +22,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const hideSidebar = ["/dashboard/privacy", "/dashboard/terms"].includes(pathname);
 
   return (
+    <UserProvider> {/* ✅ Wrap everything inside */} 
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-[#0F1117] transition-colors duration-300">
       {/* ✅ Header */}
       <Header
@@ -49,5 +51,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         </div>
       </div>
     </div>
+    </UserProvider>
   );
 }

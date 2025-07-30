@@ -18,6 +18,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["*"]
+    
     },
     "typeRoots": ["./node_modules/@types", "./next-auth.d.ts"] 
   },
@@ -30,3 +31,4 @@
   ],
   "exclude": ["node_modules"]
 }
+
