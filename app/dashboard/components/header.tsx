@@ -79,33 +79,39 @@ export default function Header({
 
         <div className="flex items-center justify-between w-full">
 
-
-
           {/* ✅ Left: Logo and Mobile Menu */}
-          <div className="flex items-center gap-2 px-4">
-          
+        
 
-            <Button variant="ghost" size="icon" className="lg:hidden p-0" onClick={onMobileMenuToggle}>           
-               <Menu className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10" strokeWidth={2.5} />
+            <div className="flex items-center gap-2 px-2 sm:px-3 md:px-4 lg:px-4 xl:px-5">
+
+            <Button variant="ghost" size="icon" className="lg:hidden p-0" onClick={onMobileMenuToggle}>     
+
+               <Menu className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-11 lg:h-11" strokeWidth={2.5} />
            </Button>
 
+              <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+
+               <div className="relative w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-12 lg:h-12"> 
+                    <Image
+                      src="/images/Logo/Sumryze-Logo.svg"
+                      alt="Sumryze Logo"
+
+                       width={45}
+                       height={45}
+                  
+                       className="object-contain"
+                        />
+                      </div>
+
+                   <span className="hidden sm:inline text-base sm:text-lg md:text-xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-purple-500 dark:to-blue-500 bg-clip-text text-transparent">
+                    Sumryze
+                  </span>
+              </Link>
 
 
-            <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-
-              <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg shadow-lg">
-
-                <Image src="/images/Logo/Sumryze-Logo.svg" alt="Sumryze Logo" width={28} height={28} />
-              </div>
-
-              <span className="text-base sm:text-xl md:text-2xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-purple-500 dark:to-blue-500 bg-clip-text text-transparent">
-                Sumryze
-              </span>
-            </Link>
           </div>
 
-
-         
+    
 
           {/* ✅ Center: Search Bar */}
          
@@ -119,7 +125,7 @@ export default function Header({
     
             <Link href="/pricing" passHref>
               <Button
-                 className="h-7 px-4 py-1.5 text-sm font-medium 
+                 className="h-8 px-4 py-1.5 text-sm font-medium 
                bg-indigo-500 hover:bg-indigo-600 
                text-white 
                rounded-md shadow-sm ml-4 

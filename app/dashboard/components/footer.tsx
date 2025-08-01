@@ -54,12 +54,12 @@ export default function DashboardFooter() {
             href="/"
             className="flex items-center space-x-2 hover:opacity-90 transition"
           >
-            <div className="flex items-center justify-center w-9 h-9 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg shadow-md">
+            <div className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 ">
               <Image
                 src="/images/Logo/Sumryze-Logo.svg"
                 alt="Sumryze Logo"
-                width={20}
-                height={20}
+                width={32}
+                height={32}
               />
             </div>
             <span className="font-extrabold text-lg bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-purple-500 dark:to-blue-500 bg-clip-text text-transparent">
