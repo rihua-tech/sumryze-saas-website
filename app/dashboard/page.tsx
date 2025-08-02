@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { RefreshCw, TrendingUp, TrendingDown, BarChart3, ArrowRight, ExternalLink, Download } from "lucide-react"
+import { RefreshCw, TrendingUp, TrendingDown, BarChart3, ArrowRight, ExternalLink, Download, Key } from "lucide-react"
 import CoreWebVitals from "./components/overview/CoreWebVitals"
 import DashboardHeaderCenter from "./components/DashboardHeaderCenter";
 import UrlSearchBar from "./components/UrlSearchBar";
@@ -13,6 +13,10 @@ import { Button } from "@/components/ui/button";
 import { ArrowUp, ArrowDown, Sparkles } from "lucide-react";
 import LineChart from "@/components/charts/LineCharts";
 import DonutChart from "@/components/charts/DonutChart";
+import TrafficOverviewCard from "./components/overview/TrafficOverviewCard";
+import KeywordAreaChart from "./components/overview/KeywordAreaChart";
+
+
 
 
 
@@ -27,6 +31,8 @@ import { motion } from "framer-motion"
 
 import { usePathname } from "next/navigation"
 
+
+
 export default function Dashboard() {
 
   const { isFreeUser } = useUserContext(); 
@@ -40,6 +46,47 @@ export default function Dashboard() {
   const negativeChange = 12
   const affectedPages = 3
   const recommendation = "consider optimizing page speed and meta descriptions"
+
+  const suggestions = [
+  {
+    icon: "🔥",
+    label: "Fix Page Speed",
+    seoBoost: "+15% SEO",
+    impact: "High",
+  },
+  {
+    icon: "⚡",
+    label: "Add Meta Descriptions",
+    seoBoost: "+8% SEO",
+    impact: "Medium",
+  },
+  {
+    icon: "🔧",
+    label: "Implement Schema Markup",
+    seoBoost: "+5% SEO",
+    impact: "Low",
+  },
+  {
+    icon: "🔗",
+    label: "Fix Broken Links",
+    seoBoost: "+12% SEO",
+    impact: "High",
+  },
+  {
+    icon: "🧭",
+    label: "Add Canonical Tags",
+    seoBoost: "+6% SEO",
+    impact: "Medium",
+  },
+  {
+  icon: "🔗",
+  label: "Add Internal Links",
+  seoBoost: "+9% SEO",
+  impact: "High",
+}
+
+];
+
 
   return (    
         <div className="max-w-7xl mx-auto px-5 pb-8 space-y-8">
@@ -97,79 +144,84 @@ export default function Dashboard() {
             <KPI title="Conversions" value="3.4%" delta="-1%" down />
             <KPI title="Revenue" value="$12,847" delta="+15%" />
           </div>
-          <LineChart title="Traffic Overview" />
-          <LineChart title="Keyword Growth" />
+        
+         
+            <TrafficOverviewCard/>
+
+            <KeywordAreaChart />
+
+
         </div>
 
         {/* LLM SEO Actions */}
-        <div className="space-y-4">
-         <div className="bg-gray-900 border border-gray-700 rounded-xl p-5 space-y-3">
-           <h3 className="text-white font-semibold text-lg">🧠 AI SEO Assistant</h3>
-  
-           <Button className="w-full bg-indigo-600 text-white hover:bg-indigo-700">
+           <div className="space-y-8 ">
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-5 space-y-4">
+            <h3 className="text-gray-900 dark:text-white font-semibold text-lg">
+            🧠 AI SEO Assistant
+           </h3>
+
+           <button className="w-full text-sm font-medium px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition-all">
            📝 Generate Blog
-            </Button>
-             <Button className="w-full bg-gray-800 text-white hover:bg-gray-700">
-             🧩 Fix Meta Descriptions
-            </Button>
-            <Button className="w-full bg-gray-800 text-white hover:bg-gray-700">
-            💡 Content Ideas
-          </Button>
-              <input
-              placeholder="Enter keyword..."
-             className="w-full mt-2 px-4 py-2 rounded-md bg-gray-800 text-white border border-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+           </button>
+
+             <button className="w-full text-sm font-medium px-4 py-2 rounded-md bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 transition-all">
+           🧩 Fix Meta Descriptions
+          </button>
+
+           <button className="w-full text-sm font-medium px-4 py-2 rounded-md bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 transition-all">
+           💡 Content Ideas
+          </button>
+
+           <input
+             type="text"
+            placeholder="Enter keyword..."
+             className="w-full mt-1 px-4 py-2 rounded-md bg-gray-50 text-gray-900 border border-gray-300 placeholder-gray-500 
+                focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:placeholder-gray-400"
              />
-           </div>
+          </div>
 
-<div className="bg-gray-900 border border-gray-700 space-y-5 rounded-xl p-5">
- <h3 className="text-white text-lg font-semibold mb-3">🧠 AI Suggestions</h3>
-<ul className="space-y-6 text-sm text-gray-300">
-  <li className="flex justify-between">
-    <span>1. Improve Page Speed</span>
-    <span className="text-red-500">High</span>
-  </li>
-  <li className="flex justify-between">
-    <span>2. Optimize Title & Meta</span>
-    <span className="text-yellow-400">High</span>
-  </li>
-  <li className="flex justify-between">
-    <span>3. Fix Heading Structure</span>
-    <span className="text-yellow-400">Medium</span>
-  </li>
-  <li className="flex justify-between">
-    <span>4. Use Target Keywords</span>
-    <span className="text-yellow-400">High</span>
-  </li>
-  <li className="flex justify-between">
-    <span>5. Add Schema Markup</span>
-    <span className="text-blue-400">Medium</span>
-  </li>
-  <li className="flex justify-between">
-    <span>6. Add Canonical Tags</span>
-    <span className="text-blue-400">Medium</span>
-  </li>
-  <li className="flex justify-between">
-    <span>7. Improve Image ALT Text</span>
-    <span className="text-blue-400">Low</span>
-  </li>
-  <li className="flex justify-between">
-    <span>8. Fix Broken Links</span>
-    <span className="text-red-500">High</span>
-  </li>
-  <li className="flex justify-between">
-    <span>9. Submit Sitemap.xml</span>
-    <span className="text-blue-400">Low</span>
-  </li>
-  <li className="flex justify-between">
-    <span>10 Add Robots.txt</span>
-    <span className="text-blue-400">Low</span>
-  </li>
-</ul>
 
-</div>
+            {/* AI Suggestions */}
+                 
+                 <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+                   <h3 className="text-gray-900 dark:text-white text-lg font-semibold mb-4">🧠 AI Suggestions</h3>
+                   <div className="space-y-4">
+                     {suggestions.map((item, i) => (
+                     <div
+                       key={i}
+                       className="flex items-center justify-between rounded-md px-4 py-3 shadow-sm bg-gray-50 dark:bg-[#121221]"
+                      >
+                    {/* Left: Icon + Label */}
+                   <div className="flex items-center space-x-2">
+                   <span className="text-xl">{item.icon}</span>
+                   <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    {item.label}
+                  </span>
+                 </div>
 
-          
-        </div>
+
+                   {/* Right: SEO % and Impact */}
+                 <div className="text-sm flex items-center space-x-2">
+                 <span className="text-green-500 font-medium">{item.seoBoost}</span>
+                 <span className="text-gray-400 dark:text-gray-500">•</span>
+                 <span
+                 className={`font-medium ${
+                 item.impact === "High"
+                ? "text-red-500"
+                : item.impact === "Medium"
+                ? "text-yellow-400"
+                : "text-blue-400"
+              }`}
+                 >
+                {item.impact} Impact
+               </span>
+               </div>
+               </div>
+             ))}
+            </div>
+         </div>
+
+    </div>
       </div>
 
       {/* 3. Middle Insights: Core Web Vitals, Traffic by Channel */}
@@ -206,6 +258,9 @@ export default function Dashboard() {
         <Button>✍️ Generate AI Blog</Button>
         <Button variant="secondary">📤 Share Report</Button>
       </div>
+
+
+
     </div>
   );
 }
