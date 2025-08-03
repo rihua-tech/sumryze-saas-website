@@ -12,41 +12,24 @@ import {
 import { useTheme } from "next-themes";
 import { useMemo } from "react";
 
-const weeklyData = [
-  { day: "Mon", traffic: 3400 },
-  { day: "Tue", traffic: 4200 },
-  { day: "Wed", traffic: 5100 },
-  { day: "Thu", traffic: 4800 },
-  { day: "Fri", traffic: 6100 },
-  { day: "Sat", traffic: 6900 },
-  { day: "Sun", traffic: 7500 },
-];
+interface TrafficDataPoint {
+  date: string; // or "day" depending on API schema
+  traffic: number;
+}
 
-const monthlyData = [
-  { day: "Jan", traffic: 3200 },
-  { day: "Feb", traffic: 3800 },
-  { day: "Mar", traffic: 4200 },
-  { day: "Apr", traffic: 5000 },
-  { day: "May", traffic: 5600 },
-  { day: "Jun", traffic: 6100 },
-  { day: "Jul", traffic: 7400 },
-  { day: "Aug", traffic: 8100 },
-  { day: "Sep", traffic: 8600 },
-  { day: "Oct", traffic: 9200 },
-  { day: "Nov", traffic: 9700 },
-  { day: "Dec", traffic: 10200 },
-];
-
-export default function TrafficAreaChart({
-  activeTab,
-}: {
+interface TrafficAreaChartProps {
   activeTab: "weekly" | "monthly";
-}) {
+  data: TrafficDataPoint[];
+}
+
+export default function TrafficAreaChart({ activeTab, data }: TrafficAreaChartProps) {
   const { resolvedTheme } = useTheme();
   const isDark = useMemo(() => resolvedTheme === "dark", [resolvedTheme]);
 
-  const data = activeTab === "weekly" ? weeklyData : monthlyData;
-  const latestValue = data.length ? data[data.length - 1].traffic : 0;
+  const latestValue = useMemo(() => {
+    if (!data || data.length === 0) return 0;
+    return data[data.length - 1].traffic;
+  }, [data]);
 
   return (
     <div className="w-full h-[230px]">
@@ -55,7 +38,7 @@ export default function TrafficAreaChart({
         Latest: {latestValue.toLocaleString()} visitors
       </div>
 
-      {data.length === 0 ? (
+      {(!data || data.length === 0) ? (
         <div className="flex justify-center items-center h-full text-gray-500 dark:text-gray-400">
           No data available
         </div>
@@ -77,7 +60,7 @@ export default function TrafficAreaChart({
               strokeDasharray="3 3"
             />
             <XAxis
-              dataKey="day"
+              dataKey="date" // Change if your key is "day"
               stroke={isDark ? "#aaa" : "#555"}
               tick={{ fontSize: 12 }}
             />
@@ -93,7 +76,6 @@ export default function TrafficAreaChart({
                 fontSize: 12,
               }}
             />
-
             <Tooltip
               contentStyle={{
                 backgroundColor: isDark ? "#1e1e1e" : "#fff",
@@ -101,7 +83,6 @@ export default function TrafficAreaChart({
                 color: isDark ? "#eee" : "#111",
               }}
             />
-
             <Area
               type="monotone"
               dataKey="traffic"

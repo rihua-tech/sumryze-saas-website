@@ -2,34 +2,25 @@
 
 import { useState, useRef } from "react"
 import { RefreshCw, TrendingUp, TrendingDown, BarChart3, ArrowRight, ExternalLink, Download, Key } from "lucide-react"
-import CoreWebVitals from "./components/overview/CoreWebVitals"
+import CoreWebVitalsCard from "./components/overview/CoreWebVitalsCard";
 import DashboardHeaderCenter from "./components/DashboardHeaderCenter";
 import UrlSearchBar from "./components/UrlSearchBar";
 import { useUserContext } from "@/app/context/UserContext";
 import Link from 'next/link';
 import SegmentedMenu from "./components/SegmentedMenu";
 import { Button } from "@/components/ui/button";
-
 import { ArrowUp, ArrowDown, Sparkles } from "lucide-react";
 import LineChart from "@/components/charts/LineCharts";
 import DonutChart from "@/components/charts/DonutChart";
 import TrafficOverviewCard from "./components/overview/TrafficOverviewCard";
-import KeywordAreaChart from "./components/overview/KeywordAreaChart";
-
-
-
-
-
+import KeywordGrowthCard from "./components/overview/KeywordGrowthCard";
+import TrafficByChannelCard from "./components/overview/TrafficByChannelCard";
 import { Share,} from "lucide-react"
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-
 import { Progress } from "@/components/ui/progress"
 import { motion } from "framer-motion"
-
-
-
 import { usePathname } from "next/navigation"
+
 
 
 
@@ -148,7 +139,7 @@ export default function Dashboard() {
          
             <TrafficOverviewCard/>
 
-            <KeywordAreaChart />
+            <KeywordGrowthCard />
 
 
         </div>
@@ -226,15 +217,12 @@ export default function Dashboard() {
 
       {/* 3. Middle Insights: Core Web Vitals, Traffic by Channel */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gray-900 border border-gray-700 rounded-xl p-6">
-          <h3 className="text-white font-semibold mb-4">Core Web Vitals</h3>
-          <div className="flex justify-between text-sm text-white">
-            <Metric title="LCP" value="76%" note="1.9s (Good)" />
-            <Metric title="FID" value="90%" note="90ms (Good)" />
-            <Metric title="CLS" value="80%" note="0.08 (Good)" />
-          </div>
-        </div>
-        <DonutChart title="Traffic by Channel" />
+                 
+        <CoreWebVitalsCard />
+
+      
+
+        <TrafficByChannelCard />
       </div>
 
       {/* 4. Lower Insights */}
