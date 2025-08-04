@@ -55,21 +55,21 @@ export default function CoreWebVitalsChart({ vitals = [] }: Props) {
           },
           plotOptions: {
             radialBar: {
-              hollow: { size: "60%" },
+              hollow: { size: "55%" },
               track: {
                 background: resolvedTheme === "dark" ? "#374151" : "#e5e7eb",
               },
               dataLabels: {
                 name: {
                   show: true,
-                  fontSize: "14px",
+                  fontSize: "12px",
                   fontWeight: 600,
                   color: resolvedTheme === "dark" ? "#d1d5db" : "#374151",
                   offsetY: 20,
                 },
                 value: {
                   show: true,
-                  fontSize: "22px",
+                  fontSize: "18px",
                   fontWeight: 700,
                   color: resolvedTheme === "dark" ? "#f9fafb" : "#111827",
                   offsetY: -10,
@@ -93,7 +93,7 @@ export default function CoreWebVitalsChart({ vitals = [] }: Props) {
 
         return (
           <div key={index} className="flex flex-col items-center text-center">
-            <Chart options={options} series={[percent]} type="radialBar" height={160} />
+            <Chart options={options} series={[percent]} type="radialBar" height={150} />
             <div className="mt-3 space-y-1">
               <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
                 {vital.value}
