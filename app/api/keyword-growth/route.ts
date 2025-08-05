@@ -25,9 +25,13 @@ const monthly = [
   { day: "Dec", count: 900 },
 ];
 
+
+
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const period = searchParams.get("period");
+  const targetUrl = searchParams.get("url");
 
   let data;
   if (period === "weekly") {

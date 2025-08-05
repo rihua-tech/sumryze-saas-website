@@ -2,12 +2,22 @@
 
 import { useState, useEffect } from "react";
 import TrafficAreaChart from "./TrafficAreaChart";
+import { useUrlContext } from "@/app/context/UrlContext";
 
+// Tab type definition
 type TabType = "weekly" | "monthly";
 
+// Traffic data shape
 interface TrafficDataPoint {
   date: string;
   traffic: number;
+}
+
+// API response item type
+interface ApiTrafficItem {
+  date: string;
+  traffic?: number;
+  visits?: number;
 }
 
 export default function TrafficOverviewCard() {
@@ -15,23 +25,30 @@ export default function TrafficOverviewCard() {
   const [data, setData] = useState<TrafficDataPoint[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const { url: currentUrl } = useUrlContext();
 
-  // Simulate API call
   useEffect(() => {
     async function fetchTrafficData() {
+      if (!currentUrl) return;
+
       setLoading(true);
       setError(null);
 
       try {
-        const response = await fetch(`/api/traffic?period=${activeTab}`);
+        const response = await fetch(
+          `/api/traffic?period=${activeTab}&url=${encodeURIComponent(currentUrl)}`
+        );
+
         if (!response.ok) throw new Error("Failed to fetch traffic data");
 
         const result = await response.json();
-        // If your API returns { date, visits }, map to { date, traffic }
-        setData(result.data.map((item: any) => ({
+
+        const mappedData: TrafficDataPoint[] = result.data.map((item: ApiTrafficItem) => ({
           date: item.date,
-          traffic: item.traffic ?? item.visits // support both keys
-        })));
+          traffic: item.traffic ?? item.visits ?? 0, // Handle missing keys
+        }));
+
+        setData(mappedData);
       } catch (err: any) {
         setError(err.message || "Unknown error");
       } finally {
@@ -40,7 +57,9 @@ export default function TrafficOverviewCard() {
     }
 
     fetchTrafficData();
-  }, [activeTab]);
+  }, [activeTab, currentUrl]); // ✅ Include currentUrl so it reacts to changes
+
+  const tabOptions: TabType[] = ["weekly", "monthly"];
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-xl shadow border border-gray-200 dark:border-gray-700 p-5">
@@ -52,12 +71,12 @@ export default function TrafficOverviewCard() {
 
         {/* Tab Toggle */}
         <div className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-full">
-          {["weekly", "monthly"].map((tab) => {
+          {tabOptions.map((tab) => {
             const isActive = activeTab === tab;
             return (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab as TabType)}
+                onClick={() => setActiveTab(tab)}
                 className={`px-3 py-1 text-xs rounded-full font-medium transition ${
                   isActive
                     ? "bg-indigo-600 text-white"
@@ -76,6 +95,8 @@ export default function TrafficOverviewCard() {
         <p className="text-sm text-gray-500 dark:text-gray-400">Loading...</p>
       ) : error ? (
         <p className="text-sm text-red-500 dark:text-red-400">{error}</p>
+      ) : data.length === 0 ? (
+        <p className="text-sm text-gray-500 dark:text-gray-400">No traffic data available.</p>
       ) : (
         <TrafficAreaChart activeTab={activeTab} data={data} />
       )}

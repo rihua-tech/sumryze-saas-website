@@ -99,7 +99,7 @@ export default function TrafficByChannelChart() {
       options={options}
       series={series}
       type="donut"
-      height={200}
+      height={230}
     />
   );
 }

@@ -1,6 +1,7 @@
-import ClientLayout from "@/app/dashboard/ClientLayout";
 
+import ClientLayout from "@/app/dashboard/ClientLayout";
 import { ThemeProvider } from "next-themes";
+import { UrlProvider } from "@/app/context/UrlContext";
 
 
 
@@ -16,7 +17,9 @@ export default function DashboardLayout({
       enableSystem
       disableTransitionOnChange={false}
     >
-      <ClientLayout>{children}</ClientLayout>
+      <ClientLayout>
+        <UrlProvider>{children}</UrlProvider>
+      </ClientLayout>
     </ThemeProvider>
   );
 }

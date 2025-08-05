@@ -16,7 +16,8 @@ export default function AiSeoAssistantCard() {
   };
 
   return (
-    <div className="rounded-2xl border bg-muted/5 p-5 shadow-sm">
+   
+       <div className="bg-white dark:bg-gray-900 rounded-xl shadow border border-gray-200 dark:border-gray-700 p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-semibold text-lg flex items-center gap-1 text-foreground">
@@ -61,7 +62,7 @@ export default function AiSeoAssistantCard() {
       <Input
         placeholder="Enter keyword..."
       
-        className="w-full text-sm font-medium px-4 py-10 rounded-md bg-gray-50 text-gray-900 border border-gray-300 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:border-gray-600 dark:placeholder-gray-400"
+        className="w-full text-sm font-medium px-4 py-9 mb-3 rounded-md bg-gray-50 text-gray-900 border border-gray-300 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-background/60 dark:text-white dark:border-gray-800 dark:placeholder-gray-400"
         value={keyword}
         onChange={(e) => setKeyword(e.target.value)}
       />

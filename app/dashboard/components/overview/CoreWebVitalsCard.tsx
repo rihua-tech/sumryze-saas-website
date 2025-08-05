@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import CoreWebVitalsChart from "./CoreWebVitalsChart";
 
+import { useUrlContext } from "@/app/context/UrlContext";
+
+
 interface CoreVital {
   name: string;
   value: number;
@@ -16,6 +19,7 @@ export default function CoreWebVitalsCard() {
   const [vitals, setVitals] = useState<CoreVital[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { url: currentUrl } = useUrlContext();
 
   useEffect(() => {
     async function fetchVitals() {
@@ -23,7 +27,9 @@ export default function CoreWebVitalsCard() {
       setError(null);
 
       try {
-        const res = await fetch("/api/web-vitals");
+             
+        const res = await fetch(`/api/web-vitals?url=${encodeURIComponent(currentUrl)}`);
+
         const json = await res.json();
 
         if (!res.ok || !Array.isArray(json.vitals)) {
@@ -38,6 +44,7 @@ export default function CoreWebVitalsCard() {
         setLoading(false);
       }
     }
+    
 
     fetchVitals();
   }, []);

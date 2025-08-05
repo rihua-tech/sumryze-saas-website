@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowUp, ArrowDown, Sparkles } from "lucide-react";
@@ -21,20 +21,19 @@ import AIPredictionsCard from "./components/overview/AIPredictionsCard";
 import ContentPerformanceCard from "./components/overview/ContentPerformanceCard";
 import AiSeoAssistantCard from "./components/overview/AiSeoAssistantCard";
 import AISuggestions from "./components/overview/AISuggestions";
-
+import { useUrlContext } from "@/app/context/UrlContext";
 
 export default function Dashboard() {
   const { isFreeUser } = useUserContext();
   const pathname = usePathname();
 
-  const suggestions = [
-    { icon: "🔥", label: "Fix Page Speed", seoBoost: "+15% SEO", impact: "High" },
-    { icon: "⚡", label: "Add Meta Descriptions", seoBoost: "+8% SEO", impact: "Medium" },
-    { icon: "🔧", label: "Implement Schema Markup", seoBoost: "+5% SEO", impact: "Low" },
-    { icon: "🔗", label: "Fix Broken Links", seoBoost: "+12% SEO", impact: "High" },
-    
-    
-  ];
+    const { setUrl } = useUrlContext();
+
+     useEffect(() => {
+
+     setUrl("https://example.com"); // ← set to the URL you want to audit
+
+      }, []);
 
   return (
     <div className="max-w-7xl mx-auto px-5 pb-8 space-y-8">
@@ -90,7 +89,7 @@ export default function Dashboard() {
         {/* Right Column: AI Optimization Hub */}
         <div className="w-full lg:w-1/2 space-y-6">
           {/* Assistant */}
-          <div className="space-y-8">
+          <div className="space-y-6">
             
             <AiSeoAssistantCard/>
 
