@@ -4,6 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
+
 
 export default function AiSeoAssistantCard() {
   const [keyword, setKeyword] = useState("");
@@ -23,7 +30,18 @@ export default function AiSeoAssistantCard() {
         <h3 className="font-semibold text-lg flex items-center gap-1 text-foreground">
           🧠 AI SEO Assistant
         </h3>
-        <span className="text-muted-foreground text-sm">❔</span>
+      
+       <TooltipProvider>
+       <Tooltip>
+         <TooltipTrigger asChild>
+          <span className="text-muted-foreground text-sm cursor-pointer">❔</span>
+       </TooltipTrigger>
+          <TooltipContent side="left" className="max-w-[220px] text-[10px] font-poppins">
+           Use AI to generate SEO blogs, fix meta descriptions, or brainstorm content ideas. Start by entering a keyword.
+          </TooltipContent>
+        </Tooltip>
+        </TooltipProvider>
+
       </div>
 
       {/* Subtitle */}
@@ -32,7 +50,7 @@ export default function AiSeoAssistantCard() {
       </p>
 
       {/* Action Buttons */}
-      <div className="space-y-5 mb-5">
+      <div className="space-y-5 mb-6">
         <Button
           variant="default"
           className="w-full flex items-center text-base justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white"
@@ -62,7 +80,7 @@ export default function AiSeoAssistantCard() {
       <Input
         placeholder="Enter keyword..."
       
-        className="w-full text-sm font-medium px-4 py-9 mb-3 rounded-md bg-gray-50 text-gray-900 border border-gray-300 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-background/60 dark:text-white dark:border-gray-800 dark:placeholder-gray-400"
+        className="w-full text-sm font-medium px-4 py-9 rounded-md bg-gray-50 text-gray-900 border border-gray-300 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-background/60 dark:text-white dark:border-gray-800 dark:placeholder-gray-400"
         value={keyword}
         onChange={(e) => setKeyword(e.target.value)}
       />

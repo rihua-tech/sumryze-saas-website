@@ -18,22 +18,28 @@ export default function DashboardKPIs() {
   const { url: currentUrl } = useUrlContext();
 
   useEffect(() => {
-    const fetchKPIs = async () => {
-      try {
-        const res = await fetch(`/api/kpis?url=${encodeURIComponent(currentUrl)}`);
-        if (!res.ok) throw new Error("API error");
-        const json = await res.json();
-        setData(json);
-      } catch (err) {
-        console.error("Failed to load KPI data", err);
-        setError("Failed to load KPI data.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  if (!currentUrl || currentUrl.trim() === "") {
+    console.warn("⛔ currentUrl empty — KPI fetch skipped.");
+    return;
+  }
 
-    fetchKPIs();
-  }, [currentUrl]);
+  const fetchKPIs = async () => {
+    try {
+      const res = await fetch(`/api/kpis?url=${encodeURIComponent(currentUrl)}`);
+      if (!res.ok) throw new Error("API error");
+      const json = await res.json();
+      setData(json);
+    } catch (err) {
+      console.error("❌ Failed to load KPI data", err);
+      setError("Failed to load KPI data.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchKPIs();
+}, [currentUrl]);
+
 
   if (loading) return <p className="text-sm text-gray-500 dark:text-gray-400">Loading KPIs...</p>;
   if (error) return <p className="text-sm text-red-500 dark:text-red-400">{error}</p>;

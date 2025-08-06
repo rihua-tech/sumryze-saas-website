@@ -2,33 +2,28 @@
 
 import dynamic from "next/dynamic";
 import { useTheme } from "next-themes";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { ApexOptions } from "apexcharts";
 
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
-export default function TrafficByChannelChart() {
+interface TrafficByChannelChartProps {
+  labels?: string[];
+  series?: number[];
+}
+
+export default function TrafficByChannelChart({
+  labels = [],
+  series = [],
+}: TrafficByChannelChartProps) {
   const { resolvedTheme } = useTheme();
+  
 
-  const [series, setSeries] = useState<number[]>([]);
-  const [labels, setLabels] = useState<string[]>([]);
-  const [total, setTotal] = useState(0);
-
-  useEffect(() => {
-    // Simulate API fetch
-    async function fetchChartData() {
-      // Replace with actual API call
-      const res = await fetch("/api/traffic-channel"); // your backend endpoint
-      const data = await res.json();
-
-      setLabels(data.labels);      // e.g., ["Organic", "Paid", ...]
-      setSeries(data.series);      // e.g., [7000, 4500, ...]
-      setTotal(data.series.reduce((acc: number, val: number) => acc + val, 0));
-
-    }
-
-    fetchChartData();
-  }, []);
+  // ✅ Safe reduce to handle undefined or missing series
+  const total = useMemo(() => {
+    if (!Array.isArray(series)) return 0;
+    return series.reduce((acc, val) => acc + val, 0);
+  }, [series]);
 
   const options: ApexOptions = useMemo(() => ({
     chart: {
@@ -39,7 +34,7 @@ export default function TrafficByChannelChart() {
     tooltip: {
       y: {
         formatter: (val: number, { seriesIndex }: any) =>
-          `${labels[seriesIndex]}: ${val.toLocaleString()}`,
+          `${labels?.[seriesIndex] || "Unknown"}: ${val.toLocaleString()}`,
       },
     },
     legend: {

@@ -11,8 +11,11 @@ type UrlContextType = {
 // ✅ Create context with proper type
 const UrlContext = createContext<UrlContextType | undefined>(undefined);
 
+// ✅ Export the provider
 export function UrlProvider({ children }: { children: React.ReactNode }) {
-  const [url, setUrl] = useState("");
+  // ✅ Rule: Default value only in development
+  const isDev = process.env.NODE_ENV === "development";
+  const [url, setUrl] = useState(isDev ? "https://example.com" : "");
 
   return (
     <UrlContext.Provider value={{ url, setUrl }}>

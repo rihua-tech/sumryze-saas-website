@@ -1,21 +1,13 @@
 import { generateSuggestions } from "./generateSuggestions";
 import { NextResponse } from "next/server";
 
-// Types
-type AuditData = {
-  pageSpeed: number;
-  metaDescriptions: { missing: number };
-  coreWebVitals: { score: number };
-  titles: { weakCount: number };
-  schema: { missing: boolean };
-};
-
-// Simulated audit function
-async function fetchAuditData(url: string): Promise<AuditData> {
+// Dummy implementation of fetchAuditData; replace with actual logic or import if available
+async function fetchAuditData(url: string) {
+  // TODO: Implement real audit fetching logic here
   return {
-    pageSpeed: 68,
-    metaDescriptions: { missing: 3 },
-    coreWebVitals: { score: 72 },
+    pageSpeed: 80,
+    metaDescriptions: { missing: true },
+    coreWebVitals: { score: 75 },
     titles: { weakCount: 2 },
     schema: { missing: true },
   };
@@ -29,8 +21,21 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Invalid or missing URL" }, { status: 400 });
   }
 
-  const auditData = await fetchAuditData(url);
-  const suggestions = generateSuggestions(auditData);
+  // ✅ Hardcoded mock audit data
+const useMock = true; // 🔁 switch this to false when connecting real audit
 
+const auditData = useMock
+  ? {
+      pageSpeed: 60,                         // ⚠️ High impact
+      metaDescriptions: { missing: true },   // ⚠️ Medium impact
+      schema: { missing: true },             // ⚠️ Low impact
+      coreWebVitals: { score: 90 },          // ✅ Looks Good
+      titles: { weakCount: 0 },              // ✅ Looks Good
+    }
+  : await fetchAuditData(url);
+
+
+
+  const suggestions = generateSuggestions(auditData);
   return NextResponse.json({ suggestions });
 }

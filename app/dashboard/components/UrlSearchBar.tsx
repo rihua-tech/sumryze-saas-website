@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useUrlContext } from "@/app/context/UrlContext"; // ✅ import this
 
 interface UrlSearchBarProps {
   isFreeUser: boolean;
@@ -10,6 +11,8 @@ export default function UrlSearchBar({ isFreeUser }: UrlSearchBarProps) {
   const [url, setUrl] = useState("");
   const [searchCount, setSearchCount] = useState(0);
   const [message, setMessage] = useState("");
+
+  const { setUrl: setUrlContext } = useUrlContext(); // ✅ get context setter
 
   useEffect(() => {
     if (!isFreeUser) return;
@@ -22,7 +25,6 @@ export default function UrlSearchBar({ isFreeUser }: UrlSearchBarProps) {
       if (parsed.date === today) {
         setSearchCount(parsed.count);
       } else {
-        // reset if a new day
         localStorage.setItem("urlSearchUsage", JSON.stringify({ date: today, count: 0 }));
         setSearchCount(0);
       }
@@ -39,18 +41,19 @@ export default function UrlSearchBar({ isFreeUser }: UrlSearchBarProps) {
 
     if (!url.trim()) return;
 
-    // TODO: Run your search logic here
-    console.log("Searching:", url);
+    // ✅ Now update the global context URL
+    setUrlContext(url.trim());
 
-    // Update localStorage
+    // Optional: clear input
+    setUrl("");
+
+    // Update usage
     if (isFreeUser) {
       const today = new Date().toDateString();
       const newCount = searchCount + 1;
       localStorage.setItem("urlSearchUsage", JSON.stringify({ date: today, count: newCount }));
       setSearchCount(newCount);
     }
-
-    setUrl("");
   };
 
   const getUsageMessage = () => {
@@ -62,41 +65,32 @@ export default function UrlSearchBar({ isFreeUser }: UrlSearchBarProps) {
   };
 
   return (
-             <div 
-                className="flex items-center rounded-md px-4 py-1 space-x-2 w-full max-w-full sm:max-w-2xl md:max-w-4xl 
-               bg-white dark:bg-gray-900
-               border border-gray-200 dark:border-gray-700 
-                shadow-sm dark:shadow-none transition-colors mx-auto"
+    <div
+      className="flex items-center rounded-md px-4 py-1 space-x-2 w-full max-w-full sm:max-w-2xl md:max-w-4xl 
+      bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 
+      shadow-sm dark:shadow-none transition-colors mx-auto"
+    >
+      <input
+        type="text"
+        value={url}
+        onChange={(e) => setUrl(e.target.value)}
+        placeholder="Enter website URL (https://...)"
+        className="bg-transparent flex-1 text-xs text-gray-900 dark:text-white 
+        placeholder-gray-400 outline-none"
+      />
 
-                >
+      <button
+        onClick={handleSearch}
+        className="bg-indigo-500 hover:bg-indigo-600 text-white text-xs px-2 py-1.5 rounded-md transition-all whitespace-nowrap"
+      >
+        🔍 Search
+      </button>
 
-
-
-               <input
-             type="text"
-             value={url}
-             onChange={(e) => setUrl(e.target.value)}
-             placeholder="Enter website URL (https://...)"
-               className="bg-transparent flex-1 text-xs text-gray-900 dark:text-white 
-               placeholder-gray-400 outline-none"
-               />
-
-               
-
-               <button
-              onClick={handleSearch}
-              className="bg-indigo-500 hover:bg-indigo-600 text-white text-xs px-2 py-1.5 rounded-md transition-all whitespace-nowrap"
-                    >
-              🔍 Search
-             </button>
-
-             {getUsageMessage() && (
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+      {getUsageMessage() && (
+        <span className="text-sm text-gray-500 dark:text-gray-400">
           {getUsageMessage()}
-       </span>
+        </span>
       )}
-   </div>
-    
+    </div>
   );
 }
-

@@ -1,81 +1,66 @@
-// /app/api/suggestions/generateSuggestions.ts
-
-export type Suggestion = {
+type Suggestion = {
   label: string;
-  impact: "High" | "Medium" | "Low";
-  seoBoost: string;
+  impact: string | null;
+  seoBoost: string; // ✅ removed null
+  display: string;
+  color: string;
 };
 
-export type AuditData = {
+type AuditData = {
   pageSpeed?: number;
-  metaDescriptions?: { missing: number };
-  coreWebVitals?: { score: number };
-  titles?: { weakCount: number };
-  schema?: { missing: boolean };
-};
-
-// Centralized thresholds for logic
-const thresholds = {
-  pageSpeed: 80,
-  coreWebVitals: 90,
-};
-
-// Centralized SEO boost values
-const seoBoosts = {
-  pageSpeed: "+15%",
-  metaDescriptions: "+8%",
-  coreWebVitals: "+12%",
-  titles: "+6%",
-  schema: "+5%",
+  coreWebVitals?: { score?: number };
+  metaDescriptions?: { missing?: boolean };
+  schema?: { missing?: boolean };
+  titles?: { weakCount?: number };
 };
 
 export function generateSuggestions(data: AuditData): Suggestion[] {
-  const suggestions: Suggestion[] = [];
+  const isSlow = (data.pageSpeed ?? 100) < 70;
+  const isCoreWebBad = (data.coreWebVitals?.score ?? 100) < 80;
+  const metaMissing = data.metaDescriptions?.missing ?? false;
+  const schemaMissing = data.schema?.missing ?? false;
+  const weakTitles = (data.titles?.weakCount ?? 0) > 0;
 
-  // 1. Fix Page Speed
-  if (typeof data.pageSpeed === "number" && data.pageSpeed < thresholds.pageSpeed) {
-    suggestions.push({
+  const suggestions: Suggestion[] = [
+    {
       label: "Fix Page Speed",
-      impact: "High",
-      seoBoost: seoBoosts.pageSpeed,
-    });
-  }
-
-  // 2. Add Meta Descriptions
-  if (!data.metaDescriptions || data.metaDescriptions.missing > 0) {
-    suggestions.push({
+      impact: isSlow ? "High" : null,
+      seoBoost: isSlow ? "+15%" : "0%",
+      display: isSlow ? "Needs Fix" : "Looks Good",
+      color: isSlow ? "red" : "green",
+    },
+    {
       label: "Add Meta Descriptions",
-      impact: "Medium",
-      seoBoost: seoBoosts.metaDescriptions,
-    });
-  }
-
-  // 3. Improve Core Web Vitals
-  if (!data.coreWebVitals || data.coreWebVitals.score < thresholds.coreWebVitals) {
-    suggestions.push({
-      label: "Improve Core Web Vitals",
-      impact: "High",
-      seoBoost: seoBoosts.coreWebVitals,
-    });
-  }
-
-  // 4. Write Better Titles
-  if (!data.titles || data.titles.weakCount > 0) {
-    suggestions.push({
-      label: "Write Better Titles",
-      impact: "Medium",
-      seoBoost: seoBoosts.titles,
-    });
-  }
-
-  // 5. Add Schema Markup
-  if (!data.schema || data.schema.missing) {
-    suggestions.push({
+      impact: metaMissing ? "Medium" : null,
+      seoBoost: metaMissing ? "+8%" : "0%",
+      display: metaMissing ? "Needs Fix" : "Looks Good",
+      color: metaMissing ? "yellow" : "green",
+    },
+    {
       label: "Add Schema Markup",
-      impact: "Low",
-      seoBoost: seoBoosts.schema,
-    });
-  }
+      impact: schemaMissing ? "Low" : null,
+      seoBoost: schemaMissing ? "+5%" : "0%",
+      display: schemaMissing ? "Needs Fix" : "Looks Good",
+      color: schemaMissing ? "blue" : "green",
+    },
+    {
+      label: "Improve Core Web Vitals",
+      impact: isCoreWebBad ? "High" : null,
+      seoBoost: isCoreWebBad ? "+12%" : "0%",
+      display: isCoreWebBad ? "Needs Fix" : "Looks Good",
+      color: isCoreWebBad ? "red" : "green",
+    },
+    {
+      label: "Write Better Titles",
+      impact: weakTitles ? "Low" : null,
+      seoBoost: weakTitles ? "+5%" : "0%",
+      display: weakTitles ? "Needs Fix" : "Looks Good",
+      color: weakTitles ? "blue" : "green",
+    },
+  ];
 
-  return suggestions;
+  return suggestions.sort((a, b) => {
+    const boost = (s: Suggestion) => parseInt(s.seoBoost.replace("+", "").replace("%", "")) || 0;
+    return boost(b) - boost(a);
+  });
 }
