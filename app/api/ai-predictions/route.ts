@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
    const { searchParams } = new URL(req.url);
-    const targetUrl = searchParams.get("url");
+    const url = searchParams.get("url");
     
   return NextResponse.json({
     chartData: [12000, 13500, 14000, 15000, 16000, 17000, 18500],

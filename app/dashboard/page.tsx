@@ -3,15 +3,21 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowUp, ArrowDown, Sparkles } from "lucide-react";
-
+import {  Sparkles, } from "lucide-react";
 import { useUserContext } from "@/app/context/UserContext";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { Copy, Share2 } from "lucide-react";
+import { toast } from "sonner"; // or your preferred toast lib
+import {
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 
 import SegmentedMenu from "./components/SegmentedMenu";
 import UrlSearchBar from "./components/UrlSearchBar";
+import AISummaryCard from "./components/overview/AISummaryCard";
 import KPICards from "./components/overview/KPICards";
 import CoreWebVitalsCard from "./components/overview/CoreWebVitalsCard";
 import TrafficOverviewCard from "./components/overview/TrafficOverviewCard";
@@ -27,13 +33,21 @@ export default function Dashboard() {
   const { isFreeUser } = useUserContext();
   const pathname = usePathname();
 
-    const { setUrl } = useUrlContext();
+  const { setUrl } = useUrlContext();
 
-     useEffect(() => {
+  // Add the missing handler
+  function handleRefreshSummary() {
+    // TODO: Implement refresh logic here
+    // For now, just log to console
+    console.log("Refresh summary clicked");
+  }
 
-     setUrl("https://example.com"); // ← set to the URL you want to audit
+  useEffect(() => {
+    setUrl("https://example.com"); // ← set to the URL you want to audit
+  }, []);
 
-      }, []);
+  
+
 
   return (
     <div className="max-w-7xl mx-auto px-5 pb-8 space-y-8">
@@ -63,17 +77,7 @@ export default function Dashboard() {
       </div>
 
       {/* AI Insights Banner */}
-      <div className="bg-gradient-to-r from-purple-600 to-blue-500 text-white rounded-xl p-6 shadow-md flex flex-col md:flex-row items-center justify-between">
-        <div>
-          <div className="flex items-center text-lg font-semibold">
-            <Sparkles className="w-5 h-5 mr-2" /> AI Insights
-          </div>
-          <p className="text-sm mt-1">
-            Your SEO score improved by <span className="font-bold">+6</span> this week. But traffic dropped 12% on 3 pages — consider optimizing page speed and meta descriptions.
-          </p>
-        </div>
-        <Button variant="secondary" className="mt-4 md:mt-0">Ask AI</Button>
-      </div>
+       <AISummaryCard/>
 
       {/* Main 2-Column Layout */}
       <div className="flex flex-col lg:flex-row gap-8">
@@ -89,23 +93,13 @@ export default function Dashboard() {
         {/* Right Column: AI Optimization Hub */}
         <div className="w-full lg:w-1/2 space-y-6">
           {/* Assistant */}
-          <div className="space-y-6">
-            
+          <div className="space-y-6">           
             <AiSeoAssistantCard/>
-
-            <AISuggestions />
-            
-            
-
+            <AISuggestions />                      
             {/* AI Predictions  */}
-            <AIPredictionsCard />
-             
-            
+           <AIPredictionsCard />                        
             {/* AI Content Performance + */}
-
-             <ContentPerformanceCard/>
-         
-
+             <ContentPerformanceCard/>        
           </div>
         </div>
       </div>
