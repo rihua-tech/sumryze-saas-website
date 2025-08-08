@@ -4,11 +4,12 @@
 import { Sparkles, Copy, Share2 } from "lucide-react";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-
+import DOMPurify from 'dompurify';
 import { useEffect, useState } from "react";
 import { useUrlContext } from "@/app/context/UrlContext";
+import applyColorHighlighting from "@/app/utils/applyColorHighlighting";
 
-import { applyColorHighlighting } from "@/app/utils/applyColorHighlighting";
+
 
 // Inside the component
 
@@ -18,6 +19,7 @@ type AISummaryCardProps = {
  
   showActions?: boolean;
 };
+
 
 export default function AISummaryCard({ showActions = true }: AISummaryCardProps) {
 
@@ -72,7 +74,9 @@ export default function AISummaryCard({ showActions = true }: AISummaryCardProps
 
   return (
   <TooltipProvider>
-    <div className="bg-gradient-to-r from-purple-600 to-blue-500 text-white rounded-2xl p-6 shadow-md w-full">
+    <div className="bg-gradient-to-r from-purple-700 to-blue-600 text-white rounded-2xl p-6 shadow-md w-full">
+ 
+
      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
   {/* Left Side */}
   <div className="w-full md:w-3/4">
@@ -82,10 +86,15 @@ export default function AISummaryCard({ showActions = true }: AISummaryCardProps
     </div>
 
      
-      <p
-       className="text-sm leading-6 text-white"
-       dangerouslySetInnerHTML={{ __html: applyColorHighlighting(summary) }}
-       />
+<div
+  className="text-base leading-relaxed"
+ 
+dangerouslySetInnerHTML={{
+  __html: DOMPurify.sanitize(applyColorHighlighting(summary)),
+}}
+
+></div>
+
 
 
   </div>

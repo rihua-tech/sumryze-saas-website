@@ -3,18 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {  Sparkles, } from "lucide-react";
 import { useUserContext } from "@/app/context/UserContext";
 import { Button } from "@/components/ui/button";
-import { Copy, Share2 } from "lucide-react";
-import { toast } from "sonner"; // or your preferred toast lib
-import {
-  TooltipProvider,
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from "@/components/ui/tooltip";
-
 import SegmentedMenu from "./components/SegmentedMenu";
 import UrlSearchBar from "./components/UrlSearchBar";
 import AISummaryCard from "./components/overview/AISummaryCard";
@@ -28,6 +18,7 @@ import ContentPerformanceCard from "./components/overview/ContentPerformanceCard
 import AiSeoAssistantCard from "./components/overview/AiSeoAssistantCard";
 import AISuggestions from "./components/overview/AISuggestions";
 import { useUrlContext } from "@/app/context/UrlContext";
+import DashboardActions from "./components/DashboardActions";
 
 export default function Dashboard() {
   const { isFreeUser } = useUserContext();
@@ -47,6 +38,39 @@ export default function Dashboard() {
   }, []);
 
   
+  const [isLoading, setIsLoading] = useState({ 
+  audit: false,
+  download: false,
+  blog: false,
+  share: false,
+});
+
+const handleAudit = async () => {
+  setIsLoading(prev => ({ ...prev, audit: true }));
+  await runAuditAPI();
+  setIsLoading(prev => ({ ...prev, audit: false }));
+};
+
+const handleDownload = async () => {
+  setIsLoading(prev => ({ ...prev, download: true }));
+  await exportPDF();
+  setIsLoading(prev => ({ ...prev, download: false }));
+};
+
+
+const handleGenerateBlog = async () => {
+  setIsLoading(prev => ({ ...prev, blog: true }));
+  await generateBlogAPI(); // Replace with your actual blog generation function
+  setIsLoading(prev => ({ ...prev, blog: false }));
+};
+
+const handleShareReport = async () => {
+  setIsLoading(prev => ({ ...prev, share: true }));
+  await shareReportAPI(); // Replace with your actual share logic
+  setIsLoading(prev => ({ ...prev, share: false }));
+};
+
+
 
 
   return (
@@ -105,12 +129,16 @@ export default function Dashboard() {
       </div>
 
       {/* CTA Buttons */}
-      <div className="flex flex-wrap justify-center gap-4 pt-4 border-t border-gray-700 mt-6">
-        <Button variant="outline">🔄 Run New Audit</Button>
-        <Button variant="ghost">⬇ Download PDF</Button>
-        <Button>✍️ Generate AI Blog</Button>
-        <Button variant="secondary">📤 Share Report</Button>
-      </div>
+     <DashboardActions
+     isLoading={isLoading}
+     onAudit={handleAudit}
+     onDownload={handleDownload}
+     onGenerateBlog={handleGenerateBlog}
+     onShare={handleShareReport}
+/>
+
+
     </div>
   );
 }
+

@@ -44,28 +44,49 @@ export async function GET() {
     } = mockData;
 
    const prompt = `
-You are an expert SEO analyst. Based on the metrics provided, write a clear and concise AI summary for a dashboard card. Highlight **1 positive trend**, **1 negative insight**, and **1 helpful next step**.
 
-Use simple language and visual indicators like **+6**, **–12%**, **$22,450**, avoiding arrows (↑/↓). Do not use “we” or “our”.
 
-Input data:
+
+
+You are an expert **SEO analyst**. Use the metrics below to craft a clear, concise 1-paragraph summary for a dashboard card.
+
+📝 Write **ONE paragraph** (no more than 55 words):
+
+1. **Win** – highlight the most significant improvement (largest positive delta).
+2. **Need** – call out one clear issue or weakness (include metric if possible).
+3. **Next** – suggest one imperative action to improve performance.
+
+Formatting rules:
+- Use +X% / +$X for gains, −X% / −$X for drops.
+- Use plain numbers for totals: 7500, $22,450 (no +/− for these).
+- Do not use bold, arrows, or words like “we”, “our”, or “suggests”.
+- Use **only one emoji**, at the end (🚀 ⚠️ 📈 💡).
+- No styling – color is added in code after generation.
+- Be direct and professional. Prioritize clarity and brevity.
+- Avoid filler phrases like “indicating”, “potentially”, or “might”.
+- Use strong, active verbs in the “Next” action.
+
+Respond with *summary text only*. Do not include labels or headings.
+
+
+📊 Input data:
 - SEO Score: ${seoScore.current} (previously ${seoScore.previous})
 - Conversions: ${conversions.current}% (${conversions.delta})
-- Revenue: ${revenue.current.toLocaleString()} (${revenue.delta})
+- Revenue: $${revenue.current.toLocaleString()} (${revenue.delta})
 - Keyword Growth: ${keywordGrowth.count} (${keywordGrowth.trend})
 - Core Web Vitals: LCP=${coreWebVitals.lcp}, FID=${coreWebVitals.fid}, CLS=${coreWebVitals.cls}
-- Traffic: ${trafficOverview.trend}, Data: ${trafficOverview.data.join(" → ")}
+- Traffic Trend: ${trafficOverview.trend}, Data: ${trafficOverview.data.join(" → ")}
 - Traffic Channels: ${Object.entries(trafficChannels).map(([k, v]) => `${k}: ${v}`).join(", ")}
 - Suggestions: ${aiSuggestions.map(s => `${s.label} (${s.impact})`).join(", ")}
 
-Summary should:
-- Start with the key win
-- Then show 1 area needing attention (decline or issue)
-- End with a next step or helpful suggestion
-- Be 1–2 short sentences (about 40–60 words)
-- Maintain a clean and professional tone
-- Add 1 emoji at the end (e.g., 📉, 📈, 🚀, 💡)
+
 `;
+
+   // ✅ Skip OpenAI in dev or mock mode
+    if (process.env.USE_OPENAI !== "false") {
+      return NextResponse.json(mockData);
+    }
+
 
 
     const chatResponse = await openai.chat.completions.create({
@@ -73,14 +94,15 @@ Summary should:
       messages: [
         {
           role: "system",
-          content: "You are an expert SEO assistant summarizing weekly analytics.",
+          content: "You are an expert SEO assistant summarizing weekly analytics into one short, helpful dashboard summary.",
         },
         {
           role: "user",
           content: prompt,
         },
       ],
-      temperature: 0.7,
+      temperature: 0.6,
+      max_tokens: 150,
     });
 
     const summary = chatResponse.choices[0].message.content?.trim();

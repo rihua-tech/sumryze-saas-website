@@ -49,6 +49,7 @@
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
     "date-fns": "^2.29.3",
+    "dompurify": "^3.2.6",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.5.1",
     "framer-motion": "^12.19.1",
