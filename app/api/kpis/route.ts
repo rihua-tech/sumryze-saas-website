@@ -1,44 +1,59 @@
 // app/api/kpis/route.ts
 import { NextResponse } from "next/server";
 
+type KPIData = {
+  title: "SEO Score" | "Top Pages" | string;
+  value: number | string;
+  delta?: string;   // e.g. "+4", "-3%", "+15%"
+  down?: boolean;   // true when delta is negative
+};
+
+function makeItem(title: KPIData["title"], value: KPIData["value"], delta?: string): KPIData {
+  const isDown = typeof delta === "string" && delta.trim().startsWith("-");
+  return { title, value, delta, down: isDown };
+}
+
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const targetUrl = searchParams.get("url");
+    const targetUrl = searchParams.get("url")?.trim();
 
-    // ✅ Validate input
     if (!targetUrl) {
-      return NextResponse.json(
-        { error: "Missing target URL." },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing target URL." }, { status: 400 });
     }
 
-    // ✅ Simulate real URL-based logic (in future connect DB/API)
-    let data;
+    // (Optional) very light sanity check
+    const looksLikeUrl = /^https?:\/\/.+/i.test(targetUrl);
+    if (!looksLikeUrl) {
+      return NextResponse.json({ error: "Invalid URL format." }, { status: 400 });
+    }
 
+    let data: KPIData[];
+
+    // ✅ Simulated branching (swap for real DB/API later)
     if (targetUrl.includes("example.com")) {
       data = [
-        { title: "SEO Score", value: 85, delta: "+4" },
-        { title: "Top Pages", value: 12, delta: "+3" },
-        { title: "Conversions", value: "4.8%", delta: "+1.2%" },
-        { title: "Revenue", value: "$22,450", delta: "+9%" },
+        makeItem("SEO Score", 90, "+4"),
+        makeItem("Top Pages", 12, "+3"),
+        makeItem("Conversions", "4.8%", "+1.2%"),
+        makeItem("Revenue", "$22,450", "+9%"),
       ];
     } else {
       data = [
-        { title: "SEO Score", value: 78, delta: "+6" },
-        { title: "Top Pages", value: 5, delta: "+2" },
-        { title: "Conversions", value: "3.4%", delta: "-1%", down: true },
-        { title: "Revenue", value: "$12,847", delta: "+15%" },
+        makeItem("SEO Score", 78, "+6"),
+        makeItem("Top Pages", 5, "+2"),
+        makeItem("Conversions", "3.4%", "-1%"),
+        makeItem("Revenue", "$12,847", "+15%"),
       ];
     }
 
-    return NextResponse.json(data);
-  } catch (err: any) {
+    return NextResponse.json(data, {
+      headers: {
+        "Cache-Control": "no-store", // avoid stale during dev
+      },
+    });
+  } catch (err) {
     console.error("KPI API error:", err);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

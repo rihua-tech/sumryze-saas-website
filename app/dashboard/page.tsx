@@ -108,9 +108,9 @@ const handleShareReport = async () => {
         {/* Left Column */}
         <div className="w-full lg:w-1/2 space-y-6">
           <KPICards />
-          <TrafficOverviewCard />
           <KeywordGrowthCard />
           <CoreWebVitalsCard />
+          <TrafficOverviewCard />
           <TrafficByChannelCard />
         </div>
 
@@ -133,8 +133,8 @@ const handleShareReport = async () => {
      isLoading={isLoading}
      onAudit={handleAudit}
      onDownload={handleDownload}
-     onGenerateBlog={handleGenerateBlog}
      onShare={handleShareReport}
+     onGenerateBlog={handleGenerateBlog}
 />
 
 

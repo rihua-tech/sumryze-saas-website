@@ -44,21 +44,6 @@ export default function DashboardActions({
         )}
       </Button>
 
-      {/* Generate Blog */}
-      <Button
-        onClick={onGenerateBlog}
-        disabled={isLoading.blog}
-      >
-        {isLoading.blog ? (
-          "Generating..."
-        ) : (
-          <>
-            <Pencil className="w-4 h-4 mr-2" />
-            Generate AI Blog
-          </>
-        )}
-      </Button>
-
       {/* Share Report */}
       <Button
       className="bg-gray-200 hover:bg-gray-100 dark:bg-secondary dark:hover:bg-secondary/80"
@@ -75,6 +60,23 @@ export default function DashboardActions({
           </>
         )}
       </Button>
+      
+       {/* Generate Blog */}
+      <Button
+        onClick={onGenerateBlog}
+        disabled={isLoading.blog}
+      >
+        {isLoading.blog ? (
+          "Generating..."
+        ) : (
+          <>
+            <Pencil className="w-4 h-4 mr-2" />
+        Open AI SEO
+          </>
+        )}
+      </Button>
+
+
     </div>
   );
 }
