@@ -25,6 +25,7 @@ export default function ContentPerformanceCard() {
         const res = await fetch(
           `/api/content-performance?url=${encodeURIComponent(currentUrl)}`
         );
+
         const json = await res.json();
 
         setData({
@@ -43,16 +44,17 @@ export default function ContentPerformanceCard() {
     fetchPerformance();
   }, [currentUrl]);
 
+  
   return (
     <div className="bg-white dark:bg-gray-900 rounded-xl shadow border border-gray-200 dark:border-gray-700 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-7">
         Content Performance
       </h3>
 
       {loading ? (
         <p className="text-gray-500 dark:text-gray-400 text-sm">Loading...</p>
       ) : (
-        <div className="space-y-3 text-sm">
+        <div className="space-y-3.5 text-sm">
           {/* Avg Word Count */}
           <div className="flex items-center justify-between hover:bg-gray-100 dark:hover:bg-muted/10 rounded-md transition">
             <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import SegmentedMenu from "./components/SegmentedMenu";
 import UrlSearchBar from "./components/UrlSearchBar";
 import AISummaryCard from "./components/overview/AISummaryCard";
-import KPICards from "./components/overview/KPICards";
+import KPICardsContainer from "./components/overview/KPICardsContainer";
 import CoreWebVitalsCard from "./components/overview/CoreWebVitalsCard";
 import TrafficOverviewCard from "./components/overview/TrafficOverviewCard";
 import KeywordGrowthCard from "./components/overview/KeywordGrowthCard";
@@ -19,6 +19,7 @@ import AiSeoAssistantCard from "./components/overview/AiSeoAssistantCard";
 import AISuggestions from "./components/overview/AISuggestions";
 import { useUrlContext } from "@/app/context/UrlContext";
 import DashboardActions from "./components/DashboardActions";
+
 
 export default function Dashboard() {
   const { isFreeUser } = useUserContext();
@@ -107,7 +108,10 @@ const handleShareReport = async () => {
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Left Column */}
         <div className="w-full lg:w-1/2 space-y-6">
-          <KPICards />
+
+         
+        <KPICardsContainer />
+        
           <KeywordGrowthCard />
           <CoreWebVitalsCard />
           <TrafficOverviewCard />

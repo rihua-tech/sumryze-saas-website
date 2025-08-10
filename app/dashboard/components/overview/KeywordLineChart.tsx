@@ -12,11 +12,7 @@ import {
 import { useTheme } from "next-themes";
 import { useMemo } from "react";
 
-// Define type of data expected
-type DataPoint = {
-  day: string;
-  count: number;
-};
+type DataPoint = { day: string; count: number };
 
 export default function KeywordLineChart({ data }: { data: DataPoint[] }) {
   const { resolvedTheme } = useTheme();
@@ -24,23 +20,35 @@ export default function KeywordLineChart({ data }: { data: DataPoint[] }) {
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+      <LineChart data={data} margin={{ top: 10, right: 16, left: 4, bottom: 0 }}>
         <defs>
           <linearGradient id="keywordLineGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.3} />
+            <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.35} />
             <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.05} />
           </linearGradient>
         </defs>
 
-        <CartesianGrid stroke={isDark ? "#333" : "#eee"} strokeDasharray="3 3" />
-        <XAxis dataKey="day" stroke={isDark ? "#aaa" : "#555"} tick={{ fontSize: 12 }} />
-        <YAxis stroke={isDark ? "#aaa" : "#555"} tick={{ fontSize: 12 }} />
+        <CartesianGrid stroke={isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"} strokeDasharray="3 3" />
+        <XAxis
+          dataKey="day"
+          stroke={isDark ? "#cbd5e1" : "#334155"}
+          tick={{ fontSize: 12 }}
+          tickMargin={6}
+        />
+        <YAxis
+          stroke={isDark ? "#cbd5e1" : "#334155"}
+          tick={{ fontSize: 12 }}
+          width={36}
+        />
 
         <Tooltip
+          formatter={(v: any) => [v, "Keywords"]}
+          labelFormatter={(l) => `Day: ${l}`}
           contentStyle={{
-            backgroundColor: isDark ? "#1e1e1e" : "#fff",
-            borderColor: isDark ? "#333" : "#ccc",
-            color: isDark ? "#eee" : "#111",
+            backgroundColor: isDark ? "#0f172a" : "#ffffff",
+            borderColor: isDark ? "#334155" : "#e5e7eb",
+            color: isDark ? "#e2e8f0" : "#0f172a",
+            borderRadius: 8,
           }}
         />
 
@@ -49,8 +57,8 @@ export default function KeywordLineChart({ data }: { data: DataPoint[] }) {
           dataKey="count"
           stroke="#3b82f6"
           strokeWidth={2}
-          dot={{ r: 4 }}
-          activeDot={{ r: 6 }}
+          dot={{ r: 3 }}
+          activeDot={{ r: 5 }}
           fill="url(#keywordLineGradient)"
         />
       </LineChart>

@@ -93,7 +93,7 @@ export default function CoreWebVitalsChart({ vitals = [] }: Props) {
 
         return (
           <div key={index} className="flex flex-col items-center text-center">
-            <Chart options={options} series={[percent]} type="radialBar" height={180} />
+            <Chart options={options} series={[percent]} type="radialBar" height={150} />
             <div className="mt-3 space-y-1">
               <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
                 {vital.value}

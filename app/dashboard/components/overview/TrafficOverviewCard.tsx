@@ -96,7 +96,7 @@ export default function TrafficOverviewCard() {
       </div>
 
       {/* Body: fixed height so chart/CTA/skeleton are same size */}
-      <div className="relative h-60 md:h-60">
+      <div className="relative h-52 md:h-52">
         {loading ? (
           // Skeleton
           <div className="absolute inset-0 animate-pulse w-full flex flex-col">

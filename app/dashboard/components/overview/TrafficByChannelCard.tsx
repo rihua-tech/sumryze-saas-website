@@ -71,7 +71,7 @@ export default function TrafficByChannelCard() {
       </h3>
 
       {/* Fixed-height content area so chart/CTA/skeleton are same size */}
-      <div className="relative h-60 md:h-60">
+      <div className="relative h-52 md:h-52">
         {loading ? (
           // Skeleton (pie shape)
           <div className="absolute inset-0 animate-pulse flex flex-col items-center justify-center">
