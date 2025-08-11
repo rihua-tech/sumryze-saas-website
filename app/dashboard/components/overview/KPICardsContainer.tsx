@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
 import SEOScoreCard from "./KPI/SEOScoreCard";
 import TopPagesCard from "./KPI/TopPagesCard";
 import { useUrlContext } from "@/app/context/UrlContext";
@@ -14,94 +13,100 @@ type KPI = {
   series?: number[];
 };
 
-// 🔹 Generates a more natural-looking fallback series
-function generateFallbackSeries(endValue: number, length = 7) {
-  const series: number[] = [];
-  let current = endValue - (length - 1);
+// Initial placeholders so both cards render immediately (no layout shift)
+const INITIAL: Record<string, KPI> = {
+  "SEO Score": { title: "SEO Score", value: 0, delta: "+0", down: false },
+  "Top Pages": { title: "Top Pages", value: 0, delta: "+0", down: false, series: [0, 0] },
+};
 
-  for (let i = 0; i < length; i++) {
-    // Random change between -2 and +3 for variation
-    current += Math.floor(Math.random() * 6) - 2;
-    if (current < 0) current = 0; // no negative values
-    series.push(current);
-  }
+const API_TIMEOUT_MS = 8000;
 
-  // Ensure last value = endValue
-  series[length - 1] = endValue;
-  return series;
+function isKPIArray(x: unknown): x is KPI[] {
+  return Array.isArray(x) && x.every(i =>
+    i && typeof i === "object" &&
+    typeof (i as any).title === "string" &&
+    ("value" in (i as any))
+  );
 }
 
 export default function KPICardsContainer() {
   const { url } = useUrlContext();
-  const [data, setData] = useState<Record<string, KPI>>({});
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<Record<string, KPI>>(INITIAL);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    if (!url) return;
+    if (!url) {
+      setData(INITIAL);
+      setLoaded(false);
+      return;
+    }
 
     const ac = new AbortController();
+    const t = setTimeout(() => ac.abort("timeout"), API_TIMEOUT_MS);
+
+    setLoaded(false);
+
     (async () => {
       try {
-        setLoading(true);
         const res = await fetch(`/api/kpis?url=${encodeURIComponent(url)}`, {
+          method: "GET",
           signal: ac.signal,
+          cache: "no-store",
+          headers: { accept: "application/json" },
         });
-        const list: KPI[] = await res.json();
-        const map: Record<string, KPI> = {};
-        list.forEach((k) => (map[k.title] = k));
-        setData(map);
-      } catch (error) {
-        if ((error as any).name !== "AbortError") {
-          console.error("Failed to fetch KPIs:", error);
+        if (!res.ok) throw new Error(`KPI fetch failed: ${res.status}`);
+
+        const raw = await res.json();
+        const list: KPI[] = isKPIArray(raw) ? raw : [];
+        const map = list.reduce<Record<string, KPI>>((acc, k) => {
+          acc[k.title] = k;
+          return acc;
+        }, {});
+
+        // Merge over INITIAL so shape stays stable
+        setData(prev => ({ ...prev, ...map }));
+      } catch (err: any) {
+        if (err?.name !== "AbortError") {
+          console.error("[KPIs] fetch error:", err);
         }
       } finally {
-        setLoading(false);
+        clearTimeout(t);
+        setLoaded(true);
       }
     })();
 
-    return () => ac.abort();
+    return () => {
+      clearTimeout(t);
+      ac.abort();
+    };
   }, [url]);
-
-  if (loading) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="h-[148px] rounded-2xl bg-white/5 animate-pulse" />
-        <div className="h-[148px] rounded-2xl bg-white/5 animate-pulse" />
-      </div>
-    );
-  }
 
   const seo = data["SEO Score"];
   const pages = data["Top Pages"];
 
-  const toNumber = (v: number | string | undefined) =>
-    typeof v === "number" ? v : Number(String(v ?? "").replace(/[^0-9.\-]/g, ""));
-
-  const pagesValue = toNumber(pages?.value);
+  // Gate on a *real* SEO score (prevents red flash + 0→90 sweep)
+  const seoNum = Number(seo?.value);
+  const seoReady = loaded && Number.isFinite(seoNum) && seoNum > 0; // switch to >= 0 if 0 is valid in your domain
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {typeof seo?.value === "number" && (
-        <SEOScoreCard
-          value={seo.value}
-          delta={seo.delta}
-          down={seo.down}
-          note="vs last week"
-        />
-      )}
+      <SEOScoreCard
+        key={seoReady ? `seo-ready-${seoNum}` : "seo-loading"} // remount only when ready
+        value={seoReady ? seoNum : 0}
+        delta={seoReady ? seo.delta : undefined}
+        down={seoReady ? seo.down : undefined}
+        note="vs last week"
+        loading={!seoReady}
+      />
 
-      {Number.isFinite(pagesValue) && (
-        <TopPagesCard
-          value={pagesValue as number}
-          delta={pages?.delta}
-          down={pages?.down}
-          series={
-            Array.isArray(pages?.series) && pages!.series!.length > 1
-              ? pages!.series
-              : generateFallbackSeries(pagesValue as number, 7) // 🔹 natural random fallback
-          }
-        />
-      )}
+      <TopPagesCard
+        key={`pages-${url ?? "none"}`}
+        value={loaded ? Number(pages.value) || 0 : 0}
+        delta={loaded ? pages.delta : undefined}
+        down={loaded ? pages.down : undefined}
+        series={Array.isArray(pages.series) ? pages.series : undefined}
+        // If TopPagesCard supports it, also pass: loading={!loaded}
+      />
     </div>
   );
 }

@@ -19,6 +19,8 @@ import AiSeoAssistantCard from "./components/overview/AiSeoAssistantCard";
 import AISuggestions from "./components/overview/AISuggestions";
 import { useUrlContext } from "@/app/context/UrlContext";
 import DashboardActions from "./components/DashboardActions";
+import SEOScoreCardBlock from "./components/overview/SEOScoreCardBlock";
+import TopPagesCardBlock from "./components/overview/TopPagesCardBlock";
 
 
 export default function Dashboard() {
@@ -108,10 +110,8 @@ const handleShareReport = async () => {
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Left Column */}
         <div className="w-full lg:w-1/2 space-y-6">
-
-         
-        <KPICardsContainer />
-        
+       
+        <KPICardsContainer />    
           <KeywordGrowthCard />
           <CoreWebVitalsCard />
           <TrafficOverviewCard />

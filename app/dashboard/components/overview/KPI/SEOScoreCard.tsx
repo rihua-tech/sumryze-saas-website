@@ -8,7 +8,7 @@ import SEOScoreChart from "./SEOScoreChart";
 
 type Status = "good" | "warn" | "bad";
 
-/* 1) Breakpoints: lg starts at 1280 (iPad stays md) */
+/* Breakpoints (SSR-safe) */
 function useBreakpoint() {
   const [bp, setBp] = useState<"xs" | "sm" | "md" | "lg">("md");
   useEffect(() => {
@@ -23,8 +23,28 @@ function useBreakpoint() {
   return bp;
 }
 
-/* Shared with TopPages */
+/* Disable transitions on first paint to kill any color flicker */
+function useMountedOnce() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setMounted(true)); // next frame truly mounted
+    return () => cancelAnimationFrame(id);
+  }, []);
+  return mounted;
+}
+
 const KPI_CARD_HEIGHTS = "h-[190px] sm:h-[210px] md:h-[220px]";
+
+type Props = {
+  value: number;
+  delta?: string;
+  down?: boolean;
+  note?: string;
+  thresholds?: { good: number; warn: number };
+  height?: string;
+  footerMeta?: { label: string; value: string }[];
+  loading?: boolean;
+};
 
 export default function SEOScoreCard({
   value,
@@ -34,31 +54,27 @@ export default function SEOScoreCard({
   thresholds = { good: 80, warn: 50 },
   height = KPI_CARD_HEIGHTS,
   footerMeta,
-}: {
-  value: number;
-  delta?: string;
-  down?: boolean;
-  note?: string;
-  thresholds?: { good: number; warn: number };
-  height?: string;
-  footerMeta?: { label: string; value: string }[];
-}) {
+  loading = false,
+}: Props) {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
   const bp = useBreakpoint();
+  const mounted = useMountedOnce();
 
   const status: Status = value >= thresholds.good ? "good" : value >= thresholds.warn ? "warn" : "bad";
 
-  /* 2) Slightly smaller ring on md (iPad) */
   const ringSize   = bp === "lg" ? 84 : bp === "md" ? 76 : 72;
   const ringStroke = bp === "lg" ? 10 : 8;
 
-  const ringBar =
+  const ringColor =
     status === "good"
-      ? "stroke-emerald-400 group-hover:stroke-emerald-500 transition-colors duration-200"
+      ? "stroke-emerald-400 group-hover:stroke-emerald-500"
       : status === "warn"
-      ? "stroke-amber-400 group-hover:stroke-amber-500 transition-colors duration-200"
-      : "stroke-rose-400 group-hover:stroke-rose-500 transition-colors duration-200";
+      ? "stroke-amber-400 group-hover:stroke-amber-500"
+      : "stroke-rose-400 group-hover:stroke-rose-500";
+
+  // No transition on first paint to prevent any red/amber flash
+  const ringBar = clsx(ringColor, mounted ? "transition-colors duration-200" : "transition-none");
 
   const track = isDark ? "stroke-white/10" : "stroke-slate-200";
   const cardClass = isDark
@@ -101,67 +117,81 @@ export default function SEOScoreCard({
       {isDark && <div className="pointer-events-none absolute -top-10 -right-10 h-28 w-28 rounded-full bg-indigo-500/10 blur-2xl" />}
 
       {/* Header */}
-      {/* Header – same pattern as TopPages: relative + absolute delta */}
-<div className="relative mb-2 sm:mb-3 min-w-0">
-  {/* Leave room on the right for the absolute delta chip */}
-  <div className="flex items-center gap-2 min-w-0 pr-12 md:pr-14">
-    <TrendingUp size={16} className={isDark ? "text-indigo-400" : "text-indigo-600"} />
-    {/* Don’t wrap on xs; allow normal on md so it won’t force two lines */}
-       <p className={clsx("text-base font-medium md:whitespace-normal whitespace-nowrap", titleClass)}>
-      SEO Score
-    </p>
-  </div>
-
-  {delta && (
-    <span
-      className={clsx(
-        "absolute right-0 top-0 inline-flex items-center gap-1 rounded-full",
-        "px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-semibold whitespace-nowrap",
-        deltaBadge
-      )}
-      title={down ? "Decrease" : "Increase"}
-      aria-label={`Change ${down ? "down" : "up"} ${delta}`}
-    >
-      {down ? <ArrowDown className="h-3 w-3" /> : <ArrowUp className="h-3 w-3" />}
-      {delta}
-    </span>
-  )}
-</div>
-
-
-      {/* Body — wraps if needed; ring never shrinks */}
-        <div className="mt-2 sm:mt-3 flex flex-wrap items-center gap-x-3 gap-y-2
-                justify-center md:justify-start text-center md:text-left">
-
-        <div className="shrink-0">
-          <SEOScoreChart
-            value={value}
-            max={100}
-            size={ringSize}
-            stroke={ringStroke}
-            barClass={ringBar}
-            trackClass={track}
-            labelClass="text-slate-900 dark:text-white"
-          />
+      <div className="relative mb-2 sm:mb-3 min-w-0">
+        <div className="flex items-center gap-2 min-w-0 pr-12 md:pr-14">
+          <TrendingUp size={16} className={isDark ? "text-indigo-400" : "text-indigo-600"} />
+          <p className={clsx("text-base font-medium md:whitespace-normal whitespace-nowrap", titleClass)}>
+            SEO Score
+          </p>
         </div>
 
-        <span
-          className={clsx(
-            "inline-flex items-center gap-1 rounded-full",
-            "px-2 py-0.5 text-[11px] sm:text-xs md:px-1.5",
-            "font-semibold whitespace-nowrap leading-none",
-            statusChip(status)
-          )}
-          title={`Status: ${statusLabel}`}
-        >
-          <StatusIcon className="h-3.5 w-3.5" /> {statusLabel}
-        </span>
+        {!loading && delta && (
+          <span
+            className={clsx(
+              "absolute right-0 top-0 inline-flex items-center gap-1 rounded-full",
+              "px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-semibold whitespace-nowrap",
+              deltaBadge
+            )}
+            title={down ? "Decrease" : "Increase"}
+            aria-label={`Change ${down ? "down" : "up"} ${delta}`}
+          >
+            {down ? <ArrowDown className="h-3 w-3" /> : <ArrowUp className="h-3 w-3" />}
+            {delta}
+          </span>
+        )}
+      </div>
+
+      {/* Body */}
+      <div className="mt-2 sm:mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 justify-center md:justify-start text-center md:text-left">
+        {loading ? (
+          <div className="relative shrink-0 grid place-items-center" style={{ width: ringSize, height: ringSize }}>
+            <div
+              className={clsx("rounded-full", isDark ? "border-white/10" : "border-slate-200")}
+              style={{ width: ringSize, height: ringSize, borderWidth: ringStroke, borderStyle: "solid" }}
+              aria-hidden
+            />
+            <span className="absolute h-5 w-12 rounded bg-emerald-500/10 animate-pulse" aria-label="Loading score" />
+          </div>
+        ) : (
+          <div className="shrink-0">
+            <SEOScoreChart
+              value={value}
+              max={100}
+              size={ringSize}
+              stroke={ringStroke}
+              barClass={ringBar}
+              trackClass={track}
+              labelClass="text-slate-900 dark:text-white"
+              animateOnMount={false} // no 1→90 sweep on first render
+            />
+          </div>
+        )}
+
+        {loading ? (
+          <span className="h-5 w-16 rounded-full bg-slate-300/20 dark:bg-white/10 animate-pulse" aria-hidden />
+        ) : (
+          <span
+            className={clsx(
+              "inline-flex items-center gap-1 rounded-full",
+              "px-2 py-0.5 text-[11px] sm:text-xs md:px-1.5",
+              "font-semibold whitespace-nowrap leading-none",
+              statusChip(status)
+            )}
+            title={`Status: ${statusLabel}`}
+          >
+            <StatusIcon className="h-3.5 w-3.5" /> {statusLabel}
+          </span>
+        )}
       </div>
 
       {/* Footer */}
-     
-        <div className={clsx("mt-auto pt-3 sm:pt-4 flex items-center justify-center sm:justify-between text-xs", muted, isDark ? "border-t border-white/10" : "border-t border-slate-200/70")}>
-
+      <div
+        className={clsx(
+          "mt-auto pt-3 sm:pt-4 flex items-center justify-center sm:justify-between text-xs",
+          muted,
+          isDark ? "border-t border-white/10" : "border-t border-slate-200/70"
+        )}
+      >
         <span className="truncate text-center sm:text-left">{note}</span>
 
         {footerMeta?.length ? (

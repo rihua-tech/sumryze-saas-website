@@ -53,6 +53,8 @@
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.5.1",
     "framer-motion": "^12.19.1",
+    "google-auth-library": "^10.2.1",
+    "googleapis": "^155.0.1",
     "html2canvas": "^1.4.1",
     "input-otp": "1.4.1",
     "jspdf": "^3.0.1",
