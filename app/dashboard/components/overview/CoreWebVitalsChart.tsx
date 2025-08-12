@@ -1,79 +1,119 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useTheme } from "next-themes";
-
+import clsx from "clsx";
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
-interface CoreVital {
-  name: string;
+type CoreVital = {
+  name: "LCP" | "INP" | "CLS" | string;
   value: number;
   target: number;
-  unit: string;
-  thresholds: number[];
-  color: string;
+  unit: string;                 // "s" | "ms" | ""
+  thresholds?: number[];        // [good, needs-improvement] (low is better)
+  color?: string;               // optional ring color override
+};
+
+type Props = { vitals?: CoreVital[] };
+
+const DEFAULT_THRESHOLDS: Record<string, [number, number]> = {
+  LCP: [2.5, 4.0],
+  INP: [200, 500],
+  CLS: [0.1, 0.25],
+};
+
+const RING_COLOR_BY_VITAL: Record<string, string> = {
+  LCP: "#10b981", // emerald
+  INP: "#3b82f6", // blue
+  CLS: "#f59e0b", // amber
+};
+
+function pctToTarget(value: number, target: number) {
+  const t = Math.max(0.000001, target);
+  return Math.min(100, Math.max(0, (value / t) * 100));
 }
 
-interface Props {
-  vitals?: CoreVital[]; // optional to handle undefined safely
+type StatusKey = "good" | "warn" | "poor";
+function statusKeyFor(v: CoreVital): StatusKey {
+  const [good, warn] = v.thresholds ?? DEFAULT_THRESHOLDS[v.name] ?? [v.target, v.target * 1.6];
+  if (v.value <= good) return "good";
+  if (v.value <= warn) return "warn";
+  return "poor";
+}
+
+function formatRaw(value: number, unit: string) {
+  if (!Number.isFinite(value)) return "-";
+  if (unit === "s") return value.toFixed(1);
+  if (unit === "ms") return String(Math.round(value));
+  return String(value);
+}
+
+function StatusPill({ status, className }: { status: StatusKey; className?: string }) {
+  const label = status === "good" ? "Good" : status === "warn" ? "Needs work" : "Poor";
+  const pillClass =
+    status === "good"
+      ? "border-transparent bg-slate-100 dark:bg-white/5 text-emerald-600 dark:text-emerald-400"
+      : status === "warn"
+      ? "border-amber-300/30 bg-amber-500/10 text-amber-400"
+      : "border-rose-300/30 bg-rose-500/10 text-rose-400";
+  return (
+    <span
+      className={clsx(
+        "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold border transition-colors",
+        pillClass,
+        className
+      )}
+    >
+      {label}
+    </span>
+  );
 }
 
 export default function CoreWebVitalsChart({ vitals = [] }: Props) {
-  const { resolvedTheme } = useTheme();
-
-  const calcPercentage = (value: number, target: number) =>
-    Math.min(100, parseFloat(((value / target) * 100).toFixed(1)));
-
-  const getStatus = (value: number, thresholds: number[]) => {
-    if (value <= thresholds[0]) {
-      return { text: "Good", color: "text-green-600 dark:text-green-400" };
-    }
-    if (value <= thresholds[1]) {
-      return { text: "Fair", color: "text-yellow-500 dark:text-yellow-400" };
-    }
-    return { text: "Poor", color: "text-red-500 dark:text-red-400" };
-  };
-
-  if (!Array.isArray(vitals) || vitals.length === 0) {
+  if (!vitals.length) {
     return (
-      <div className="text-sm text-gray-500 dark:text-gray-400 text-center">
+      <div className="text-sm text-slate-500 dark:text-slate-400 text-center">
         No Core Web Vitals data available.
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 justify-items-center">
-      {vitals.map((vital, index) => {
-        const percent = calcPercentage(vital.value, vital.target);
-        const status = getStatus(vital.value, vital.thresholds);
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {vitals.map((v, i) => {
+        const status = statusKeyFor(v);
+        const progress = Number(pctToTarget(v.value, v.target).toFixed(1));
+        const ringColor = v.color ?? RING_COLOR_BY_VITAL[v.name] ?? "#64748b";
+        const rawLabel = `${formatRaw(v.value, v.unit)}${v.unit}`;
+        const targetLabel = `${formatRaw(v.target, v.unit)}${v.unit}`;
 
         const options: ApexCharts.ApexOptions = {
-          chart: {
-            type: "radialBar",
-            sparkline: { enabled: true },
-          },
+          chart: { type: "radialBar", sparkline: { enabled: true } },
+          colors: [ringColor],
           plotOptions: {
             radialBar: {
-              hollow: { size: "55%" },
+              hollow: {
+                size: "60%",       // base: keep roomy center
+                margin: 2,
+              },
               track: {
-                background: resolvedTheme === "dark" ? "#374151" : "#e5e7eb",
+                background: "rgba(148,163,184,0.25)",
+                strokeWidth: "88%", // slightly thinner ring
               },
               dataLabels: {
-                name: {
-                  show: true,
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  color: resolvedTheme === "dark" ? "#d1d5db" : "#374151",
-                  offsetY: 20,
-                },
                 value: {
                   show: true,
+                  offsetY: -14,
                   fontSize: "18px",
+                  fontWeight: 800,
+                  color: "currentColor",
+                  formatter: () => rawLabel,
+                },
+                name: {
+                  show: true,
+                  offsetY: 20,
+                  color: "currentColor",
+                  fontSize: "14px",
                   fontWeight: 700,
-                  color: resolvedTheme === "dark" ? "#f9fafb" : "#111827",
-                  offsetY: -10,
-                  formatter: () => `${percent}%`,
                 },
               },
             },
@@ -83,25 +123,71 @@ export default function CoreWebVitalsChart({ vitals = [] }: Props) {
             gradient: {
               shade: "light",
               type: "horizontal",
-              gradientToColors: [vital.color],
+              gradientToColors: [ringColor],
               stops: [0, 100],
             },
           },
-          colors: [vital.color],
-          labels: [vital.name],
+          stroke: { lineCap: "round" },
+          labels: [v.name],
+          // Phone-first tweaks
+          responsive: [
+            {
+              breakpoint: 480,
+              options: {
+                plotOptions: {
+                  radialBar: {
+                    hollow: { size: "64%" },               // more inner space
+                    track: { strokeWidth: "92%" },         // even slimmer ring
+                    dataLabels: {
+                      value: { fontSize: "18px", offsetY: -14 },
+                      name: { fontSize: "12px", offsetY: 22 },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              breakpoint: 380,
+              options: {
+                plotOptions: {
+                  radialBar: {
+                    hollow: { size: "60%" },
+                    track: { strokeWidth: "85%" },
+                    dataLabels: {
+                      value: { fontSize: "18px", offsetY: -12 },
+                      name: { fontSize: "12px", offsetY: 22 },
+                    },
+                  },
+                },
+              },
+            },
+          ],
         };
 
         return (
-          <div key={index} className="flex flex-col items-center text-center">
-            <Chart options={options} series={[percent]} type="radialBar" height={150} />
-            <div className="mt-3 space-y-1">
-              <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                {vital.value}
-                {vital.unit} &nbsp;|&nbsp; Target: {vital.target}
-                {vital.unit}
-              </p>
-              <p className={`text-xs font-semibold ${status.color}`}>{status.text}</p>
-            </div>
+          <div
+            key={`${v.name}-${i}`}
+            className="apex-vitals flex flex-col items-center text-center text-slate-900 dark:text-white"
+            aria-label={`${v.name} ${rawLabel}, target ${targetLabel}`}
+          >
+            <Chart options={options} series={[progress]} type="radialBar" height={148} />
+
+            <p className="mt-3 text-sm text-slate-800 dark:text-slate-200">
+              <span className="font-semibold">{rawLabel}</span>
+              <span className="opacity-60">&nbsp;·&nbsp;target {targetLabel}</span>
+            </p>
+
+            <StatusPill status={status} className="mt-2" />
+
+            {/* scoped readability boost for the center value */}
+            <style jsx global>{`
+              .apex-vitals .apexcharts-datalabel-value {
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+              }
+              .dark .apex-vitals .apexcharts-datalabel-value {
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+              }
+            `}</style>
           </div>
         );
       })}

@@ -6,6 +6,12 @@ import KeywordLineChart from "./KeywordLineChart";
 import { useUrlContext } from "@/app/context/UrlContext";
 import { useTheme } from "next-themes";
 import clsx from "clsx";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type TabType = "weekly" | "monthly";
 type DataPoint = { day: string; count: number };
@@ -31,7 +37,7 @@ function computeSizeAwareDelta(
 ): { text: string | null; tone: "up" | "down" | "neutral"; down: boolean } {
   if (!data || data.length < 4) return { text: null, tone: "neutral", down: false };
 
-  const values = smoothMA3(data.map((d) => d.count));
+  const values = smoothMA3(data.map((d) => Number(d.count) || 0));
   const half = Math.floor(values.length / 2);
   const prevMean = Math.max(1, mean(values.slice(0, half)));
   const last = values[values.length - 1];
@@ -67,33 +73,57 @@ export default function KeywordGrowthCard() {
   const [data, setData] = useState<DataPoint[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isMock, setIsMock] = useState<boolean>(false);     // ← NEW: sample badge toggle
+
   const { url: currentUrl } = useUrlContext();
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
 
   useEffect(() => {
-    if (!currentUrl) return;
+    if (!currentUrl) {
+      setData([]);
+      setError(null);
+      setIsMock(false); // no URL → just show empty state, not "Sample"
+      setLoading(false);
+      return;
+    }
 
     const ac = new AbortController();
+    const timer = setTimeout(() => ac.abort(), 10_000);
+
     (async () => {
       setLoading(true);
       setError(null);
       try {
         const res = await fetch(
           `/api/keyword-growth?period=${activeTab}&url=${encodeURIComponent(currentUrl)}`,
-          { signal: ac.signal }
+          { signal: ac.signal, cache: "no-store", headers: { accept: "application/json" } }
         );
+        if (!res.ok) {
+          let msg = "Failed to fetch data";
+          try {
+            const err = await res.json();
+            msg = err?.error || msg;
+          } catch {}
+          throw new Error(msg);
+        }
         const json = await res.json();
-        if (!res.ok) throw new Error(json?.error || "Failed to fetch data");
-        setData(Array.isArray(json.data) ? json.data : []);
+        const arr = Array.isArray(json?.data) ? json.data : [];
+        setIsMock(Boolean(json?.isMock));                   // ← NEW
+        setData(arr.map((d: any) => ({ day: String(d?.day ?? ""), count: Number(d?.count) || 0 })));
       } catch (err: any) {
         if (err?.name !== "AbortError") setError(err?.message || "Unexpected error");
+        // If the API itself falls back to mock without `isMock`, you could setIsMock(true) here.
       } finally {
+        clearTimeout(timer);
         setLoading(false);
       }
     })();
 
-    return () => ac.abort();
+    return () => {
+      clearTimeout(timer);
+      ac.abort();
+    };
   }, [activeTab, currentUrl]);
 
   const delta = useMemo(() => computeSizeAwareDelta(data, { neutralPct: 2 }), [data]);
@@ -114,108 +144,135 @@ export default function KeywordGrowthCard() {
   const tabIdle = isDark ? "text-gray-300 hover:bg-white/10" : "text-slate-600 hover:bg-slate-200/70";
 
   return (
-    <div
-      className={clsx(
-        "group rounded-2xl border p-4 sm:p-5 shadow-sm transition-shadow",
-        "hover:shadow-md hover:shadow-indigo-500/10",
-        cardClass
-      )}
-    >
-      {/* Header */}
-      {/* Header */}
-<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-2 sm:mb-3">
-  <h3
-    className={clsx(
-      "font-semibold tracking-tight text-balance",
-      "text-base sm:text-lg",
-      isDark ? "text-gray-100" : "text-slate-900"
-    )}
-  >
-    Keyword Growth
-  </h3>
-
-  {/* Right controls: badge + tabs */}
-  <div className="flex items-center gap-2 min-w-0 flex-wrap w-full sm:w-auto justify-end">
-    {delta.text && (
-      <span
+    <TooltipProvider delayDuration={120}>
+      <div
         className={clsx(
-          "inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold",
-          "text-[10px] sm:text-xs",
-          "transition-colors",
-          delta.tone === "neutral" ? neutralBadge : delta.down ? downBadge : upBadge
+          "group rounded-2xl border p-4 sm:p-5 shadow-sm transition-shadow",
+          "hover:shadow-md hover:shadow-indigo-500/10",
+          cardClass
         )}
-        title={
-          delta.tone === "neutral"
-            ? "Change within neutral band / too small for site size"
-            : delta.down
-            ? "Down vs previous period average"
-            : "Up vs previous period average"
-        }
+        aria-live="polite"
+        aria-busy={loading ? true : undefined}
       >
-        {delta.tone === "neutral" ? null : delta.down ? (
-          <ArrowDown className="h-3 w-3" />
-        ) : (
-          <ArrowUp className="h-3 w-3" />
-        )}
-        {delta.text}
-      </span>
-    )}
+        {/* Header */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-2 sm:mb-3">
+          <div className="flex items-center gap-2">
+            <h3
+              className={clsx(
+                "font-semibold tracking-tight text-balance",
+                "text-base sm:text-lg",
+                isDark ? "text-gray-100" : "text-slate-900"
+              )}
+            >
+              Keyword Growth
+            </h3>
 
-    {/* Tabs — scroll on tiny widths, otherwise fit/wrap neatly */}
-    <div
-      className={clsx(
-        "flex items-center gap-1 rounded-full p-1",
-        "overflow-x-auto max-w-full sm:max-w-none",
-        "[-ms-overflow-style:none] [scrollbar-width:none]",
-        tabsWrap
-      )}
-      style={{ scrollbarWidth: "none" }}
-    >
-      {(["weekly", "monthly"] as TabType[]).map((tab) => (
-        <button
-          key={tab}
-          onClick={() => setActiveTab(tab)}
-          className={clsx(
-            "px-3 py-1 rounded-full transition-colors whitespace-nowrap",
-            "text-xs sm:text-[13px]",
-            activeTab === tab ? tabActive : tabIdle
+            {/* Sample badge (same pattern as SEO/Predictions) */}
+            {isMock && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span
+                    className={clsx(
+                      "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold  tracking-wide border",
+                      isDark
+                        ? "bg-white/10 text-slate-300 border-white/15"
+                        : "bg-slate-100 text-slate-700 border-slate-300/80"
+                    )}
+                    aria-label="Sample data"
+                  >
+                    Sample
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-[260px]">
+                  <p className="text-xs leading-snug">
+                    Showing sample data. Connect your data source to see your real keyword growth.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+
+          {/* Right controls: delta badge + tabs */}
+          <div className="flex items-center gap-2 min-w-0 flex-wrap w-full sm:w-auto justify-end">
+            {delta.text && (
+              <span
+                className={clsx(
+                  "inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold",
+                  "text-[10px] sm:text-xs",
+                  "transition-colors",
+                  delta.tone === "neutral" ? neutralBadge : delta.down ? downBadge : upBadge
+                )}
+                title={
+                  delta.tone === "neutral"
+                    ? "Change within neutral band / too small for site size"
+                    : delta.down
+                    ? "Down vs previous period average"
+                    : "Up vs previous period average"
+                }
+              >
+                {delta.tone === "neutral" ? null : delta.down ? (
+                  <ArrowDown className="h-3 w-3" />
+                ) : (
+                  <ArrowUp className="h-3 w-3" />
+                )}
+                {delta.text}
+              </span>
+            )}
+
+            <div
+              className={clsx(
+                "flex items-center gap-1 rounded-full p-1",
+                "overflow-x-auto max-w-full sm:max-w-none",
+                "[-ms-overflow-style:none] [scrollbar-width:none]",
+                tabsWrap
+              )}
+              style={{ scrollbarWidth: "none" }}
+            >
+              {(["weekly", "monthly"] as TabType[]).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={clsx(
+                    "px-3 py-1 rounded-full transition-colors whitespace-nowrap",
+                    "text-xs sm:text-[13px]",
+                    activeTab === tab ? tabActive : tabIdle
+                  )}
+                  aria-pressed={activeTab === tab}
+                >
+                  {tab === "weekly" ? "Weekly" : "Monthly"}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Chart Body */}
+        <div className="h-44 sm:h-56 md:h-56 lg:h-60">
+          {loading ? (
+            <div className={clsx("h-full rounded-xl animate-pulse", isDark ? "bg-white/5" : "bg-slate-100")} />
+          ) : error ? (
+            <div
+              className={clsx(
+                "flex justify-center items-center h-full text-sm",
+                isDark ? "text-rose-400" : "text-rose-600"
+              )}
+            >
+              {error}
+            </div>
+          ) : data.length === 0 ? (
+            <div
+              className={clsx(
+                "flex justify-center items-center h-full text-sm",
+                isDark ? "text-gray-400" : "text-slate-500"
+              )}
+            >
+              No data for this period.
+            </div>
+          ) : (
+            <KeywordLineChart data={data} />
           )}
-          aria-pressed={activeTab === tab}
-        >
-          {tab === "weekly" ? "Weekly" : "Monthly"}
-        </button>
-      ))}
-    </div>
-  </div>
-</div>
-
-
-      {/* Chart Body */}
-      <div className="h-44 sm:h-56 md:h-56 lg:h-60">
-        {loading ? (
-          <div className={clsx("h-full rounded-xl animate-pulse", isDark ? "bg-white/5" : "bg-slate-100")} />
-        ) : error ? (
-          <div
-            className={clsx(
-              "flex justify-center items-center h-full text-sm",
-              isDark ? "text-rose-400" : "text-rose-600"
-            )}
-          >
-            {error}
-          </div>
-        ) : data.length === 0 ? (
-          <div
-            className={clsx(
-              "flex justify-center items-center h-full text-sm",
-              isDark ? "text-gray-400" : "text-slate-500"
-            )}
-          >
-            No data for this period.
-          </div>
-        ) : (
-          <KeywordLineChart data={data} />
-        )}
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 }

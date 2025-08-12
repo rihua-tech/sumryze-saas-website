@@ -1,171 +1,199 @@
+// app/api/kpis/route.ts
 import { NextResponse } from "next/server";
 import { normalizeUrl } from "@/lib/normalizeUrl";
+import { z } from "zod";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type KPIData = {
+/* ---------- Zod schemas for sub-API results ---------- */
+
+// /api/seo → { value: number|string, delta?: string, demo?: boolean }
+const SeoResult = z.object({
+  value: z.preprocess((v) => {
+    if (typeof v === "string") return Number(v.replace(/[^0-9.+-]/g, ""));
+    return v;
+  }, z.number()),
+  delta: z.string().optional(),
+  demo: z.boolean().optional(),
+});
+
+// /api/top-pages → { value: number|string, delta?: string, series?: number[]|string[], demo?: boolean }
+const TopPagesResult = z.object({
+  value: z.preprocess((v) => {
+    if (typeof v === "string") return Number(v.replace(/[^0-9.+-]/g, ""));
+    return v;
+  }, z.number()),
+  delta: z.string().optional(),
+  series: z
+    .array(
+      z.preprocess(
+        (v) => (typeof v === "string" ? Number(v.replace(/[^0-9.+-]/g, "")) : v),
+        z.number()
+      )
+    )
+    .optional(),
+  demo: z.boolean().optional(),
+});
+
+/* ---------- Local KPI type ---------- */
+type KPI = {
   title: "SEO Score" | "Top Pages" | string;
-  value: number | string;
+  value: number;
   delta?: string;
   down?: boolean;
   series?: number[];
+  demo?: boolean; // ← NEW
 };
 
+/* ---------- Config ---------- */
 const API_TIMEOUT_MS = 10_000;
-
-// 🔧 Feature flag: force mocks (set KPI_FORCE_MOCKS=true)
 const USE_MOCKS = process.env.KPI_FORCE_MOCKS === "true";
 
+/* ---------- Helpers ---------- */
+function noStore() {
+  return {
+    "Cache-Control": "no-store",
+    "CDN-Cache-Control": "no-store",
+    "Vercel-CDN-Cache-Control": "no-store",
+  };
+}
+
 function makeItem(
-  title: KPIData["title"],
-  value: KPIData["value"],
+  title: KPI["title"],
+  value: number,
   delta?: string,
-  series?: number[]
-): KPIData {
+  series?: number[],
+  demo?: boolean // ← NEW
+): KPI {
   const down = typeof delta === "string" && delta.trim().startsWith("-");
-  return { title, value, delta, down, series };
+  return { title, value, delta, down, series, demo };
 }
 
 async function fetchWithTimeout(input: string | URL, init?: RequestInit, ms = API_TIMEOUT_MS) {
   const ac = new AbortController();
-  const t = setTimeout(() => ac.abort(), ms);
+  const t = setTimeout(() => ac.abort("timeout"), ms);
   try {
-    return await fetch(input, { ...init, signal: ac.signal, cache: "no-store", headers: { accept: "application/json", ...(init?.headers || {}) } });
+    return await fetch(input, {
+      ...init,
+      signal: ac.signal,
+      cache: "no-store",
+      headers: { accept: "application/json", ...(init?.headers || {}) },
+    });
   } finally {
     clearTimeout(t);
   }
 }
 
-/* ---------- stable mock helpers (seeded by URL) ---------- */
+/* ---------- Stable demo data ---------- */
 function hash(s: string) {
   let h = 2166136261;
   for (let i = 0; i < s.length; i++) h = (h ^ s.charCodeAt(i)) * 16777619;
-  return (h >>> 0);
+  return h >>> 0;
 }
 function rng(seed: number) {
   let x = seed || 123456789;
-  return () => { x ^= x << 13; x ^= x >>> 17; x ^= x << 5; return (x >>> 0) / 0xffffffff; };
+  return () => {
+    x ^= x << 13;
+    x ^= x >>> 17;
+    x ^= x << 5;
+    return (x >>> 0) / 0xffffffff;
+  };
 }
-function makeSeries(endValue: number, len = 7, seed = 1, step = 3) {
+function jitterSeries(endValue: number, len = 7, seed = 1, step = 2) {
   const r = rng(seed);
-  const arr: number[] = new Array(len);
+  const out: number[] = new Array(len);
   let cur = Math.max(0, endValue - (len - 1));
   for (let i = 0; i < len; i++) {
     const jit = Math.round((r() * 2 - 1) * step);
     cur = Math.max(0, cur + jit);
-    arr[i] = cur;
+    out[i] = cur;
   }
-  arr[len - 1] = endValue;
-  return arr;
+  out[len - 1] = endValue;
+  return out;
 }
-function fallbackKPIs(normalizedUrl: string): { seo: KPIData; pages: KPIData } {
+function fallbackKPIs(normalizedUrl: string): KPI[] {
   const seed = hash(normalizedUrl);
   const host = new URL(normalizedUrl).hostname.toLowerCase();
+  const seoVal = host.includes("example") ? 90 : 80 + (seed % 6);
+  const pagesVal = 8 + (seed % 18);
+  const series = jitterSeries(pagesVal, 7, seed, 2);
+  const prev = series.at(-2) ?? pagesVal;
+  const diff = pagesVal - prev;
 
-  const seoVal = host.includes("example") ? 90 : 80 + (seed % 6); // 80..85 or 90
-  const pagesVal = (seed % 18) + 8; // 8..25
-  const series = makeSeries(pagesVal, 7, seed, 2);
-  const diff = pagesVal - (series.at(-2) ?? pagesVal);
-
-  return {
-    seo: makeItem("SEO Score", seoVal, "+0"),
-    pages: makeItem("Top Pages", pagesVal, (diff >= 0 ? "+" : "") + diff.toString(), series),
-  };
+  // ✅ mark demo so UI can show "Sample" badge
+  return [
+    makeItem("SEO Score", seoVal, "+0", undefined, true),
+    makeItem("Top Pages", pagesVal, (diff >= 0 ? "+" : "") + diff, series, true),
+  ];
 }
 
+/* ---------- Route ---------- */
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const raw = searchParams.get("url") ?? "";
-    const normalized = normalizeUrl(raw);
-    if (!normalized) {
-      // No valid URL → return stable demo data so the UI still looks good
-      const fb = fallbackKPIs("https://demo.example.com/");
-      return NextResponse.json([fb.seo, fb.pages], {
-        headers: {
-          "Cache-Control": "no-store",
-          "CDN-Cache-Control": "no-store",
-          "Vercel-CDN-Cache-Control": "no-store",
-        },
-      });
+    const raw = (searchParams.get("url") || "").trim();
+    const normalized = raw.startsWith("demo://") ? "" : normalizeUrl(raw) || "";
+
+    // Demo / mock mode
+    if (!normalized || USE_MOCKS) {
+      const demoUrl = normalized || "https://demo.example.com/";
+      return NextResponse.json(fallbackKPIs(demoUrl), { headers: noStore() });
     }
 
-    // ✅ FEATURE FLAG: short-circuit to mocks when KPI_FORCE_MOCKS=true
-    if (USE_MOCKS) {
-      const fb = fallbackKPIs(normalized);
-      return NextResponse.json([fb.seo, fb.pages], {
-        headers: {
-          "Cache-Control": "no-store",
-          "CDN-Cache-Control": "no-store",
-          "Vercel-CDN-Cache-Control": "no-store",
-        },
-      });
-    }
-
-    // NOTE: ensure this path matches your folder name.
-    // If your folder is /app/api/top-page/route.ts (singular), change to "/api/top-page".
-    const seoURL   = new URL("/api/seo", req.url);        seoURL.searchParams.set("url", normalized);
-    const pagesURL = new URL("/api/top-pages", req.url);  pagesURL.searchParams.set("url", normalized);
+    const seoURL = new URL("/api/seo", req.url);
+    seoURL.searchParams.set("url", normalized);
+    const pagesURL = new URL("/api/top-pages", req.url);
+    pagesURL.searchParams.set("url", normalized);
 
     const [seoRes, pagesRes] = await Promise.allSettled([
       fetchWithTimeout(seoURL),
       fetchWithTimeout(pagesURL),
     ]);
 
-    const out: KPIData[] = [];
+    const out: KPI[] = [];
 
-    // SEO
+    // SEO Score
     if (seoRes.status === "fulfilled" && seoRes.value.ok) {
-      const s = await seoRes.value.json(); // expected: { value, delta? }
-      const value = typeof s?.value === "number" ? s.value : 0;
-      const delta = typeof s?.delta === "string" ? s.delta : "+0"; // always show chip
-      out.push(makeItem("SEO Score", value, delta));
+      const sJson = await seoRes.value.json();
+      const s = SeoResult.parse(sJson); // validate/coerce
+      out.push(makeItem("SEO Score", s.value, s.delta ?? "+0", undefined, s.demo === true));
     } else {
-      console.warn("[/api/kpis] /api/seo error:", seoRes.status === "rejected" ? seoRes.reason : seoRes.value.status);
+      console.warn("[/api/kpis] /api/seo error:", seoRes);
     }
 
     // Top Pages
     if (pagesRes.status === "fulfilled" && pagesRes.value.ok) {
-      const p = await pagesRes.value.json(); // expected: { value, delta?, series? }
-      const value = typeof p?.value === "number" ? p.value : 0;
-      let delta: string | undefined = p?.delta;
-      const series: number[] | undefined = Array.isArray(p?.series) ? p.series : undefined;
+      const pJson = await pagesRes.value.json();
+      const p = TopPagesResult.parse(pJson); // validate/coerce
 
-      // If delta missing, compute from series; else default to +0 so chip renders
+      let delta = p.delta;
       if (!delta) {
-        if (series && series.length > 1) {
-          const diff = (series.at(-1)! - series.at(-2)!);
-          delta = (diff >= 0 ? "+" : "") + diff.toString();
+        if (p.series && p.series.length > 1) {
+          const diff = p.series.at(-1)! - p.series.at(-2)!;
+          delta = (diff >= 0 ? "+" : "") + diff;
         } else {
           delta = "+0";
         }
       }
-      out.push(makeItem("Top Pages", value, delta, series));
+      out.push(makeItem("Top Pages", p.value, delta, p.series, p.demo === true));
     } else {
-      console.warn("[/api/kpis] /api/top-pages error:", pagesRes.status === "rejected" ? pagesRes.reason : pagesRes.value.status);
+      console.warn("[/api/kpis] /api/top-pages error:", pagesRes);
     }
 
-    // Backfill any missing KPI with a stable fallback
-    const haveSEO   = out.some(i => i.title === "SEO Score");
-    const havePages = out.some(i => i.title === "Top Pages");
-    if (!haveSEO || !havePages) {
+    // Backfill if a sub-call failed
+    if (!out.some((k) => k.title === "SEO Score") || !out.some((k) => k.title === "Top Pages")) {
       const fb = fallbackKPIs(normalized);
-      if (!haveSEO)   out.push(fb.seo);
-      if (!havePages) out.push(fb.pages);
+      if (!out.some((k) => k.title === "SEO Score")) out.push(fb[0]);
+      if (!out.some((k) => k.title === "Top Pages")) out.push(fb[1]);
     }
 
-    return NextResponse.json(out, {
-      headers: {
-        "Cache-Control": "no-store",
-        "CDN-Cache-Control": "no-store",
-        "Vercel-CDN-Cache-Control": "no-store",
-      },
-    });
+    return NextResponse.json(out, { headers: noStore() });
   } catch (err) {
-    console.error("[/api/kpis] error:", err);
-    // As a last resort, return demo so the dashboard still works
-    const fb = fallbackKPIs("https://demo.example.com/");
-    return NextResponse.json([fb.seo, fb.pages], { status: 200 });
+    console.error("[/api/kpis] fatal:", err);
+    return NextResponse.json(fallbackKPIs("https://demo.example.com/"), {
+      status: 200,
+      headers: noStore(),
+    });
   }
 }

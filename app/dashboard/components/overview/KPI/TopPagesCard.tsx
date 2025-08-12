@@ -127,6 +127,7 @@ export default function TopPagesCard({
   series,
   height = KPI_CARD_HEIGHTS,
   loading = false, // ← NEW
+  isSample = false // ← NEW
 }: {
   value: number;
   delta?: string;
@@ -134,6 +135,7 @@ export default function TopPagesCard({
   series?: number[];
   height?: string;
   loading?: boolean; // ← NEW
+  isSample?: boolean; // ← NEW
 }) {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
@@ -204,18 +206,16 @@ export default function TopPagesCard({
         {/* Header */}
         <div className="relative mb-2 sm:mb-3 min-w-0">
           <div className="flex items-center gap-2 min-w-0 pr-12 md:pr-14">
-            <FileText
-              size={16}
-              className={isDark ? "text-indigo-400" : "text-indigo-600"}
-            />
-            <p
-              className={clsx(
-                "text-base font-medium md:whitespace-normal whitespace-nowrap",
-                titleClass
-              )}
-            >
-              Top Pages
-            </p>
+           
+             <p
+             className={clsx(
+             "text-base md:text-lg font-medium md:whitespace-normal whitespace-nowrap",
+             titleClass
+             )}
+          >
+             Top Pages
+        
+          </p>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Info
@@ -242,6 +242,24 @@ export default function TopPagesCard({
                 </p>
               </TooltipContent>
             </Tooltip>
+             
+
+              {/* ← NEW: Sample badge */}
+           {isSample && !loading && (
+          <span
+             className={clsx(
+              "ml-2 rounded-full px-1.5 py-0.5 text-[10px] font-medium  tracking-wide",
+               isDark
+                ? "bg-gray-700 text-gray-300"
+                : "bg-gray-100 text-gray-600"
+                 )}
+                 title="Showing sample data. Paste a URL to see your site."
+             
+               >
+                Sample
+               </span>
+             )}
+
           </div>
 
           {!loading && delta && (

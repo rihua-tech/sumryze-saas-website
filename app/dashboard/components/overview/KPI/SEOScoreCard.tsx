@@ -8,6 +8,19 @@ import SEOScoreChart from "./SEOScoreChart";
 
 type Status = "good" | "warn" | "bad";
 
+type Props = {
+  value: number;
+  delta?: string;
+  down?: boolean;
+  note?: string;
+  thresholds?: { good: number; warn: number };
+  height?: string;
+  footerMeta?: { label: string; value: string }[];
+  loading?: boolean;
+  /** Show “Sample” badge when using demo/mock data */
+  isSample?: boolean; // ⬅️ NEW
+};
+
 /* Breakpoints (SSR-safe) */
 function useBreakpoint() {
   const [bp, setBp] = useState<"xs" | "sm" | "md" | "lg">("md");
@@ -27,24 +40,13 @@ function useBreakpoint() {
 function useMountedOnce() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
-    const id = requestAnimationFrame(() => setMounted(true)); // next frame truly mounted
+    const id = requestAnimationFrame(() => setMounted(true));
     return () => cancelAnimationFrame(id);
   }, []);
   return mounted;
 }
 
 const KPI_CARD_HEIGHTS = "h-[190px] sm:h-[210px] md:h-[220px]";
-
-type Props = {
-  value: number;
-  delta?: string;
-  down?: boolean;
-  note?: string;
-  thresholds?: { good: number; warn: number };
-  height?: string;
-  footerMeta?: { label: string; value: string }[];
-  loading?: boolean;
-};
 
 export default function SEOScoreCard({
   value,
@@ -55,6 +57,7 @@ export default function SEOScoreCard({
   height = KPI_CARD_HEIGHTS,
   footerMeta,
   loading = false,
+  isSample = false, // ⬅️ NEW
 }: Props) {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
@@ -73,13 +76,15 @@ export default function SEOScoreCard({
       ? "stroke-amber-400 group-hover:stroke-amber-500"
       : "stroke-rose-400 group-hover:stroke-rose-500";
 
-  // No transition on first paint to prevent any red/amber flash
   const ringBar = clsx(ringColor, mounted ? "transition-colors duration-200" : "transition-none");
 
   const track = isDark ? "stroke-white/10" : "stroke-slate-200";
-  const cardClass = isDark
-    ? "border-gray-700/70 bg-gradient-to-br from-[#0e1322] via-[#101528] to-[#0b0f1c]"
-    : "border-slate-200 bg-white";
+  
+
+    const cardClass =
+  "border border-slate-200 bg-white dark:border-gray-700/70 " +
+  "dark:bg-gradient-to-br dark:from-[#0e1322] dark:via-[#101528] dark:to-[#0b0f1c]";
+    
   const titleClass = isDark ? "text-gray-300" : "text-slate-900";
   const muted = isDark ? "text-gray-400" : "text-slate-600";
 
@@ -114,15 +119,32 @@ export default function SEOScoreCard({
       aria-live="polite"
       aria-label="SEO Score card"
     >
-      {isDark && <div className="pointer-events-none absolute -top-10 -right-10 h-28 w-28 rounded-full bg-indigo-500/10 blur-2xl" />}
+    
+      {mounted && isDark && (
+       <div className="pointer-events-none absolute -top-10 -right-10 h-28 w-28 rounded-full bg-indigo-500/10 blur-2xl" />
+       )}
+
 
       {/* Header */}
       <div className="relative mb-2 sm:mb-3 min-w-0">
         <div className="flex items-center gap-2 min-w-0 pr-12 md:pr-14">
-          <TrendingUp size={16} className={isDark ? "text-indigo-400" : "text-indigo-600"} />
-          <p className={clsx("text-base font-medium md:whitespace-normal whitespace-nowrap", titleClass)}>
+         
+          <p className={clsx("text-base md:text-lg font-medium md:whitespace-normal whitespace-nowrap", titleClass)}>
             SEO Score
           </p>
+
+          {/* Sample badge — clear but unobtrusive */}
+          {isSample && (
+            <span
+              className={clsx(
+                "ml-1 inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium",
+                isDark ? "bg-white/10 text-white/80" : "bg-slate-100 text-slate-700"
+              )}
+              title="Showing sample data. Paste a URL to see your site."
+            >
+              Sample
+            </span>
+          )}
         </div>
 
         {!loading && delta && (
@@ -162,7 +184,7 @@ export default function SEOScoreCard({
               barClass={ringBar}
               trackClass={track}
               labelClass="text-slate-900 dark:text-white"
-              animateOnMount={false} // no 1→90 sweep on first render
+              animateOnMount={false}
             />
           </div>
         )}
@@ -192,7 +214,9 @@ export default function SEOScoreCard({
           isDark ? "border-t border-white/10" : "border-t border-slate-200/70"
         )}
       >
-        <span className="truncate text-center sm:text-left">{note}</span>
+        <span className="truncate text-center sm:text-left">
+          {isSample ? "Sample data — paste a URL to see your site" : note}
+        </span>
 
         {footerMeta?.length ? (
           <div className="hidden sm:flex items-center gap-4 min-w-0">
