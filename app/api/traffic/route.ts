@@ -1,72 +1,64 @@
+// app/api/traffic/route.ts
 import { NextResponse } from "next/server";
+import { getTraffic, normalizeHost, parsePeriod, weakETag, type Period } from "@/lib/services/traffic";
 
-// ✅ Mock traffic data by period
-const mockTrafficData = {
-  weekly: [
-    { date: "Mon", traffic: 3400 },
-    { date: "Tue", traffic: 4200 },
-    { date: "Wed", traffic: 5100 },
-    { date: "Thu", traffic: 4800 },
-    { date: "Fri", traffic: 6100 },
-    { date: "Sat", traffic: 6900 },
-    { date: "Sun", traffic: 7500 },
-  ],
-  monthly: [
-    { date: "Jan", traffic: 3200 },
-    { date: "Feb", traffic: 3800 },
-    { date: "Mar", traffic: 4200 },
-    { date: "Apr", traffic: 5000 },
-    { date: "May", traffic: 5600 },
-    { date: "Jun", traffic: 6100 },
-    { date: "Jul", traffic: 7400 },
-    { date: "Aug", traffic: 8100 },
-    { date: "Sep", traffic: 8600 },
-    { date: "Oct", traffic: 9200 },
-    { date: "Nov", traffic: 9700 },
-    { date: "Dec", traffic: 10200 },
-  ],
-};
+export const runtime = "nodejs";         // use memory micro-cache reliably
+export const dynamic = "force-dynamic";  // always run (we control caching via headers)
 
-// ✅ Main handler
+/**
+ * GET /api/traffic?period=weekly|monthly&url=<site or url>
+ * Returns: { data: [{date,traffic}], isMock, source, ts }
+ */
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const period = searchParams.get("period");
-    const targetUrl = searchParams.get("url");
+    const period = parsePeriod(searchParams.get("period"));
+    const inputUrl = searchParams.get("url");
 
-    // ✅ Log inputs for development
-    if (process.env.NODE_ENV === "development") {
-      console.log("[Traffic API]", { period, targetUrl });
+    // Validate query
+    if (!inputUrl) {
+      return NextResponse.json({ error: "Missing 'url' parameter." }, { status: 400 });
+    }
+    if (!period) {
+      return NextResponse.json({ error: "Invalid 'period'. Use 'weekly' or 'monthly'." }, { status: 400 });
     }
 
-    // ❌ Validate required `url` param
-    if (!targetUrl) {
-      return NextResponse.json({ error: "Missing URL parameter." }, { status: 400 });
+    const host = normalizeHost(inputUrl);
+    if (!host) {
+      return NextResponse.json({ error: "Invalid URL." }, { status: 422 });
     }
 
-    // ❌ Validate period
-    if (!period || !(period in mockTrafficData)) {
-      return NextResponse.json(
-        { error: "Invalid period. Use 'weekly' or 'monthly'." },
-        { status: 400 }
-      );
+    // Core fetch (micro-cached)
+    const result = await getTraffic(host, period as Period);
+
+    // ETag / conditional GET (cheap bandwidth win)
+    const body = { data: result.data, isMock: result.isMock, source: result.source, ts: result.ts };
+    const etag = weakETag(body);
+    const inm = req.headers.get("if-none-match");
+    if (inm && inm === etag) {
+      return new NextResponse(null, {
+        status: 304,
+        headers: {
+          "Cache-Control": "s-maxage=60, stale-while-revalidate=300",
+          ETag: etag,
+          Vary: "Accept, Accept-Encoding, Origin",
+        },
+      });
     }
 
-    // ✅ Special override for test domains (optional future feature)
-    if (targetUrl.includes("test.com")) {
-      const testData = mockTrafficData[period as keyof typeof mockTrafficData].map((item) => ({
-        ...item,
-        traffic: Math.floor(item.traffic * 0.8), // reduce 20% for test data
-      }));
-      return NextResponse.json({ data: testData });
+    // HTTP cache (edge/CDN): short micro-TTL + good SWR
+    return NextResponse.json(body, {
+      headers: {
+        "Cache-Control": "s-maxage=60, stale-while-revalidate=300",
+        ETag: etag,
+        Vary: "Accept, Accept-Encoding, Origin",
+      },
+    });
+  } catch (err) {
+    if (process.env.NODE_ENV !== "production") {
+      // eslint-disable-next-line no-console
+      console.error("[Traffic API Error]", err);
     }
-
-    // ✅ In real app: replace with DB lookup like `await fetchTraffic(targetUrl, period)`
-    const data = mockTrafficData[period as keyof typeof mockTrafficData];
-
-    return NextResponse.json({ data });
-  } catch (err: any) {
-    console.error("[Traffic API Error]", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

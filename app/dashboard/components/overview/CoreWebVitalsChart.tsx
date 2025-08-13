@@ -92,7 +92,7 @@ export default function CoreWebVitalsChart({ vitals = [] }: Props) {
           plotOptions: {
             radialBar: {
               hollow: {
-                size: "60%",       // base: keep roomy center
+                size: "55%",       // base: keep roomy center
                 margin: 2,
               },
               track: {
@@ -136,8 +136,8 @@ export default function CoreWebVitalsChart({ vitals = [] }: Props) {
               options: {
                 plotOptions: {
                   radialBar: {
-                    hollow: { size: "64%" },               // more inner space
-                    track: { strokeWidth: "92%" },         // even slimmer ring
+                    hollow: { size: "55%" },               // more inner space
+                    track: { strokeWidth: "90%" },         // even slimmer ring
                     dataLabels: {
                       value: { fontSize: "18px", offsetY: -14 },
                       name: { fontSize: "12px", offsetY: 22 },
@@ -147,12 +147,12 @@ export default function CoreWebVitalsChart({ vitals = [] }: Props) {
               },
             },
             {
-              breakpoint: 380,
+              breakpoint: 300,
               options: {
                 plotOptions: {
                   radialBar: {
-                    hollow: { size: "60%" },
-                    track: { strokeWidth: "85%" },
+                    hollow: { size: "55%" },
+                    track: { strokeWidth: "90%" },
                     dataLabels: {
                       value: { fontSize: "18px", offsetY: -12 },
                       name: { fontSize: "12px", offsetY: 22 },

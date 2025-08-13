@@ -6,9 +6,7 @@ import { z } from "zod";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/* ---------- Zod schemas for sub-API results ---------- */
-
-// /api/seo → { value: number|string, delta?: string, demo?: boolean }
+/* ---------- Zod schemas ---------- */
 const SeoResult = z.object({
   value: z.preprocess((v) => {
     if (typeof v === "string") return Number(v.replace(/[^0-9.+-]/g, ""));
@@ -18,7 +16,6 @@ const SeoResult = z.object({
   demo: z.boolean().optional(),
 });
 
-// /api/top-pages → { value: number|string, delta?: string, series?: number[]|string[], demo?: boolean }
 const TopPagesResult = z.object({
   value: z.preprocess((v) => {
     if (typeof v === "string") return Number(v.replace(/[^0-9.+-]/g, ""));
@@ -36,18 +33,18 @@ const TopPagesResult = z.object({
   demo: z.boolean().optional(),
 });
 
-/* ---------- Local KPI type ---------- */
 type KPI = {
   title: "SEO Score" | "Top Pages" | string;
   value: number;
   delta?: string;
   down?: boolean;
   series?: number[];
-  demo?: boolean; // ← NEW
+  demo?: boolean;
 };
 
 /* ---------- Config ---------- */
-const API_TIMEOUT_MS = 10_000;
+const HARD_TIMEOUT_MS = Number(process.env.KPI_HARD_TIMEOUT_MS ?? 10_000);
+const SOFT_TIMEOUT_MS = Number(process.env.KPI_SOFT_TIMEOUT_MS ?? 1_500);
 const USE_MOCKS = process.env.KPI_FORCE_MOCKS === "true";
 
 /* ---------- Helpers ---------- */
@@ -64,24 +61,31 @@ function makeItem(
   value: number,
   delta?: string,
   series?: number[],
-  demo?: boolean // ← NEW
+  demo?: boolean
 ): KPI {
   const down = typeof delta === "string" && delta.trim().startsWith("-");
   return { title, value, delta, down, series, demo };
 }
 
-async function fetchWithTimeout(input: string | URL, init?: RequestInit, ms = API_TIMEOUT_MS) {
+async function fetchWithTimeout(
+  input: string | URL,
+  ms = HARD_TIMEOUT_MS,
+  signal?: AbortSignal
+) {
   const ac = new AbortController();
+  const onAbort = () => ac.abort();
+  signal?.addEventListener("abort", onAbort, { once: true });
+
   const t = setTimeout(() => ac.abort("timeout"), ms);
   try {
     return await fetch(input, {
-      ...init,
       signal: ac.signal,
       cache: "no-store",
-      headers: { accept: "application/json", ...(init?.headers || {}) },
+      headers: { accept: "application/json" },
     });
   } finally {
     clearTimeout(t);
+    signal?.removeEventListener("abort", onAbort);
   }
 }
 
@@ -94,9 +98,7 @@ function hash(s: string) {
 function rng(seed: number) {
   let x = seed || 123456789;
   return () => {
-    x ^= x << 13;
-    x ^= x >>> 17;
-    x ^= x << 5;
+    x ^= x << 13; x ^= x >>> 17; x ^= x << 5;
     return (x >>> 0) / 0xffffffff;
   };
 }
@@ -112,19 +114,24 @@ function jitterSeries(endValue: number, len = 7, seed = 1, step = 2) {
   out[len - 1] = endValue;
   return out;
 }
-function fallbackKPIs(normalizedUrl: string): KPI[] {
-  const seed = hash(normalizedUrl);
-  const host = new URL(normalizedUrl).hostname.toLowerCase();
-  const seoVal = host.includes("example") ? 90 : 80 + (seed % 6);
+function fallbackKPIs(baseUrl: string): KPI[] {
+  const seed = hash(baseUrl);
+  const host = new URL(baseUrl).hostname.toLowerCase();
+  const seoValRaw = host.includes("example") ? 90 : 80 + (seed % 6);
+  const seoVal = Math.max(0, Math.min(100, seoValRaw));
   const pagesVal = 8 + (seed % 18);
-  const series = jitterSeries(pagesVal, 7, seed, 2);
+
+  const series = jitterSeries(pagesVal, 7, seed, 2)
+    .map((n) => Math.max(0, Math.round(n)))
+    .slice(-24);
+
   const prev = series.at(-2) ?? pagesVal;
   const diff = pagesVal - prev;
+  const delta = (diff >= 0 ? "+" : "") + diff;
 
-  // ✅ mark demo so UI can show "Sample" badge
   return [
     makeItem("SEO Score", seoVal, "+0", undefined, true),
-    makeItem("Top Pages", pagesVal, (diff >= 0 ? "+" : "") + diff, series, true),
+    makeItem("Top Pages", pagesVal, delta, series, true),
   ];
 }
 
@@ -133,55 +140,84 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const raw = (searchParams.get("url") || "").trim();
-    const normalized = raw.startsWith("demo://") ? "" : normalizeUrl(raw) || "";
 
-    // Demo / mock mode
+    // demo sentinel or invalid → demo immediately
+    const normalized =
+      raw.startsWith("demo://") ? "" : (normalizeUrl(raw) || "");
+
     if (!normalized || USE_MOCKS) {
       const demoUrl = normalized || "https://demo.example.com/";
-      return NextResponse.json(fallbackKPIs(demoUrl), { headers: noStore() });
+      return NextResponse.json(fallbackKPIs(demoUrl), {
+        headers: { ...noStore(), "X-Mode": "demo" },
+      });
     }
 
+    // Build internal endpoints
     const seoURL = new URL("/api/seo", req.url);
     seoURL.searchParams.set("url", normalized);
     const pagesURL = new URL("/api/top-pages", req.url);
     pagesURL.searchParams.set("url", normalized);
 
-    const [seoRes, pagesRes] = await Promise.allSettled([
-      fetchWithTimeout(seoURL),
-      fetchWithTimeout(pagesURL),
+    // Controllers to allow soft cancel
+    const softAC = new AbortController();
+
+    // Kick off both requests
+    const seoP = fetchWithTimeout(seoURL.toString(), HARD_TIMEOUT_MS, softAC.signal);
+    const pagesP = fetchWithTimeout(pagesURL.toString(), HARD_TIMEOUT_MS, softAC.signal);
+
+    // Soft timeout: if nothing finishes within SOFT_TIMEOUT_MS,
+    // respond fast with demo data to keep UX snappy.
+    const softTimer = new Promise<"soft">((resolve) =>
+      setTimeout(() => resolve("soft"), SOFT_TIMEOUT_MS)
+    );
+
+    const raced = await Promise.race([
+      Promise.allSettled([seoP, pagesP]),
+      softTimer,
     ]);
+
+    if (raced === "soft") {
+      softAC.abort(); // stop in-flight upstream calls
+      return NextResponse.json(fallbackKPIs(normalized), {
+        headers: { ...noStore(), "X-Mode": "soft-fallback" },
+      });
+    }
+
+    const [seoRes, pagesRes] = raced as PromiseSettledResult<Response>[];
 
     const out: KPI[] = [];
 
     // SEO Score
     if (seoRes.status === "fulfilled" && seoRes.value.ok) {
       const sJson = await seoRes.value.json();
-      const s = SeoResult.parse(sJson); // validate/coerce
-      out.push(makeItem("SEO Score", s.value, s.delta ?? "+0", undefined, s.demo === true));
-    } else {
-      console.warn("[/api/kpis] /api/seo error:", seoRes);
+      const s = SeoResult.parse(sJson);
+      const val = Math.max(0, Math.min(100, s.value));
+      out.push(makeItem("SEO Score", val, s.delta ?? "+0", undefined, s.demo === true));
     }
 
     // Top Pages
     if (pagesRes.status === "fulfilled" && pagesRes.value.ok) {
       const pJson = await pagesRes.value.json();
-      const p = TopPagesResult.parse(pJson); // validate/coerce
+      const p = TopPagesResult.parse(pJson);
+
+      const series = (p.series ?? [])
+        .filter((n) => Number.isFinite(n))
+        .map((n) => Math.max(0, Math.round(n)))
+        .slice(-52); // cap length
 
       let delta = p.delta;
       if (!delta) {
-        if (p.series && p.series.length > 1) {
-          const diff = p.series.at(-1)! - p.series.at(-2)!;
+        if (series.length > 1) {
+          const diff = series.at(-1)! - series.at(-2)!;
           delta = (diff >= 0 ? "+" : "") + diff;
         } else {
           delta = "+0";
         }
       }
-      out.push(makeItem("Top Pages", p.value, delta, p.series, p.demo === true));
-    } else {
-      console.warn("[/api/kpis] /api/top-pages error:", pagesRes);
+      out.push(makeItem("Top Pages", Math.max(0, Math.round(p.value)), delta, series, p.demo === true));
     }
 
-    // Backfill if a sub-call failed
+    // Backfill any missing KPI with demo
     if (!out.some((k) => k.title === "SEO Score") || !out.some((k) => k.title === "Top Pages")) {
       const fb = fallbackKPIs(normalized);
       if (!out.some((k) => k.title === "SEO Score")) out.push(fb[0]);
@@ -193,7 +229,7 @@ export async function GET(req: Request) {
     console.error("[/api/kpis] fatal:", err);
     return NextResponse.json(fallbackKPIs("https://demo.example.com/"), {
       status: 200,
-      headers: noStore(),
+      headers: { ...noStore(), "X-Mode": "fatal-fallback" },
     });
   }
 }
