@@ -1,11 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import TrafficByChannelChart from "./TrafficByChannelChart";
 import { useUrlContext } from "@/app/context/UrlContext";
-import ConnectGAPlaceholder from "./ConnectGAPlaceholder";
+import { Gem, Plug2, ArrowRight } from "lucide-react";
 
-export default function TrafficByChannelCard() {
+/** Fallback demo data for the donut when we’re showing the CTA overlay (same idea as Overview’s sample) */
+const DEMO_LABELS = ["Organic", "Direct", "Referral", "Social", "Email"];
+const DEMO_SERIES = [124, 96, 72, 58, 31];
+
+type Props = {
+  hasPro?: boolean;        // optional real plan flag from parent/context
+  ga4Connected?: boolean;  // optional real GA4 link flag from parent/context
+};
+
+export default function TrafficByChannelCard({ hasPro, ga4Connected }: Props) {
   const { url: currentUrl } = useUrlContext();
 
   const [labels, setLabels] = useState<string[]>([]);
@@ -13,42 +22,51 @@ export default function TrafficByChannelCard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // TEMP flags — replace with your real plan/integration state
+  // ---- Same state model & CTA routing as TrafficOverviewCard ----
   const [isPro, setIsPro] = useState(false);
   const [ga4Linked, setGa4Linked] = useState(false);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setIsPro(localStorage.getItem("plan") === "pro");
-      setGa4Linked(localStorage.getItem("ga4Linked") === "true");
+      setIsPro(window.localStorage.getItem("plan") === "pro");
+      setGa4Linked(window.localStorage.getItem("ga4Linked") === "true");
     }
   }, []);
 
-  // Upgrade → pricing modal → GA4 connect
-  const handleGAConnect = () => { window.location.href = "/api/auth/google"; };
-  const openPricingModal = async (): Promise<boolean> => {
-    // TODO: show your pricing modal; resolve true ONLY on successful payment
-    // return await showPricingModal({ intent: "ga4-connection" });
-    return false; // stub
-  };
+  const onUpgrade = () => { window.location.href = "/pricing"; };           // same as Overview
+  const onConnect = () => { window.location.href = "/api/auth/google"; };   // same as Overview
 
+  const url = (currentUrl || "").trim();
+  const hasUrl = Boolean(url) && !url.startsWith("demo://");
+  // Mirror Overview: prefer rendering a demo chart (and overlay CTA) when not Pro or not linked or no URL
+  const preferSample = !hasUrl || !isPro || !ga4Linked;
+
+  // ----------------------------------------------------------------
+
+  // Real GA4 data path (only when Pro + linked + hasUrl)
   useEffect(() => {
-    if (!currentUrl) { setLabels([]); setSeries([]); setError(null); return; }
+    if (!hasUrl || !isPro || !ga4Linked) {
+      setError(null);
+      setLabels([]);
+      setSeries([]);
+      return;
+    }
 
     const ac = new AbortController();
     (async () => {
-      setLoading(true); setError(null);
+      setLoading(true);
+      setError(null);
       try {
         const res = await fetch(
-          `/api/traffic-channel?url=${encodeURIComponent(currentUrl)}`,
-          { signal: ac.signal }
+          `/api/traffic-channel?url=${encodeURIComponent(url)}`,
+          { signal: ac.signal, cache: "no-store", headers: { accept: "application/json" } }
         );
         if (!res.ok) throw new Error("Failed to load traffic channel data");
-
         const json = await res.json();
 
         const nextLabels: string[] = Array.isArray(json?.labels) ? json.labels : [];
         const nextSeries: number[] = Array.isArray(json?.series)
-          ? json.series.map((v: unknown) => Number(v)).filter((v: number) => Number.isFinite(v))
+          ? json.series.map((v: unknown) => Number(v)).filter((n: number) => Number.isFinite(n) && n >= 0)
           : [];
 
         setLabels(nextLabels);
@@ -56,85 +74,106 @@ export default function TrafficByChannelCard() {
       } catch (e: any) {
         if (e?.name !== "AbortError") {
           setError(e?.message || "Unknown error");
-          setLabels([]); setSeries([]);
+          setLabels([]);
+          setSeries([]);
         }
-      } finally { setLoading(false); }
+      } finally {
+        setLoading(false);
+      }
     })();
 
     return () => ac.abort();
-  }, [currentUrl]);
+  }, [url, hasUrl, isPro, ga4Linked]);
+
+  const empty = useMemo(() => series.length === 0, [series]);
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl shadow border border-gray-200 dark:border-gray-700 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-        Traffic by Channel
-      </h3>
+    <section
+      aria-labelledby="traffic-by-channel-heading"
+      className="rounded-2xl border p-5 shadow-sm transition-shadow
+                 hover:shadow-md hover:shadow-indigo-500/10
+                 border-slate-200 bg-white dark:border-gray-700/60
+                 dark:bg-gradient-to-br dark:from-[#0e1322] dark:via-[#101528] dark:to-[#0b0f1c]"
+    >
+      <div className="flex items-center justify-between mb-2">
+        <h3 id="traffic-by-channel-heading" className="text-lg font-semibold text-slate-900 dark:text-white">
+          Traffic by Channel
+        </h3>
+      </div>
 
-      {/* Fixed-height content area so chart/CTA/skeleton are same size */}
-      <div className="relative h-52 md:h-52">
-        {loading ? (
-          // Skeleton (pie shape)
-          <div className="absolute inset-0 animate-pulse flex flex-col items-center justify-center">
-            <div className="h-40 w-40 bg-gray-200 dark:bg-gray-700 rounded-full" />
-          </div>
-        ) : error ? (
-          // Error
-          <div className="absolute inset-0 flex items-center justify-center">
-            <p className="text-sm text-red-500 dark:text-red-400">{error}</p>
-          </div>
-        ) : !isPro ? (
-          // Not Pro → upsell + connect
-          <div className="absolute inset-0 flex items-center justify-center">
-            <ConnectGAPlaceholder
-              onOpenPricingModal={openPricingModal}
-              onConnectGA4={handleGAConnect}
-            />
-          </div>
-        ) : !ga4Linked ? (
-          // Pro but GA4 not linked → connect-only CTA
-          <div className="absolute inset-0 flex items-center justify-center">
-            <ConnectOnlyBlock onConnect={handleGAConnect} />
-          </div>
-        ) : series.length === 0 ? (
-          // GA4 linked but empty data → empty state
-          <div className="absolute inset-0 flex items-center justify-center">
-            <EmptyState
-              title="No channel data in GA4"
-              subtitle="Try a different date range or check your GA4 channel grouping."
-            />
+      {/* Fixed-height body so layout is stable, same as Overview */}
+      <div className="relative h-56 sm:h-64">
+        {preferSample ? (
+          <div className="absolute inset-0">
+            {/* CTA overlay — same style/logic as Overview */}
+            <div className="absolute inset-x-0 top-0 sm:top-0 z-10 flex justify-center pointer-events-none">
+              <div className="pointer-events-auto">
+                {!isPro ? (
+                  <button
+                    onClick={onUpgrade}
+                    className="
+                      group inline-flex items-center gap-1 sm:gap-2
+                      rounded-full px-2 py-0.5 text-[9px]
+                      font-semibold text-white
+                      bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500
+                      shadow-[0_10px_30px_rgba(99,102,241,.35)]
+                      hover:from-indigo-400 hover:to-fuchsia-500 transition-all
+                      focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/70
+                      active:scale-[.98]
+                    "
+                    aria-label="Upgrade to Pro and connect GA4"
+                  >
+                    <Gem className="h-4 w-4 opacity-90" />
+                    <span>Upgrade to Pro &amp; Connect GA4</span>
+                    <ArrowRight className="h-4 w-4 opacity-90 transition-transform group-hover:translate-x-0.5" />
+                  </button>
+                ) : !ga4Linked ? (
+                  <button
+                    onClick={onConnect}
+                    className="
+                      inline-flex items-center gap-2
+                      rounded-full px-4 py-2 text-sm font-semibold
+                      text-white/95 bg-white/10 backdrop-blur
+                      border border-white/15 hover:bg-white/14 transition-all
+                      focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40
+                      shadow-[0_8px_24px_rgba(0,0,0,.25)]
+                    "
+                    aria-label="Connect Google Analytics 4"
+                  >
+                    <Plug2 className="h-4 w-4" />
+                    <span>Connect GA4</span>
+                  </button>
+                ) : null}
+              </div>
+            </div>
+
+            {/* Demo donut below the overlay, to match Overview’s “sample chart under CTA” pattern */}
+            <TrafficByChannelChart labels={DEMO_LABELS} series={DEMO_SERIES} />
           </div>
         ) : (
-          // Chart
-          <div className="absolute inset-0">
-            <TrafficByChannelChart labels={labels} series={series} />
-          </div>
+          <>
+            {loading ? (
+              <div className="absolute inset-0 animate-pulse rounded-xl bg-slate-100 dark:bg-white/5" />
+            ) : error && empty ? (
+              <div className="absolute inset-0 flex items-center justify-center text-sm text-rose-600 dark:text-rose-400">
+                {error}{" "}
+                <button className="ml-2 underline" onClick={() => location.reload()}>
+                  Retry
+                </button>
+              </div>
+            ) : empty ? (
+              <div className="absolute inset-0 flex items-center justify-center text-sm text-slate-600 dark:text-gray-400">
+                No channel data.{" "}
+                <a className="ml-2 underline" href="/help/ga4">Troubleshoot</a>
+              </div>
+            ) : (
+              <div className="absolute inset-0">
+                <TrafficByChannelChart labels={labels} series={series} />
+              </div>
+            )}
+          </>
         )}
       </div>
-    </div>
-  );
-}
-
-/** Minimal connect-only block (for Pro users who haven't linked GA4 yet) */
-function ConnectOnlyBlock({ onConnect }: { onConnect: () => void }) {
-  return (
-    <div className="flex flex-col items-center justify-center h-48 px-4 text-center">
-      <button
-        onClick={onConnect}
-        className="px-5 py-3 rounded-md bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
-      >
-        🔗 Connect GA4
-      </button>
-    </div>
-  );
-}
-
-function EmptyState({ title, subtitle }: { title: string; subtitle?: string }) {
-  return (
-    <div className="text-center py-6">
-      <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{title}</p>
-      {subtitle && (
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{subtitle}</p>
-      )}
-    </div>
+    </section>
   );
 }

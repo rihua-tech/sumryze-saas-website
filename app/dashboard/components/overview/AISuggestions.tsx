@@ -96,6 +96,7 @@ export default function AiSuggestions() {
       }
 
       const res = await fetch(`/api/suggestions?url=${encodeURIComponent(currentUrl)}`);
+      
       const data = await res.json();
 
       const map = new Map<string, Suggestion>();
@@ -154,7 +155,7 @@ export default function AiSuggestions() {
       </div>
 
       {/* Suggestion List */}
-      <ul className="space-y-3">
+      <ul className="space-y-4">
         {suggestions.map((item, i) => {
           const isGood = item.display === "Looks Good";
           return (

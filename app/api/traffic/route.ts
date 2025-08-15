@@ -1,55 +1,36 @@
 // app/api/traffic/route.ts
-import { NextResponse } from "next/server";
-import { getTraffic, normalizeHost, parsePeriod, weakETag, type Period } from "@/lib/services/traffic";
+import { NextResponse, type NextRequest } from "next/server";
+import { getTraffic, normalizeHost, parsePeriod, weakETag } from "@/lib/services/traffic";
 
-export const runtime = "nodejs";         // use memory micro-cache reliably
-export const dynamic = "force-dynamic";  // always run (we control caching via headers)
+export const runtime = "nodejs";         // allow in-memory micro-cache
+export const dynamic = "force-dynamic";  // we control caching via headers
 
 /**
  * GET /api/traffic?period=weekly|monthly&url=<site or url>
- * Returns: { data: [{date,traffic}], isMock, source, ts }
+ * Returns: { data: [{date,traffic}], isMock, source, ts, period, host }
  */
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const period = parsePeriod(searchParams.get("period"));
     const inputUrl = searchParams.get("url");
 
-    // Validate query
-    if (!inputUrl) {
-      return NextResponse.json({ error: "Missing 'url' parameter." }, { status: 400 });
-    }
-    if (!period) {
-      return NextResponse.json({ error: "Invalid 'period'. Use 'weekly' or 'monthly'." }, { status: 400 });
-    }
-
     const host = normalizeHost(inputUrl);
-    if (!host) {
-      return NextResponse.json({ error: "Invalid URL." }, { status: 422 });
-    }
+    const result = await getTraffic(host, period);
 
-    // Core fetch (micro-cached)
-    const result = await getTraffic(host, period as Period);
+    const body = {
+      data: Array.isArray(result?.data) ? result.data : [],
+      isMock: !!result?.isMock,
+      source: result?.source ?? "mock",
+      ts: result?.ts ?? Date.now(),
+      period,
+      host,
+    };
 
-    // ETag / conditional GET (cheap bandwidth win)
-    const body = { data: result.data, isMock: result.isMock, source: result.source, ts: result.ts };
     const etag = weakETag(body);
-    const inm = req.headers.get("if-none-match");
-    if (inm && inm === etag) {
-      return new NextResponse(null, {
-        status: 304,
-        headers: {
-          "Cache-Control": "s-maxage=60, stale-while-revalidate=300",
-          ETag: etag,
-          Vary: "Accept, Accept-Encoding, Origin",
-        },
-      });
-    }
-
-    // HTTP cache (edge/CDN): short micro-TTL + good SWR
     return NextResponse.json(body, {
       headers: {
-        "Cache-Control": "s-maxage=60, stale-while-revalidate=300",
+        "Cache-Control": "public, max-age=60, s-maxage=60, stale-while-revalidate=300",
         ETag: etag,
         Vary: "Accept, Accept-Encoding, Origin",
       },

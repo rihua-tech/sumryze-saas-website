@@ -262,7 +262,7 @@ export default function AIPredictionsCard() {
            bandLow={bandLow}
            bandHigh={bandHigh}
            unitLabel={unitLabel}
-           height={150}
+           height={180}
           strokeWidth={2}
           strokeClass={strokeClass}      // your up/down color logic
           />

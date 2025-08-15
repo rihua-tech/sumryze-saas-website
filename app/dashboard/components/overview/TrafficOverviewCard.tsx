@@ -225,7 +225,7 @@ export default function TrafficOverviewCard() {
       </div>
 
       {/* Body: fixed height for smooth swaps (mobile-first) */}
-      <div className="relative h-56 sm:h-64">
+      <div className="relative h-56 sm:h-60">
         {preferSample ? (
           <div className="absolute inset-0">
             {/* CTA overlay — small on mobile, centered; never blocks the chart */}

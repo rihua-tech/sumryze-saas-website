@@ -54,7 +54,7 @@ export default function ContentPerformanceCard() {
       {loading ? (
         <p className="text-gray-500 dark:text-gray-400 text-sm">Loading...</p>
       ) : (
-        <div className="space-y-3.5 text-sm">
+        <div className="space-y-5 text-sm">
           {/* Avg Word Count */}
           <div className="flex items-center justify-between hover:bg-gray-100 dark:hover:bg-muted/10 rounded-md transition">
             <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
