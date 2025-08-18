@@ -1,89 +1,45 @@
 "use client";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-  TooltipProvider,
-} from "@/components/ui/tooltip";
 
-
-export default function AiSeoAssistantCard() {
-  const [keyword, setKeyword] = useState("");
+export default function LlmContentQuickCard() {
+  const [value, setValue] = useState("");
   const router = useRouter();
+  const base = "/dashboard/llm-content";
+  const isUrl = (s: string) => /^https?:\/\/\S+$/i.test(s.trim());
 
-  const handleNavigate = (sectionId: string) => {
-    if (!keyword.trim()) return;
-    const encoded = encodeURIComponent(keyword.trim());
-    router.push(`/ai-seo?keyword=${encoded}#${sectionId}`);
+  const submit = () => {
+    const v = value.trim();
+    const enc = encodeURIComponent(v);
+    if (!v) return router.push(`${base}?action=blog&picker=topics#generate-blog`);
+    if (isUrl(v)) return router.push(`${base}?action=blog&url=${enc}#generate-blog`);
+    router.push(`${base}?action=blog&topic=${enc}#generate-blog`);
   };
 
   return (
-   
-       <div className="bg-white dark:bg-gray-900 rounded-xl shadow border border-gray-200 dark:border-gray-700 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-semibold text-lg flex items-center gap-1 text-foreground">
-          🧠 AI SEO Assistant
-        </h3>
-      
-       <TooltipProvider>
-       <Tooltip>
-         <TooltipTrigger asChild>
-          <span className="text-muted-foreground text-sm cursor-pointer">❔</span>
-       </TooltipTrigger>
-          <TooltipContent side="left" className="max-w-[220px] text-[10px] font-poppins">
-           Use AI to generate SEO blogs, fix meta descriptions, or brainstorm content ideas. Start by entering a keyword.
-          </TooltipContent>
-        </Tooltip>
-        </TooltipProvider>
-
-      </div>
-
-      {/* Subtitle */}
-      <p className="text-sm text-muted-foreground mb-5">
-       Generate SEO-optimized content instantly. Powered by AI.
+    <div className="rounded-xl border p-6 shadow bg-white dark:bg-gray-900 dark:border-gray-700">
+      <h3 className="text-lg font-semibold">🧠 LLM Content Assistant</h3>
+      <p className="mb-5 mt-3 text-sm text-muted-foreground">
+        Create SEO-ready content for Google & AI Overviews.
       </p>
 
-      {/* Action Buttons */}
-      <div className="space-y-5 mb-6">
-        <Button
-          variant="default"
-          className="w-full flex items-center text-base justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white"
-          onClick={() => handleNavigate("generate-blog")}
-        >
-          📄 Generate Blog
-        </Button>
+      <Button className="w-full bg-indigo-500 hover:bg-indigo-600 text-white text-base font-semibold mb-4"
+              onClick={submit}>
+        📄 Generate Article
+      </Button>
 
-        <Button
-          variant="ghost"
-          className="w-full flex items-center text-base justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-muted dark:hover:bg-muted/70 dark:text-gray-100"
-          onClick={() => handleNavigate("fix-meta")}
-        >
-          ✍️ Fix Meta Descriptions
-        </Button>
-
-        <Button
-          variant="ghost"
-          className="w-full flex items-center text-base justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-muted dark:hover:bg-muted/70 dark:text-gray-100"
-          onClick={() => handleNavigate("content-ideas")}
-        >
-          💡 Content Ideas
-        </Button>
-      </div>
-
-      {/* Keyword Input */}
       <Input
-        placeholder="Enter keyword..."
-      
-        className="w-full text-sm font-medium px-4 py-9 rounded-md bg-gray-50 text-gray-900 border border-gray-300 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-background/60 dark:text-white dark:border-gray-800 dark:placeholder-gray-400"
-        value={keyword}
-        onChange={(e) => setKeyword(e.target.value)}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && submit()}
+        placeholder="Enter a topic or paste a URL…"
+        className="w-full rounded-md px-4 py-9 text-sm"
+        aria-label="Topic or URL"
       />
+
+     
     </div>
   );
 }

@@ -5,7 +5,9 @@ import ShowChart from '@mui/icons-material/ShowChart'; // or another you choose
 import SettingsSuggestIcon from "@mui/icons-material/SettingsSuggest";
 import HubIcon from "@mui/icons-material/Hub";
 import BarChart3 from "@mui/icons-material/BarChart";
-
+import HandymanIcon from "@mui/icons-material/Handyman";
+import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
+import ArticleIcon from "@mui/icons-material/Article"; // or DescriptionIcon
 
 
 
@@ -35,7 +37,8 @@ const menuItems = [
   { name: "Dashboard", icon: DashboardIcon, href: "/dashboard" },
   { name: "Reports", icon: DescriptionIcon, href: "/dashboard/reports" },
   { name: "Analytics", icon: BarChart3, href: "/dashboard/analytics" },
-  { name: "AI SEO", icon: SmartToyIcon, href: "/dashboard/ai-seo" },
+  { name: "Fixes", icon: HandymanIcon, href: "/dashboard/Fixes" },
+  { name: "LLM Content", icon: ArticleIcon, href: "/dashboard/llm-content" },
   { name: "Clients", icon: GroupIcon, href: "/dashboard/clients" },
   { name: "Quick Setup", icon: SettingsSuggestIcon, href: "/dashboard/setup" },
   { name: "Integrations", icon: HubIcon, href: "/dashboard/integrations" },

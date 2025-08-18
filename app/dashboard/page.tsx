@@ -111,7 +111,7 @@ const handleShareReport = async () => {
         {/* Left Column */}
         <div className="w-full lg:w-1/2 space-y-6">
        
-        <KPICardsContainer />    
+         <KPICardsContainer />    
           <KeywordGrowthCard />
           <CoreWebVitalsCard />
           <TrafficOverviewCard />
@@ -123,11 +123,12 @@ const handleShareReport = async () => {
           {/* Assistant */}
           <div className="space-y-6">           
             <AiSeoAssistantCard/>
+           <ContentPerformanceCard/> 
             <AISuggestions />                      
             {/* AI Predictions  */}
            <AIPredictionsCard />                        
             {/* AI Content Performance + */}
-             <ContentPerformanceCard/>        
+           
           </div>
         </div>
       </div>
