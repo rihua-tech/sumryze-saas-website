@@ -1,34 +1,32 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 
-// ✅ Define context type
 type UrlContextType = {
+  /** Raw value from the search bar (trimmed). */
   url: string;
+  /** Update the URL in context. Passing an empty/whitespace string clears it. */
   setUrl: (url: string) => void;
 };
 
-// ✅ Create context with proper type
 const UrlContext = createContext<UrlContextType | undefined>(undefined);
 
-// ✅ Export the provider
 export function UrlProvider({ children }: { children: React.ReactNode }) {
-  // ✅ Rule: Default value only in development
-  const isDev = process.env.NODE_ENV === "development";
-  const [url, setUrl] = useState(isDev ? "https://example.com" : "");
+  // IMPORTANT: start EMPTY in all environments so cards default to demo/sample mode
+  const [url, setUrlState] = useState<string>("");
 
-  return (
-    <UrlContext.Provider value={{ url, setUrl }}>
-      {children}
-    </UrlContext.Provider>
-  );
+  // Normalize + memoize setter
+  const setUrl = useCallback((next: string) => {
+    setUrlState((next ?? "").trim());
+  }, []);
+
+  const value = useMemo<UrlContextType>(() => ({ url, setUrl }), [url, setUrl]);
+
+  return <UrlContext.Provider value={value}>{children}</UrlContext.Provider>;
 }
 
-// ✅ Hook with type safety
-export const useUrlContext = (): UrlContextType => {
-  const context = useContext(UrlContext);
-  if (!context) {
-    throw new Error("useUrlContext must be used within a UrlProvider");
-  }
-  return context;
-};
+export function useUrlContext(): UrlContextType {
+  const ctx = useContext(UrlContext);
+  if (!ctx) throw new Error("useUrlContext must be used within a UrlProvider");
+  return ctx;
+}
