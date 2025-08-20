@@ -108,6 +108,8 @@ function demoData(urlSeed: string): Record<string, KPI> {
   };
 }
 
+const KPI_HEIGHT_COMPACT = "h-[160px] sm:h-[180px] md:h-[190px]"; // ↓ shorter than defaults
+
 /* ---------- component ---------- */
 export default function KPICardsContainer() {
   const { url } = useUrlContext();
@@ -184,6 +186,7 @@ export default function KPICardsContainer() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <SEOScoreCard
+        height={KPI_HEIGHT_COMPACT}          // ⟵ control height here
         key={seoReady ? `seo-${seo.value}` : "seo-loading"}
         value={seoReady ? (seo.value as number) : 0}
         delta={seoReady ? seo?.delta : undefined}
@@ -194,6 +197,7 @@ export default function KPICardsContainer() {
       />
 
       <TopPagesCard
+        height={KPI_HEIGHT_COMPACT}          // ⟵ control height here
         key={`pages-${pages.value}-${(pages.series?.length ?? 0)}`}
         value={loaded ? (pages.value as number) : 0}
         delta={loaded ? pages?.delta : undefined}

@@ -1,43 +1,91 @@
 // lib/services/seo.ts
-import { URL } from "node:url";
 
+/** PSI endpoint + defaults */
+const PAGESPEED_ENDPOINT = "https://www.googleapis.com/pagespeedonline/v5/runPagespeed";
 const API_TIMEOUT_MS = 10_000;
 
-async function fetchWithTimeout(input: string, init: RequestInit = {}, ms = API_TIMEOUT_MS) {
+export type Device = "mobile" | "desktop";
+
+/** fetch with a hard timeout + (optional) external AbortSignal */
+async function fetchWithTimeout(
+  input: string,
+  init: RequestInit = {},
+  ms = API_TIMEOUT_MS,
+  extSignal?: AbortSignal
+) {
   const ac = new AbortController();
-  const t = setTimeout(() => ac.abort(), ms);
+
+  // tie the external signal (if any) to our controller
+  const onAbort = () => ac.abort();
+  if (extSignal) {
+    if (extSignal.aborted) ac.abort();
+    else extSignal.addEventListener("abort", onAbort, { once: true });
+  }
+
+  const timer = setTimeout(() => ac.abort(), ms);
   try {
-    const res = await fetch(input, { ...init, signal: ac.signal, cache: "no-store" });
-    return res;
+    return await fetch(input, { ...init, signal: ac.signal, cache: "no-store" });
   } finally {
-    clearTimeout(t);
+    clearTimeout(timer);
+    if (extSignal) extSignal.removeEventListener("abort", onAbort);
   }
 }
 
-/** Fetch Lighthouse SEO score (0–100) from PageSpeed Insights. Expects a normalized absolute URL. */
-export async function getSeoScore(url: string): Promise<{ value: number; delta?: string; down?: boolean }> {
-  const key = process.env.PSI_API_KEY;
-  if (!key) {
-    // Safe fallback when no key in dev
-    return { value: 80, delta: undefined, down: false };
-  }
-
-  const api = new URL("https://www.googleapis.com/pagespeedonline/v5/runPagespeed");
-  api.searchParams.set("url", url);
-  api.searchParams.set("category", "SEO");
-  api.searchParams.set("strategy", "mobile");
-  api.searchParams.set("key", key);
-
+/**
+ * Calls PageSpeed Insights and returns Lighthouse SEO (0–100), or `null` on failure.
+ * - Accepts optional API key via `PAGESPEED_API_KEY` (or legacy `PSI_API_KEY`)
+ * - Supports `device` strategy: "mobile" | "desktop"
+ * - Never throws: route layer decides how to fall back.
+ */
+export async function getSeoScorePSI(
+  url: string,
+  device: Device = "mobile",
+  signal?: AbortSignal
+): Promise<number | null> {
   try {
-    const res = await fetchWithTimeout(api.toString(), { headers: { accept: "application/json" } });
-    if (!res.ok) throw new Error(`PSI HTTP ${res.status}`);
+    // Either env var works (PAGESPEED_API_KEY preferred)
+    const key = (process.env.PAGESPEED_API_KEY || process.env.PSI_API_KEY || "").trim();
+
+    const qs = new URLSearchParams({
+      url,
+      category: "SEO",
+      strategy: device === "desktop" ? "desktop" : "mobile",
+    });
+    if (key) qs.set("key", key); // PSI also works without a key (lower quota)
+
+    const apiUrl = `${PAGESPEED_ENDPOINT}?${qs.toString()}`;
+    const res = await fetchWithTimeout(
+      apiUrl,
+      { headers: { accept: "application/json" } },
+      API_TIMEOUT_MS,
+      signal
+    );
+    if (!res.ok) return null;
+
     const json = await res.json();
-
+    // PSI gives 0..1; convert to 0..100 and clamp
     const score01 = Number(json?.lighthouseResult?.categories?.seo?.score);
-    const value = Math.round(Math.max(0, Math.min(1, isNaN(score01) ? 0 : score01)) * 100);
+    if (!Number.isFinite(score01)) return null;
 
-    return { value, delta: undefined, down: false };
+    const clamped01 = Math.max(0, Math.min(1, score01));
+    return Math.round(clamped01 * 100);
   } catch {
+    return null;
+  }
+}
+
+/**
+ * Back-compat wrapper with the old return shape.
+ * If PSI fails, returns a conservative fallback of 80 (same as your old code).
+ */
+export async function getSeoScore(
+  url: string,
+  device: Device = "mobile",
+  signal?: AbortSignal
+): Promise<{ value: number; delta?: string; down?: boolean }> {
+  const score = await getSeoScorePSI(url, device, signal);
+  if (score == null) {
     return { value: 80, delta: undefined, down: false };
   }
+  return { value: score, delta: undefined, down: false };
 }

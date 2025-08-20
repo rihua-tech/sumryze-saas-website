@@ -5,8 +5,14 @@ import { google, webmasters_v3 } from "googleapis";
 export type Period = "weekly" | "monthly";
 export type KeywordPoint = { day: string; count: number };
 
-/** Google Search Console client (service account) */
+/* =========================
+   Memoized GSC Client
+   ========================= */
+let _webmasters: webmasters_v3.Webmasters | null = null;
+
 function getWebmasters(): webmasters_v3.Webmasters {
+  if (_webmasters) return _webmasters;
+
   const email = process.env.GSC_CLIENT_EMAIL || "";
   let key = process.env.GSC_PRIVATE_KEY || "";
   if (!email || !key) throw new Error("Missing GSC_CLIENT_EMAIL or GSC_PRIVATE_KEY");
@@ -18,142 +24,194 @@ function getWebmasters(): webmasters_v3.Webmasters {
     scopes: ["https://www.googleapis.com/auth/webmasters.readonly"],
   });
 
-  return google.webmasters({ version: "v3", auth: jwt });
+  _webmasters = google.webmasters({ version: "v3", auth: jwt });
+  return _webmasters;
 }
 
-/** Labels & helpers */
+/* =========================
+   Labels & helpers
+   ========================= */
 const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
 const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] as const;
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 
-function last7Days(): string[] {
+function yesterdayUTC(): Date {
+  const now = new Date();
+  const y = new Date(now);
+  y.setDate(y.getDate() - 1);
+  return y;
+}
+
+/** Inclusive last 7 calendar days ending yesterday, ISO dates ascending */
+function last7DaysISO(): string[] {
+  const end = yesterdayUTC(); // avoid partial "today"
   const out: string[] = [];
-  const today = new Date();
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(today);
-    d.setDate(d.getDate() - i);
+  const start = new Date(end);
+  start.setDate(start.getDate() - 6);
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     out.push(iso(d));
   }
   return out;
 }
 
+/** Last 12 months keys with display labels: [{ key: "YYYY-MM", label: "Jan" }, ...], ending with the month of yesterday */
 function last12Months(): { key: string; label: string }[] {
-  const now = new Date();
+  const end = yesterdayUTC();
   const out: { key: string; label: string }[] = [];
   for (let i = 11; i >= 0; i--) {
-    const d = new Date(now);
-    d.setMonth(d.getMonth() - i, 1);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    out.push({ key, label: MON[d.getMonth()] });
+    const d = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), 1));
+    d.setUTCMonth(d.getUTCMonth() - i, 1);
+    const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+    out.push({ key, label: MON[d.getUTCMonth()] });
   }
   return out;
 }
 
-/** Google types */
+/* =========================
+   Google types
+   ========================= */
 type ApiRow = webmasters_v3.Schema$ApiDataRow;
 
-/**
- * Fetch daily rows with dimensions ["date","query"] and paginate.
- * Returns Google's raw row type (null-safe handled by the caller).
- */
+/* =========================
+   Resilient paged query
+   ========================= */
+async function gscQueryPaged(
+  siteUrl: string,
+  body: webmasters_v3.Schema$SearchAnalyticsQueryRequest
+): Promise<ApiRow[]> {
+  const gsc = getWebmasters();
+  const ROW_LIMIT = 25_000;
+  const rowsAll: ApiRow[] = [];
+  let startRow = 0;
+
+  while (true) {
+    const requestBody = { rowLimit: ROW_LIMIT, startRow, ...body };
+
+    // simple retry with backoff for 429/5xx
+    let attempts = 0;
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      try {
+        const { data } = await gsc.searchanalytics.query({ siteUrl, requestBody });
+        const page = (data.rows ?? []) as ApiRow[];
+        rowsAll.push(...page);
+        if (page.length < ROW_LIMIT) return rowsAll; // last page
+        startRow += page.length; // next page
+        break; // proceed to next loop page
+      } catch (e: any) {
+        const status = e?.code || e?.response?.status;
+        attempts += 1;
+        if (attempts <= 3 && (status === 429 || status >= 500)) {
+          await new Promise((r) => setTimeout(r, attempts * 500)); // 0.5s, 1s, 1.5s
+          continue;
+        }
+        throw e;
+      }
+    }
+  }
+}
+
+/** Fetch daily rows with dimensions ["date","query"] */
 async function fetchDateQueryRows(
   siteUrl: string,
   startDate: string,
   endDate: string
 ): Promise<ApiRow[]> {
-  const gsc = getWebmasters();
-  const ROW_LIMIT = 25_000;
-
-  const rowsAll: ApiRow[] = [];
-  let startRow = 0;
-
-  while (true) {
-    const { data } = await gsc.searchanalytics.query({
-      siteUrl,
-      requestBody: {
-        startDate,
-        endDate,
-        dimensions: ["date", "query"],
-        rowLimit: ROW_LIMIT,
-        startRow,
-      },
-    });
-
-    const page = (data.rows ?? []) as ApiRow[];
-    rowsAll.push(...page);
-
-    if (page.length < ROW_LIMIT) break;  // last page
-    startRow += page.length;             // next page
-  }
-
-  return rowsAll;
+  const body: webmasters_v3.Schema$SearchAnalyticsQueryRequest = {
+    startDate,
+    endDate,
+    dimensions: ["date", "query"],
+    searchType: "web",
+    dataState: "final", // prefer finalized data when available
+  };
+  return gscQueryPaged(siteUrl, body);
 }
 
-/**
- * Main service used by the API route.
- * weekly: last 7 days → distinct queries with impressions > 0 per day
- * monthly: last 12 months → distinct queries per month
- */
+/* =========================
+   Optional micro-cache (5 min)
+   ========================= */
+const CACHE = new Map<string, { at: number; data: KeywordPoint[] }>();
+const TTL_MS = 5 * 60 * 1000;
+
+function getCached(key: string) {
+  const hit = CACHE.get(key);
+  return hit && Date.now() - hit.at < TTL_MS ? hit.data : null;
+}
+function setCached(key: string, data: KeywordPoint[]) {
+  CACHE.set(key, { at: Date.now(), data });
+}
+
+/* =========================
+   Main service
+   - weekly: last 7 days (ending yesterday) → distinct queries with impressions > 0 per day
+   - monthly: last 12 months (ending month of yesterday) → distinct queries per month, chunked
+   ========================= */
 export async function getKeywordGrowthData(
   siteUrl: string,
   period: Period
 ): Promise<KeywordPoint[]> {
-  const today = new Date();
+  const cacheKey = `${siteUrl}:${period}`;
+  const cached = getCached(cacheKey);
+  if (cached) return cached;
 
   if (period === "weekly") {
-    const start = new Date(today);
-    start.setDate(start.getDate() - 6); // 7 days inclusive
+    const days = last7DaysISO();
+    const start = days[0];
+    const end = days[days.length - 1];
 
-    const rows = await fetchDateQueryRows(siteUrl, iso(start), iso(today));
+    const rows = await fetchDateQueryRows(siteUrl, start, end);
 
     // date ISO → Set<query>
     const byDate = new Map<string, Set<string>>();
     for (const r of rows) {
-      const keys = r.keys ?? [];
-      const date = keys[0];
-      const query = keys[1];
+      const [date, query] = r.keys ?? [];
       if (!date || !query) continue;
       if ((r.impressions ?? 0) <= 0) continue;
-
       if (!byDate.has(date)) byDate.set(date, new Set());
       byDate.get(date)!.add(query);
     }
 
-    return last7Days().map((ds) => {
-      const d = new Date(ds);
-      return { day: DOW[d.getDay()], count: byDate.get(ds)?.size ?? 0 };
+    const series: KeywordPoint[] = days.map((ds) => {
+      const d = new Date(ds + "T00:00:00Z");
+      return { day: DOW[d.getUTCDay()], count: byDate.get(ds)?.size ?? 0 };
     });
+
+    setCached(cacheKey, series);
+    return series;
   }
 
-  // monthly
-  const end = today;
-  const start = new Date(end);
-  start.setMonth(start.getMonth() - 11, 1); // first day 11 months ago
-
-  const rows = await fetchDateQueryRows(siteUrl, iso(start), iso(end));
-
-  // "YYYY-MM" → Set<query>
+  // monthly — chunk by month to guarantee completeness on large sites
+  const months = last12Months(); // [{ key: "YYYY-MM", label }, ...]
   const byMonth = new Map<string, Set<string>>();
-  for (const r of rows) {
-    const keys = r.keys ?? [];
-    const date = keys[0];
-    const query = keys[1];
-    if (!date || !query) continue;
-    if ((r.impressions ?? 0) <= 0) continue;
 
-    const d = new Date(date);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    if (!byMonth.has(key)) byMonth.set(key, new Set());
-    byMonth.get(key)!.add(query);
+  for (const { key } of months) {
+    const [y, m] = key.split("-").map(Number);
+    const start = new Date(Date.UTC(y, m - 1, 1));
+    const end = new Date(Date.UTC(y, m, 0)); // last day of month
+    const rows = await fetchDateQueryRows(siteUrl, iso(start), iso(end));
+
+    const bag = byMonth.get(key) ?? new Set<string>();
+    for (const r of rows) {
+      const [date, query] = r.keys ?? [];
+      if (!date || !query) continue;
+      if ((r.impressions ?? 0) <= 0) continue;
+      bag.add(query);
+    }
+    byMonth.set(key, bag);
   }
 
-  return last12Months().map(({ key, label }) => ({
+  const series: KeywordPoint[] = months.map(({ key, label }) => ({
     day: label,
     count: byMonth.get(key)?.size ?? 0,
   }));
+
+  setCached(cacheKey, series);
+  return series;
 }
 
-/** Mock series (UI-compatible) */
+/* =========================
+   Mock series (UI-compatible)
+   ========================= */
 export function mockKeywordGrowth(period: Period): KeywordPoint[] {
   if (period === "weekly") {
     return [

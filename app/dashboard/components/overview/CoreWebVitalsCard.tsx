@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Info } from "lucide-react";
 import { useUrlContext } from "@/app/context/UrlContext";
-import CoreWebVitalsChart from "./CoreWebVitalsChart";
+import CoreWebVitalsChart, { type CoreVital } from "./CoreWebVitalsChart";
 import {
   Tooltip,
   TooltipContent,
@@ -11,22 +11,21 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-/* ------------------------------ Types ------------------------------ */
-export type CoreVital = {
-  name: "LCP" | "INP" | "CLS" | string;
-  value: number;          // raw metric (s or ms for LCP/INP, unitless for CLS)
-  target: number;         // “good” threshold goal
-  unit: string;           // "s" | "ms" | ""
-  thresholds?: number[];  // [good, needs-improvement] cut points (low is better)
-  color?: string;         // optional accent color
+/* ------------------------------ API shapes ------------------------------ */
+type ApiResponse = {
+  vitals?: CoreVital[];
+  prevVitals?: CoreVital[];
+  isMock?: boolean;
 };
-type ApiResponse = { vitals?: CoreVital[]; isMock?: boolean };
+
+
 
 /* ------------------------------ Knobs ------------------------------ */
-const SOFT_TIMEOUT_MS = 800;
-const HARD_TIMEOUT_MS = 8000;
-const CACHE_TTL_MS = 10 * 60 * 1000;
-const cacheKey = (k: string) => `kwcache:cwv:${k}`;
+const HARD_TIMEOUT_MS = 8_000;
+const CACHE_TTL_MS = Number(process.env.NEXT_PUBLIC_CWV_CACHE_TTL_MS ?? 10 * 60 * 1000);
+const CACHE_VERSION = 2; // ⬅️ bump when mock logic changes
+const cacheKey = (k: string) => `kwcache:cwv:v${CACHE_VERSION}:${k}`;
+
 
 /* ------------------------- Demo data (seeded) ---------------------- */
 function hash32(str: string) {
@@ -47,13 +46,13 @@ function mulberry32(seed: number) {
 }
 function makeDemoVitals(key: string): CoreVital[] {
   const r = mulberry32(hash32(`cwv|${key}`));
-  const lcp = +(1.8 + r() * 1.2).toFixed(1);             // 1.8–3.0 s
-  const inp = Math.round(110 + r() * 180);               // 110–290 ms
-  const cls = +(0.02 + r() * 0.09).toFixed(2);           // 0.02–0.11
+  const lcp = +(1.8 + r() * 0.6).toFixed(1);
+  const inp = Math.round(110 + r() * 180);
+  const cls = +(0.02 + r() * 0.09).toFixed(2);
   return [
-    { name: "LCP", value: lcp, target: 2.5, unit: "s", thresholds: [2.5, 4.0], color: "#10b981" },
-    { name: "INP", value: inp, target: 200, unit: "ms", thresholds: [200, 500], color: "#3b82f6" },
-    { name: "CLS", value: cls, target: 0.10, unit: "", thresholds: [0.10, 0.25], color: "#f59e0b" },
+    { name: "LCP", value: lcp, target: 2.5, unit: "s", thresholds: [2.5, 4.0] },
+    { name: "INP", value: inp, target: 200, unit: "ms", thresholds: [200, 500] },
+    { name: "CLS", value: cls, target: 0.1, unit: "", thresholds: [0.1, 0.25] },
   ];
 }
 
@@ -77,6 +76,22 @@ function writeCache(key: string, data: Required<ApiResponse>) {
   } catch {}
 }
 
+/* ------------------------- Color/status helpers -------------------- */
+type Status = "good" | "ni" | "poor";
+const STATUS_COLOR: Record<Status, string> = {
+  good: "#10b981",
+  ni: "#f59e0b",
+  poor: "#ef4444",
+};
+function statusFrom(v: CoreVital): Status {
+  const [good, ni] = v.thresholds ?? [];
+  if (v.name === "CLS") return v.value <= (good ?? 0.1) ? "good" : v.value <= (ni ?? 0.25) ? "ni" : "poor";
+  return v.value <= (good ?? v.target) ? "good" : v.value <= (ni ?? v.target * 1.6) ? "ni" : "poor";
+}
+function enrichVitals(vitals: CoreVital[]): CoreVital[] {
+  return vitals.map((v) => ({ ...v, color: STATUS_COLOR[statusFrom(v)] }));
+}
+
 /* ------------------------------ Component -------------------------- */
 export default function CoreWebVitalsCard() {
   const { url: ctxUrl } = useUrlContext();
@@ -84,18 +99,20 @@ export default function CoreWebVitalsCard() {
   const mode: "demo" | "live" = url ? "live" : "demo";
   const key = url || "demo://blank";
 
-  const [data, setData] = useState<Required<ApiResponse> | null>(null);
-  const [loading, setLoading] = useState(false);
+  // ✅ 1) Seed with cached or demo data immediately (no empty state)
+  const seeded = useMemo<Required<ApiResponse>>(() => {
+    const cached = readCache(key);
+    if (cached) return cached.data;
+    return { vitals: makeDemoVitals(key), prevVitals: [], isMock: true };
+  }, [key]);
+
+  const [data, setData] = useState<Required<ApiResponse>>(seeded);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Keep layout stable while charts load
+  // Visibility gate (we can still show seeded data before visible)
   const cardRef = useRef<HTMLDivElement | null>(null);
   const [inView, setInView] = useState(false);
-  const lastCheckedRef = useRef<Date | null>(null);
-
-  const isSample = mode === "demo" || Boolean(data?.isMock);
-
-  // Only load when visible
   useEffect(() => {
     const el = cardRef.current;
     if (!el || typeof IntersectionObserver === "undefined") {
@@ -115,112 +132,73 @@ export default function CoreWebVitalsCard() {
     return () => io.disconnect();
   }, []);
 
-  // Data load (mirrors Keyword/Content pattern)
+  // ✅ 2) Background refresh (no flicker, keep previous data visible)
   useEffect(() => {
-    if (!inView) return;
-
-    const cached = readCache(key);
-    if (cached) setData(cached.data);
-
-    if (mode === "demo") {
-      const sample = { vitals: makeDemoVitals(key), isMock: true } as Required<ApiResponse>;
-      setError(null);
-      setLoading(false);
-      setData(sample);
-      writeCache(key, sample);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
+    if (!inView || mode === "demo") return;
 
     const ac = new AbortController();
-    let softTimer: any = null;
-    let hardTimer: any = null;
-
-    if (!cached) {
-      softTimer = setTimeout(() => {
-        const sample = { vitals: makeDemoVitals(key), isMock: true } as Required<ApiResponse>;
-        setData(sample);
-      }, SOFT_TIMEOUT_MS);
-    }
-    hardTimer = setTimeout(() => ac.abort(), HARD_TIMEOUT_MS);
+    const timer = setTimeout(() => ac.abort(), HARD_TIMEOUT_MS);
 
     (async () => {
       try {
+        setIsRefreshing(true);
+        setError(null);
+
         const res = await fetch(`/api/web-vitals?url=${encodeURIComponent(url)}`, {
           signal: ac.signal,
           cache: "no-store",
           headers: { accept: "application/json" },
         });
         const json: ApiResponse = await res.json();
+
         if (!res.ok || !Array.isArray(json?.vitals)) {
           throw new Error((json as any)?.error || `HTTP ${res.status}`);
         }
 
-        clearTimeout(softTimer);
-        clearTimeout(hardTimer);
-
         const merged: Required<ApiResponse> = {
           vitals: json.vitals!,
+          prevVitals: Array.isArray(json.prevVitals) ? json.prevVitals : [],
           isMock: !!json.isMock,
         };
         setData(merged);
         writeCache(key, merged);
-        lastCheckedRef.current = new Date();
       } catch (e: any) {
         if (e.name !== "AbortError") {
-          const sample = { vitals: makeDemoVitals(key), isMock: true } as Required<ApiResponse>;
-          setError(null);
-          setData(sample);
-          writeCache(key, sample);
+          // Keep current data; just report error subtly
+          setError("Couldn’t refresh. Showing last values.");
         }
       } finally {
-        clearTimeout(softTimer);
-        clearTimeout(hardTimer);
-        setLoading(false);
+        clearTimeout(timer);
+        setIsRefreshing(false);
       }
     })();
 
     return () => {
-      clearTimeout(softTimer);
-      clearTimeout(hardTimer);
+      clearTimeout(timer);
       ac.abort();
     };
-  }, [inView, mode, key, url]);
+  }, [inView, mode, url, key]);
 
-  // Skeleton tiles with fixed height so nothing jumps
-  const Skeleton = useMemo(
-    () => (
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {[0, 1, 2].map((i) => (
-          <div
-            key={i}
-            className="rounded-xl bg-muted/40 animate-pulse"
-            style={{ minHeight: 170 }}
-          />
-        ))}
-      </div>
-    ),
-    []
-  );
+  const vitalsEnriched: CoreVital[] = useMemo(() => enrichVitals(data.vitals || []), [data]);
+  const isSample = mode === "demo" || data.isMock;
+  const sourceLabel = isSample ? "Demo data" : "Field data (CrUX) • last 28 days • p75";
 
   return (
     <TooltipProvider delayDuration={120}>
       <div
         ref={cardRef}
         className="rounded-2xl border border-gray-200 dark:border-gray-800/80 bg-white dark:bg-[#0f1423] p-5 sm:p-6 shadow-sm"
-        aria-busy={loading || undefined}
+        aria-busy={isRefreshing || undefined}
+        aria-label={`Core Web Vitals card — ${sourceLabel}`}
       >
         {/* Header */}
-        <div className="mb-4 flex items-start justify-between gap-3">
+        <div className="mb-3 flex items-start justify-between gap-3">
           <div className="flex items-center gap-2">
             <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">
               Core Web Vitals
             </h3>
 
-            {isSample && (
-                     <Tooltip>
+            <Tooltip>
               <TooltipTrigger asChild>
                 <button
                   className="inline-flex items-center justify-center rounded-full p-1 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
@@ -231,15 +209,13 @@ export default function CoreWebVitalsCard() {
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-[280px]">
                 <p className="text-xs leading-snug">
-                  LCP (largest paint), <b>INP</b> (interaction latency), and CLS (layout shift).
-                  Targets: LCP ≤ 2.5s, INP ≤ 200ms, CLS ≤ 0.1. Lower is better.
+                  LCP (largest contentful paint), <b>INP</b> (interaction latency), and CLS (layout shift).
+                  Targets: LCP ≤ 2.5s, INP ≤ 200ms, CLS ≤ 0.1 (p75 over last 28 days).
                 </p>
               </TooltipContent>
             </Tooltip>
 
-
-            )}
-
+            {isSample && (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span
@@ -250,35 +226,26 @@ export default function CoreWebVitalsCard() {
                   </span>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-[260px]">
-                  <p className="text-xs leading-snug">
-                    Showing sample data. Paste a URL to analyze your real page.
-                  </p>
+                  <p className="text-xs leading-snug">Showing sample data. Paste a URL to analyze your real page.</p>
                 </TooltipContent>
               </Tooltip>
-            
+            )}
           </div>
 
-          {lastCheckedRef.current && (
-            <span className="text-[10px] text-muted-foreground italic mt-1">
-              Checked: {lastCheckedRef.current.toLocaleTimeString()}
-            </span>
-          )}
+          
         </div>
 
-        {/* Body */}
-        <div className="relative h-56 sm:h-56">
-        {(!data && loading) ? Skeleton : error ? (
-          <div className="rounded-md border border-rose-300/30 bg-rose-50/60 dark:bg-rose-950/10 p-3 text-sm text-rose-600 dark:text-rose-300">
+        {/* Body — always render chart; min-height prevents layout shift */}
+        <div className="min-h-[220px]">
+          <CoreWebVitalsChart vitals={vitalsEnriched} />
+        </div>
+
+        {error && (
+          <div className="mt-3 text-xs text-amber-400">
             {error}
-          </div>
-        ) : (
-          <div className="min-h-[170px]">
-            <CoreWebVitalsChart vitals={data?.vitals || []} />
           </div>
         )}
       </div>
-      </div>
     </TooltipProvider>
-    
   );
 }

@@ -16,7 +16,14 @@ import {
 type TabType = "weekly" | "monthly";
 type DataPoint = { day: string; count: number };
 
-/* ---------------- Math helpers ---------------- */
+/* ---------------- Constants (aligned with Content card) ---------------- */
+const SOFT_TIMEOUT = 1200;            // show demo quickly if API is cold
+const HARD_TIMEOUT = 10000;           // abort long-hanging requests
+const MAX_RETRIES = 1;                // small retry for transient errors
+const SESSION_TTL_MS = 10 * 60 * 1000; // 10 min TTL like Content card
+const STORAGE_PREFIX = "kwcache:";
+
+/* ---------------- Math helpers (unchanged) ---------------- */
 function smoothMA3(arr: number[]) {
   if (arr.length < 3) return arr.slice();
   const out: number[] = [];
@@ -66,7 +73,7 @@ function computeSizeAwareDelta(
   return { text: `${sign}${rounded}%`, tone: down ? "down" : "up", down };
 }
 
-/* ---------------- Deterministic demo generator ---------------- */
+/* ---------------- Deterministic demo generator (aligned) ---------------- */
 function hash(s: string) {
   let h = 2166136261;
   for (let i = 0; i < s.length; i++) h = (h ^ s.charCodeAt(i)) * 16777619;
@@ -93,30 +100,25 @@ function makeDemoSeries(key: string, period: TabType): DataPoint[] {
   return out;
 }
 
-/* ---------------- SWR cache (memory + sessionStorage) ---------------- */
+/* ---------------- SWR cache (memory + sessionStorage with TTL) ---------------- */
 type CacheVal = { data: DataPoint[]; isMock: boolean; ts: number };
 const memCache = new Map<string, CacheVal>();
-const STORAGE_PREFIX = "kwcache:";
 
 function readSession(key: string): CacheVal | null {
   try {
     const raw = sessionStorage.getItem(STORAGE_PREFIX + key);
     if (!raw) return null;
-    const parsed = JSON.parse(raw);
+    const parsed = JSON.parse(raw) as CacheVal;
     if (!Array.isArray(parsed?.data)) return null;
     if (typeof parsed?.isMock !== "boolean") return null;
     if (typeof parsed?.ts !== "number") return null;
-    return parsed as CacheVal;
+    if (Date.now() - parsed.ts > SESSION_TTL_MS) return null; // TTL guard
+    return parsed;
   } catch { return null; }
 }
 function writeSession(key: string, val: CacheVal) {
   try { sessionStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(val)); } catch {}
 }
-
-/* ---------------- Timeouts & retries ---------------- */
-const HARD_TIMEOUT = 10_000;
-const SOFT_TIMEOUT = 1_200;
-const MAX_RETRIES = 1;
 
 /* ---------------- Component ---------------- */
 export default function KeywordGrowthCard() {
@@ -161,9 +163,23 @@ export default function KeywordGrowthCard() {
       setLoading(true);
     }
 
-    // 3) Soft timeout → show demo quickly if API is slow/cold
+    // 2.1) If offline and no cache, synthesize demo immediately
+    if (typeof navigator !== "undefined" && navigator && navigator.onLine === false && !cached) {
+      const demo = makeDemoSeries(key, period);
+      const pack: CacheVal = { data: demo, isMock: true, ts: Date.now() };
+      memCache.set(key, pack);
+      writeSession(key, pack);
+      setData(demo);
+      setIsMock(true);
+      setLoading(false);
+      return () => ac.abort();
+    }
+
+    // 3) Soft timeout → only if nothing was shown yet (no cached data)
     let softFired = false;
+    const shouldSoftFallback = !cached;
     const soft = setTimeout(() => {
+      if (!shouldSoftFallback) return;
       if (thisReq !== reqIdRef.current) return;
       softFired = true;
       const demo = makeDemoSeries(key, period);
@@ -179,8 +195,12 @@ export default function KeywordGrowthCard() {
       let attempt = 0;
       while (attempt <= MAX_RETRIES) {
         try {
+          const mockFlag =
+            typeof window !== "undefined" &&
+            new URLSearchParams(window.location.search).get("mock") === "1";
+
           const res = await fetch(
-            `/api/keyword-growth?period=${period}&url=${encodeURIComponent(url)}`,
+            `/api/keyword-growth?period=${period}&url=${encodeURIComponent(url)}${mockFlag ? "&mock=1" : ""}`,
             { signal: ac.signal, cache: "no-store", headers: { accept: "application/json" } }
           );
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -211,7 +231,12 @@ export default function KeywordGrowthCard() {
           if (attempt++ >= MAX_RETRIES) {
             clearTimeout(soft);
             setError(e?.message || "Unexpected error");
-            if (!cached && !softFired) {
+
+            // Prefer cached live data over demo on failure
+            const existing = memCache.get(key) ?? cached;
+            const hasLiveCache = existing && existing.isMock === false;
+
+            if (!existing && !softFired && !hasLiveCache) {
               const demo = makeDemoSeries(key, period);
               const pack: CacheVal = { data: demo, isMock: true, ts: Date.now() };
               memCache.set(key, pack);
@@ -244,7 +269,7 @@ export default function KeywordGrowthCard() {
       <div
         className={clsx(
           "group rounded-2xl border p-4 sm:p-5 shadow-sm transition-shadow",
-          "hover:shadow-md hover:shadow-indigo-500/10",
+        
           "border-slate-200 bg-white dark:border-gray-700/60 dark:bg-gradient-to-br dark:from-[#0e1322] dark:via-[#101528] dark:to-[#0b0f1c]",
           // CSS vars consumed by KeywordLineChart (hydration-safe)
           "[--kw-grid:rgba(0,0,0,0.06)] dark:[--kw-grid:rgba(255,255,255,0.06)] " +
@@ -252,7 +277,8 @@ export default function KeywordGrowthCard() {
           "[--kw-tooltip-bg:#ffffff] dark:[--kw-tooltip-bg:#0f172a] " +
           "[--kw-tooltip-border:#e5e7eb] dark:[--kw-tooltip-border:#334155] " +
           "[--kw-tooltip-fg:#0f172a] dark:[--kw-tooltip-fg:#e2e8f0] " +
-          "[--kw-line:#22c55e]"
+          (activeTab === "weekly" ? "[--kw-line:#6366f1]" : "[--kw-line:#22c55e]")
+         
         )}
         aria-live="polite"
         aria-busy={loading ? true : undefined}
@@ -325,7 +351,7 @@ export default function KeywordGrowthCard() {
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={clsx(
-                    "px-2 py-1 sm:px-2 sm:py-0.5  rounded-full transition-colors whitespace-nowrap text-xs sm:text-[11px]",
+                    "px-2 py-1 sm:px-2 sm:py-0.5 rounded-full transition-colors whitespace-nowrap text-xs sm:text-[11px]",
                     activeTab === tab
                       ? "bg-indigo-600 text-white dark:bg-indigo-500"
                       : "text-slate-600 hover:bg-slate-200/70 dark:text-gray-300 dark:hover:bg-white/10"

@@ -1,9 +1,9 @@
 "use client";
 
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  ComposedChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area,
 } from "recharts";
-import { useMemo } from "react";
+import { useMemo, useId } from "react";
 
 type DataPoint = { day: string; count: number };
 type Period = "weekly" | "monthly";
@@ -71,10 +71,13 @@ export default function KeywordLineChart({
       if (v < min) min = v;
       if (v > max) max = v;
     }
-    const ts = makeNiceTicks(min, max, 5);         // 4–6 ticks typically
+    const ts = makeNiceTicks(min, max, 5);
     const d: [number, number] = [ts[0], ts[ts.length - 1]];
     return { ticks: ts, domain: d };
   }, [indexed]);
+
+  // unique gradient id (same pattern as Traffic)
+  const gradId = `${useId()}-kwGradient`;
 
   if (indexed.length < 2) {
     return <div className="w-full h-full rounded-xl bg-[color:var(--kw-grid,rgba(0,0,0,0.06))]/20" />;
@@ -83,8 +86,17 @@ export default function KeywordLineChart({
   return (
     <ResponsiveContainer width="100%" height="100%">
       {/* key forces clean mount when period/length changes to avoid morphing */}
-      <LineChart key={`${period}-${indexed.length}`} data={indexed} margin={{ top: 8, right: 16, left: 6, bottom: 6 }}>
-        <CartesianGrid stroke="var(--kw-grid, rgba(0,0,0,0.06))" strokeDasharray="3 3" />
+      <ComposedChart key={`${period}-${indexed.length}`} data={indexed} margin={{ top: 8, right: 16, left: 6, bottom: 6 }}>
+        <defs>
+          {/* Traffic-style gradient: subtle head/tail, fades to 0 */}
+          <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%"  stopColor="var(--kw-line, #22c55e)" stopOpacity={0.25} />
+            <stop offset="95%" stopColor="var(--kw-line, #22c55e)" stopOpacity={0.04} />
+          </linearGradient>
+        </defs>
+
+        <CartesianGrid stroke="var(--kw-grid, rgba(0,0,0,0.06))" strokeDasharray="4 4" />
+
         <XAxis
           dataKey="idx"
           stroke="var(--kw-axis, #334155)"
@@ -99,32 +111,43 @@ export default function KeywordLineChart({
           tick={{ fontSize: 12, fill: "var(--kw-axis, #334155)" }}
           allowDecimals={false}
           width={40}
-          domain={domain}        // use our even domain
-          ticks={ticks}          // evenly spaced numeric ticks
+          domain={domain}
+          ticks={ticks}
         />
-       <Tooltip
-  formatter={(v: any) => [Number(v).toLocaleString(), "Keywords"]}
-  labelFormatter={(label) =>
-    labels[(typeof label === "number" ? label : Number(label) || 0) % labels.length]
-  }
-  contentStyle={{
-    backgroundColor: "var(--kw-tooltip-bg, #ffffff)",
-    borderColor: "var(--kw-tooltip-border, #e5e7eb)",
-    color: "var(--kw-tooltip-fg, #0f172a)",
-    borderRadius: 8,
-  }}
-/>
+        <Tooltip
+          formatter={(v: any) => [Number(v).toLocaleString(), "Keywords"]}
+          labelFormatter={(label) =>
+            labels[(typeof label === "number" ? label : Number(label) || 0) % labels.length]
+          }
+          contentStyle={{
+            backgroundColor: "var(--kw-tooltip-bg, #ffffff)",
+            borderColor: "var(--kw-tooltip-border, #e5e7eb)",
+            color: "var(--kw-tooltip-fg, #0f172a)",
+            borderRadius: 8,
+          }}
+        />
 
+        {/* Area (gradient) rendered first, fills down to visible min */}
+        <Area
+          type="monotoneX"
+          dataKey="count"
+          stroke="none"
+          fill={`url(#${gradId})`}
+          baseValue="dataMin"
+          isAnimationActive={false}
+        />
+
+        {/* Original line preserved */}
         <Line
           type="monotoneX"
           dataKey="count"
           stroke="var(--kw-line, #22c55e)"
-          strokeWidth={2}
+          strokeWidth={1.5}
           dot={{ r: 3, fill: "var(--kw-line, #22c55e)" }}
           activeDot={{ r: 5 }}
           isAnimationActive={false}
         />
-      </LineChart>
+      </ComposedChart>
     </ResponsiveContainer>
   );
 }

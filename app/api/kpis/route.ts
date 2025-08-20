@@ -6,31 +6,31 @@ import { z } from "zod";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/* ---------- Zod schemas ---------- */
+/* ---------- Zod schemas (accept demo OR isMock) ---------- */
+const Bool = z.boolean().optional();
+
+const NumCoerce = z.preprocess((v) => {
+  if (typeof v === "string") return Number(v.replace(/[^0-9.+-]/g, ""));
+  return v;
+}, z.number());
+
+const NumArrayCoerce = z.array(
+  z.preprocess((v) => (typeof v === "string" ? Number(v.replace(/[^0-9.+-]/g, "")) : v), z.number())
+);
+
 const SeoResult = z.object({
-  value: z.preprocess((v) => {
-    if (typeof v === "string") return Number(v.replace(/[^0-9.+-]/g, ""));
-    return v;
-  }, z.number()),
+  value: NumCoerce,
   delta: z.string().optional(),
-  demo: z.boolean().optional(),
+  demo: Bool,        // older/alternative field
+  isMock: Bool,      // preferred field from /api/seo
 });
 
 const TopPagesResult = z.object({
-  value: z.preprocess((v) => {
-    if (typeof v === "string") return Number(v.replace(/[^0-9.+-]/g, ""));
-    return v;
-  }, z.number()),
+  value: NumCoerce,
   delta: z.string().optional(),
-  series: z
-    .array(
-      z.preprocess(
-        (v) => (typeof v === "string" ? Number(v.replace(/[^0-9.+-]/g, "")) : v),
-        z.number()
-      )
-    )
-    .optional(),
-  demo: z.boolean().optional(),
+  series: NumArrayCoerce.optional(),
+  demo: Bool,
+  isMock: Bool,
 });
 
 type KPI = {
@@ -39,7 +39,7 @@ type KPI = {
   delta?: string;
   down?: boolean;
   series?: number[];
-  demo?: boolean;
+  demo?: boolean;     // keep field name for backward-compat with your UI
 };
 
 /* ---------- Config ---------- */
@@ -63,8 +63,9 @@ function makeItem(
   series?: number[],
   demo?: boolean
 ): KPI {
+  const clamped = Math.max(0, Math.round(value));
   const down = typeof delta === "string" && delta.trim().startsWith("-");
-  return { title, value, delta, down, series, demo };
+  return { title, value: clamped, delta, down, series, demo };
 }
 
 async function fetchWithTimeout(
@@ -140,12 +141,14 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const raw = (searchParams.get("url") || "").trim();
+    const device = (searchParams.get("device") || "mobile").toLowerCase(); // passthrough
+    const mock = searchParams.get("mock") === "1";                         // passthrough
 
     // demo sentinel or invalid → demo immediately
     const normalized =
       raw.startsWith("demo://") ? "" : (normalizeUrl(raw) || "");
 
-    if (!normalized || USE_MOCKS) {
+    if (!normalized || USE_MOCKS || mock) {
       const demoUrl = normalized || "https://demo.example.com/";
       return NextResponse.json(fallbackKPIs(demoUrl), {
         headers: { ...noStore(), "X-Mode": "demo" },
@@ -155,8 +158,12 @@ export async function GET(req: Request) {
     // Build internal endpoints
     const seoURL = new URL("/api/seo", req.url);
     seoURL.searchParams.set("url", normalized);
+    seoURL.searchParams.set("device", device);
+    if (mock) seoURL.searchParams.set("mock", "1");
+
     const pagesURL = new URL("/api/top-pages", req.url);
     pagesURL.searchParams.set("url", normalized);
+    if (mock) pagesURL.searchParams.set("mock", "1");
 
     // Controllers to allow soft cancel
     const softAC = new AbortController();
@@ -165,8 +172,7 @@ export async function GET(req: Request) {
     const seoP = fetchWithTimeout(seoURL.toString(), HARD_TIMEOUT_MS, softAC.signal);
     const pagesP = fetchWithTimeout(pagesURL.toString(), HARD_TIMEOUT_MS, softAC.signal);
 
-    // Soft timeout: if nothing finishes within SOFT_TIMEOUT_MS,
-    // respond fast with demo data to keep UX snappy.
+    // Soft timeout: if nothing finishes within SOFT_TIMEOUT_MS, return demo now.
     const softTimer = new Promise<"soft">((resolve) =>
       setTimeout(() => resolve("soft"), SOFT_TIMEOUT_MS)
     );
@@ -187,34 +193,54 @@ export async function GET(req: Request) {
 
     const out: KPI[] = [];
 
-    // SEO Score
+    // ---------- SEO Score ----------
     if (seoRes.status === "fulfilled" && seoRes.value.ok) {
-      const sJson = await seoRes.value.json();
-      const s = SeoResult.parse(sJson);
-      const val = Math.max(0, Math.min(100, s.value));
-      out.push(makeItem("SEO Score", val, s.delta ?? "+0", undefined, s.demo === true));
-    }
-
-    // Top Pages
-    if (pagesRes.status === "fulfilled" && pagesRes.value.ok) {
-      const pJson = await pagesRes.value.json();
-      const p = TopPagesResult.parse(pJson);
-
-      const series = (p.series ?? [])
-        .filter((n) => Number.isFinite(n))
-        .map((n) => Math.max(0, Math.round(n)))
-        .slice(-52); // cap length
-
-      let delta = p.delta;
-      if (!delta) {
-        if (series.length > 1) {
-          const diff = series.at(-1)! - series.at(-2)!;
-          delta = (diff >= 0 ? "+" : "") + diff;
-        } else {
-          delta = "+0";
+      let sJson: unknown;
+      try {
+        sJson = await seoRes.value.json();
+      } catch {
+        sJson = null;
+      }
+      if (sJson) {
+        const s = SeoResult.safeParse(sJson);
+        if (s.success) {
+          const val = Math.min(100, Math.max(0, Math.round(s.data.value)));
+          const demoFlag = (s.data.demo ?? s.data.isMock) === true;
+          out.push(makeItem("SEO Score", val, s.data.delta ?? "+0", undefined, demoFlag));
         }
       }
-      out.push(makeItem("Top Pages", Math.max(0, Math.round(p.value)), delta, series, p.demo === true));
+    }
+
+    // ---------- Top Pages ----------
+    if (pagesRes.status === "fulfilled" && pagesRes.value.ok) {
+      let pJson: unknown;
+      try {
+        pJson = await pagesRes.value.json();
+      } catch {
+        pJson = null;
+      }
+      if (pJson) {
+        const p = TopPagesResult.safeParse(pJson);
+        if (p.success) {
+          const rawSeries = (p.data.series ?? [])
+            .filter((n) => Number.isFinite(n))
+            .map((n) => Math.max(0, Math.round(n)))
+            .slice(-52);
+
+          const value = Math.max(0, Math.round(p.data.value));
+          let delta = p.data.delta;
+          if (!delta) {
+            if (rawSeries.length > 1) {
+              const diff = (rawSeries.at(-1) ?? value) - (rawSeries.at(-2) ?? value);
+              delta = (diff >= 0 ? "+" : "") + diff;
+            } else {
+              delta = "+0";
+            }
+          }
+          const demoFlag = (p.data.demo ?? p.data.isMock) === true;
+          out.push(makeItem("Top Pages", value, delta, rawSeries, demoFlag));
+        }
+      }
     }
 
     // Backfill any missing KPI with demo

@@ -178,7 +178,7 @@ export default function TrafficOverviewCard() {
     <div
       className="
         rounded-2xl border p-5 shadow-sm transition-shadow
-        hover:shadow-md hover:shadow-indigo-500/10
+     
         border-slate-200 bg-white dark:border-gray-700/60
         dark:bg-gradient-to-br dark:from-[#0e1322] dark:via-[#101528] dark:to-[#0b0f1c]
         [--traffic-grid:rgba(0,0,0,0.06)] dark:[--traffic-grid:rgba(255,255,255,0.06)]

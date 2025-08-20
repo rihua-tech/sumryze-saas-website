@@ -2,24 +2,24 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { normalizeUrl } from "@/lib/normalizeUrl";
+import { getSeoScorePSI, type Device } from "@/lib/services/seo";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// ── Config
+/** Config */
 const API_TIMEOUT_MS = 10_000;
-const USE_MOCKS = process.env.KPI_FORCE_MOCKS === "true";
+const FORCE_MOCKS = process.env.KPI_FORCE_MOCKS === "true";
 
-// ── Zod schema: { value, delta? } — value is coerced to number
-const SeoResult = z.object({
-  value: z.preprocess((v) => {
-    if (typeof v === "string") return Number(v.replace(/[^0-9.+-]/g, ""));
-    return v;
-  }, z.number()),
+/** Response shape */
+const SeoPayload = z.object({
+  value: z.number().min(0).max(100),
   delta: z.string().optional(),
+  down: z.boolean().optional(),
+  isMock: z.boolean(),
 });
 
-// ── Helpers
+/** Cache headers (always no-store) */
 function noStore() {
   return {
     "Cache-Control": "no-store",
@@ -28,89 +28,74 @@ function noStore() {
   };
 }
 
-async function fetchWithTimeout(
-  input: string | URL,
-  init?: RequestInit,
-  ms = API_TIMEOUT_MS
-) {
-  const ac = new AbortController();
-  const t = setTimeout(() => ac.abort("timeout"), ms);
-  try {
-    return await fetch(input, {
-      ...init,
-      signal: ac.signal,
-      cache: "no-store",
-      headers: { accept: "application/json", ...(init?.headers || {}) },
-    });
-  } finally {
-    clearTimeout(t);
+/** Deterministic demo generator (seeded by URL) */
+function hash32(str: string) {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
   }
-}
-
-// Deterministic demo data (seeded by URL) — keeps UI stable without real backend
-function hash(s: string) {
-  let h = 2166136261;
-  for (let i = 0; i < s.length; i++) h = (h ^ s.charCodeAt(i)) * 16777619;
   return h >>> 0;
 }
-function fallbackSEO(urlForSeed: string): { value: number; delta: string } {
-  const seed = hash(urlForSeed);
-  // 80..95, with a tiny variance; “example” gets a neat round 90
-  const host = new URL(urlForSeed).hostname.toLowerCase();
-  const base = host.includes("example") ? 90 : 80 + (seed % 16); // 80..95
-  const value = Math.max(0, Math.min(100, base));
-  const deltaNum = ((seed % 5) - 2); // -2..+2
-  const delta = (deltaNum >= 0 ? "+" : "") + deltaNum.toString();
-  return { value, delta };
+function demoScore(seedKey: string) {
+  const h = hash32(`seo|${seedKey}`);
+  // 80–95 (round numbers feel nicer for a KPI)
+  const base = 80 + (h % 16); // 80..95
+  // tiny, signed delta −2..+2
+  const d = (h % 5) - 2;
+  return {
+    value: Math.max(0, Math.min(100, base)),
+    delta: `${d >= 0 ? "+" : ""}${d}`,
+    down: d < 0,
+  };
 }
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const raw = (searchParams.get("url") || "").trim();
+    const rawUrl = (searchParams.get("url") || "").trim();
+    const deviceParam = (searchParams.get("device") || "mobile").toLowerCase();
+    const mockParam = searchParams.get("mock") === "1";
 
-    // Allow demo mode via special scheme; otherwise normalize (and reject invalids)
-    const normalized =
-      raw.startsWith("demo://") ? "" : normalizeUrl(raw) || "";
+    const device: Device = deviceParam === "desktop" ? "desktop" : "mobile";
 
-    // If invalid/empty URL or mocks forced → deterministic demo
-    if (!normalized || USE_MOCKS) {
-      const demoUrl = normalized || "https://demo.example.com/";
-      const demo = fallbackSEO(demoUrl);
-      const parsed = SeoResult.parse(demo);
-      // clamp to 0..100 just in case
-      const clamped = Math.max(0, Math.min(100, parsed.value));
-      return NextResponse.json({ value: clamped, delta: parsed.delta ?? "+0" }, { headers: noStore() });
+    // Demo mode when: no URL, mock flag, or env forces mocks
+    const normalized = rawUrl ? normalizeUrl(rawUrl) : null;
+    const shouldMock = FORCE_MOCKS || mockParam || !normalized;
+
+    if (shouldMock) {
+      const seed = normalized || "https://demo.example.com/";
+      const demo = demoScore(seed);
+      const payload = SeoPayload.parse({ ...demo, isMock: true });
+      return NextResponse.json(payload, { headers: noStore() });
     }
 
-    // ── Real implementation:
-    // Put your actual SEO score provider call(s) here.
-    // Example scaffold:
-    //
-    // const providerURL = new URL("https://your-seo-provider.example/score");
-    // providerURL.searchParams.set("url", normalized);
-    // const res = await fetchWithTimeout(providerURL);
-    // if (!res.ok) throw new Error(`Provider error ${res.status}`);
-    // const rawJson = await res.json(); // expect { value, delta? }
-    // const parsed = SeoResult.parse(rawJson);
-    //
-    // For now, we’ll synthesize a stable-but-realistic value from the URL:
-    const synth = fallbackSEO(normalized);
-    const parsed = SeoResult.parse(synth);
+    // Live call to PSI with a hard abort guard
+    const ac = new AbortController();
+    const timer = setTimeout(() => ac.abort(), API_TIMEOUT_MS);
 
-    // ensure 0..100 for safety
-    const clamped = Math.max(0, Math.min(100, parsed.value));
+    const value = await getSeoScorePSI(normalized!, device, ac.signal);
 
-    return NextResponse.json({ value: clamped, delta: parsed.delta ?? "+0" }, {
-      headers: noStore(),
+    clearTimeout(timer);
+
+    if (value == null) {
+      // Network/API failure → deterministic demo so UI still shows something
+      const demo = demoScore(normalized!);
+      const payload = SeoPayload.parse({ ...demo, isMock: true });
+      return NextResponse.json(payload, { headers: noStore() });
+    }
+
+    // Successful live result (no delta from server — keep UI honest)
+    const payload = SeoPayload.parse({
+      value: Math.max(0, Math.min(100, value)),
+      isMock: false,
     });
+    return NextResponse.json(payload, { headers: noStore() });
   } catch (err) {
-    console.error("[/api/seo] fatal:", err);
-    // Last-resort demo so dashboard never breaks
-    const demo = fallbackSEO("https://demo.example.com/");
-    return NextResponse.json({ value: demo.value, delta: demo.delta }, {
-      status: 200,
-      headers: noStore(),
-    });
+    console.error("[/api/seo] error:", err);
+    // Last-resort deterministic demo. Never break the dashboard.
+    const demo = demoScore("https://demo.example.com/");
+    const payload = SeoPayload.parse({ ...demo, isMock: true });
+    return NextResponse.json(payload, { headers: noStore(), status: 200 });
   }
 }

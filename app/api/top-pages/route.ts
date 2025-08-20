@@ -10,18 +10,19 @@ export const dynamic = "force-dynamic";
 /* ---------- Config ---------- */
 const API_TIMEOUT_MS = 10_000;
 const USE_MOCKS = process.env.KPI_FORCE_MOCKS === "true";
+const SERIES_MAX = 52; // keep payloads small & predictable
 
-/* ---------- Zod schema for provider result ---------- */
-// We accept strings like "12", " 1,234 " and coerce to numbers.
+/* ---------- Zod schema ---------- */
 const ZNum = z.preprocess((v) => {
   if (typeof v === "string") return Number(v.replace(/[^0-9.+-]/g, ""));
   return v;
 }, z.number());
 
 const TopPagesResult = z.object({
-  value: ZNum,                         // total top pages count
-  delta: z.string().optional(),        // e.g. "+2", "-1"
-  series: z.array(ZNum).optional(),    // sparkline / history
+  value: ZNum,
+  delta: z.string().optional(),
+  series: z.array(ZNum).optional(),
+  demo: z.boolean().optional(), // allow passing through from service or demo branch
 });
 type TopPages = z.infer<typeof TopPagesResult>;
 
@@ -33,16 +34,15 @@ function noStore() {
     "Vercel-CDN-Cache-Control": "no-store",
   };
 }
-
-// Add a timeout around any promise (e.g., your service fn)
 function withTimeout<T>(p: Promise<T>, ms = API_TIMEOUT_MS): Promise<T> {
   return new Promise((resolve, reject) => {
     const t = setTimeout(() => reject(new Error("timeout")), ms);
-    p.then((v) => { clearTimeout(t); resolve(v); }, (e) => { clearTimeout(t); reject(e); });
+    p.then(
+      (v) => { clearTimeout(t); resolve(v); },
+      (e) => { clearTimeout(t); reject(e); }
+    );
   });
 }
-
-// Deterministic demo data seeded by URL—keeps UI stable even without backend
 function hash(s: string) {
   let h = 2166136261;
   for (let i = 0; i < s.length; i++) h = (h ^ s.charCodeAt(i)) * 16777619;
@@ -71,7 +71,18 @@ function fallback(normalizedUrl: string): TopPages {
   const prev = series.at(-2) ?? value;
   const diff = value - prev;
   const delta = (diff >= 0 ? "+" : "") + diff;
-  return { value, delta, series };
+  return { value, delta, series, demo: true };
+}
+function formatDelta(n: number) {
+  // Ensure we never send "-0"
+  const v = Object.is(n, -0) ? 0 : n;
+  return (v >= 0 ? "+" : "") + v;
+}
+function sanitizeSeries(arr?: number[]) {
+  return (arr ?? [])
+    .filter((n) => Number.isFinite(n))
+    .map((n) => Math.max(0, Math.round(n)))
+    .slice(-SERIES_MAX);
 }
 
 /* ---------- Route ---------- */
@@ -80,46 +91,57 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const raw = (searchParams.get("url") || "").trim();
 
-    // Allow "demo://" to intentionally force demo; otherwise normalize.
-    const normalized =
-      raw.startsWith("demo://") ? "" : (normalizeUrl(raw) || "");
+    const normalized = raw.startsWith("demo://") ? "" : (normalizeUrl(raw) || "");
 
     // Demo / mock mode
     if (!normalized || USE_MOCKS) {
       const demoUrl = normalized || "https://demo.example.com/";
-      const demo = TopPagesResult.parse(fallback(demoUrl)); // validate even demo
-      return NextResponse.json(demo, { headers: noStore() });
+      const demo = TopPagesResult.parse(fallback(demoUrl));
+      demo.series = sanitizeSeries(demo.series);
+      demo.value = Math.max(0, Math.round(demo.value));
+      demo.delta = demo.delta ?? "+0";
+      return NextResponse.json(demo, {
+        headers: { ...noStore(), "X-Mode": "demo" },
+      });
     }
 
-    // Call your real service with a timeout
-    // Expected service shape: { value: number|string, delta?: string, series?: (number|string)[] }
+    // Live service with timeout
     const rawData = await withTimeout(getTopPages(normalized), API_TIMEOUT_MS);
-
-    // Validate & coerce
     const parsed = TopPagesResult.parse(rawData);
 
-    // If delta is missing but series is present, compute diff of last two points
-    let { value, delta, series } = parsed;
+    let { value, delta, series, demo } = parsed;
+
+    // If delta missing, compute from series
     if (!delta) {
       if (series && series.length > 1) {
-        const diff = series[series.length - 1] - series[series.length - 2];
-        delta = (diff >= 0 ? "+" : "") + diff;
+        const diff = Number(series[series.length - 1]) - Number(series[series.length - 2]);
+        delta = formatDelta(diff);
       } else {
         delta = "+0";
       }
+    } else {
+      // normalize "-0" → "+0"
+      const n = Number(delta.replace(/[^0-9.+-]/g, ""));
+      if (!Number.isNaN(n)) delta = formatDelta(n);
     }
 
-    // Safety: ensure non-negative integer-ish value for count
+    // Sanitize/limit
     value = Math.max(0, Math.round(value));
+    series = sanitizeSeries(series);
 
-    return NextResponse.json({ value, delta, series }, { headers: noStore() });
+    return NextResponse.json(
+      { value, delta, series, demo: demo === true ? true : undefined },
+      { headers: { ...noStore(), "X-Mode": "live" } }
+    );
   } catch (err) {
     console.error("[/api/top-pages] fatal:", err);
-    // Last-resort demo so the dashboard never breaks
     const demo = fallback("https://demo.example.com/");
-    return NextResponse.json(TopPagesResult.parse(demo), {
+    demo.series = sanitizeSeries(demo.series);
+    demo.value = Math.max(0, Math.round(demo.value));
+    demo.delta = demo.delta ?? "+0";
+    return NextResponse.json(demo, {
       status: 200,
-      headers: noStore(),
+      headers: { ...noStore(), "X-Mode": "fatal-fallback" },
     });
   }
 }
