@@ -1,200 +1,245 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import dynamic from "next/dynamic";
 import clsx from "clsx";
+import type { ApexOptions } from "apexcharts";
 
-// 🔧 keep the donut height in one place
+/** Keep the donut height in one place (no layout shift) */
 const CHART_H = 148;
 
-// Reserve the space while react-apexcharts loads
-
-// after
+/** Lazy-load ApexCharts with a fixed-height placeholder */
 const Chart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
   loading: () => <div className="w-full" style={{ height: CHART_H }} aria-hidden />,
 });
 
-
 export type CoreVital = {
   name: "LCP" | "INP" | "CLS" | string;
-  value: number;
+  value: number;                 // use NaN for loading state
   target: number;
   unit: "s" | "ms" | "";
-  thresholds?: [number, number];
-  color?: string;
+  thresholds?: [number, number]; // [good, warn]
+  color?: string;                // optional override
 };
 type Props = { vitals?: CoreVital[] };
 
-const DEFAULT_THRESHOLDS: Record<string, [number, number]> = {
+export const DEFAULT_THRESHOLDS: Record<string, [number, number]> = {
   LCP: [2.5, 4.0],
   INP: [200, 500],
   CLS: [0.1, 0.25],
 };
+
 type StatusKey = "good" | "warn" | "poor";
-const STATUS_COLOR: Record<StatusKey, string> = {
-  good: "#10b981",
-  warn: "#f59e0b",
-  poor: "#ef4444",
+const PILL_COLOR: Record<StatusKey, string> = {
+  good: "text-emerald-600 dark:text-emerald-400",
+  warn: "text-amber-500 dark:text-amber-400",
+  poor: "text-rose-500 dark:text-rose-400",
 };
 
-function useReducedMotion() {
-  const [reduce, setReduce] = useState(false);
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return;
-    const m = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const on = () => setReduce(m.matches);
-    on();
-    m.addEventListener?.("change", on);
-    return () => m.removeEventListener?.("change", on);
-  }, []);
-  return reduce;
-}
+const NEUTRAL_TRACK = "rgba(148,163,184,0.25)"; // slate-400 @25%
 
-function scoreToGood(value: number, good: number, warn: number) {
-  if (!Number.isFinite(value)) return 0;
-  if (value <= good) return 100;
-  if (value >= warn) return 0;
-  const span = warn - good || 1;
-  return Math.max(0, Math.min(100, ((warn - value) / span) * 100));
-}
-function statusKeyFor(v: CoreVital): StatusKey {
-  const [good, warn] = v.thresholds ?? DEFAULT_THRESHOLDS[v.name] ?? [v.target, v.target * 1.6];
-  if (v.value <= good) return "good";
-  if (v.value <= warn) return "warn";
+/** Fixed ring colors per metric */
+const RING_COLOR_BY_VITAL: Record<string, string> = {
+  LCP: "#10b981", // emerald-500
+  INP: "#3b82f6", // blue-500
+  CLS: "#f59e0b", // amber-500
+};
+
+/** Status logic (p75 <= good -> good; <= warn -> needs work; else poor) */
+function getVitalStatus(value: number, thresholds: [number, number]): StatusKey {
+  const [good, warn] = thresholds;
+  if (value <= good) return "good";
+  if (value <= warn) return "warn";
   return "poor";
 }
+
+/** Convert a raw measurement to the ring “progress” (0..100) */
+function scoreToGood(value: number, good: number, warn: number) {
+  if (!Number.isFinite(value)) return NaN;
+  if (value <= good) return 100;
+  if (value >= warn) return 0;
+  const span = Math.max(1e-6, warn - good);
+  return ((warn - value) / span) * 100;
+}
+
 function formatRaw(value: number, unit: CoreVital["unit"]) {
-  if (!Number.isFinite(value)) return "-";
+  if (!Number.isFinite(value)) return "—";
   if (unit === "s") return (Math.round(value * 10) / 10).toFixed(1);
   if (unit === "ms") return String(Math.round(value));
   return (Math.round(value * 100) / 100).toFixed(2);
 }
 
-function StatusPill({ status, className, title }: { status: StatusKey; className?: string; title?: string }) {
-  const label = status === "good" ? "Good" : status === "warn" ? "Needs work" : "Poor";
-  const pillClass =
+function StatusPill({
+  status,
+  className,
+  title,
+}: {
+  status: StatusKey | "loading";
+  className?: string;
+  title?: string;
+}) {
+  const label =
+    status === "good" ? "Good" : status === "warn" ? "Needs work" : status === "poor" ? "Poor" : "Loading…";
+
+  const classes =
     status === "good"
-      ? "border-transparent bg-slate-100 dark:bg-white/5 text-emerald-600 dark:text-emerald-400"
+      ? "bg-emerald-500/10 border-transparent"
       : status === "warn"
-      ? "border-amber-300/30 bg-amber-500/10 text-amber-400"
-      : "border-rose-300/30 bg-rose-500/10 text-rose-400";
+      ? "bg-amber-500/10 border-amber-300/30"
+      : status === "poor"
+      ? "bg-rose-500/10 border-rose-300/30"
+      : "bg-slate-200/40 border-slate-300/50 dark:bg-white/5 dark:border-white/10";
+
+  const text =
+    status === "good"
+      ? PILL_COLOR.good
+      : status === "warn"
+      ? PILL_COLOR.warn
+      : status === "poor"
+      ? PILL_COLOR.poor
+      : "text-slate-500 dark:text-slate-300";
+
   return (
-    <span role="status" title={title} className={clsx("inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold border transition-colors", pillClass, className)}>
+    <span
+      role="status"
+      title={title}
+      className={clsx("inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold border", classes, text, className)}
+    >
       {label}
     </span>
   );
 }
 
 export default function CoreWebVitalsChart({ vitals = [] }: Props) {
-  // If parent always passes seeded vitals, this branch won’t hit. Still keep the space.
+  // Always reserve the 3 cells even if nothing is provided
   if (!vitals.length) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="apex-vitals min-h-[200px] flex flex-col items-center" />
+          <div key={i} className="min-h-[200px] flex flex-col items-center" />
         ))}
       </div>
     );
   }
 
-  const reduceMotion = useReducedMotion();
-
   const items = useMemo(() => {
     return vitals.map((v) => {
-      const [good, warn] = v.thresholds ?? DEFAULT_THRESHOLDS[v.name] ?? [v.target, v.target * 1.6];
-      const status = statusKeyFor(v);
-      const ringColor = v.color ?? STATUS_COLOR[status];
-      const progress = Number(scoreToGood(v.value, good, warn).toFixed(1));
-      const rawLabel = `${formatRaw(v.value, v.unit)}${v.unit}`;
+      const thresholds = v.thresholds ?? DEFAULT_THRESHOLDS[v.name] ?? [v.target, v.target * 1.6];
+      const isLoading = !Number.isFinite(v.value);
+      const status: StatusKey | "loading" = isLoading ? "loading" : getVitalStatus(v.value, thresholds);
+
       const targetLabel = `${formatRaw(v.target, v.unit)}${v.unit}`;
+      const valueLabel = `${formatRaw(v.value, v.unit)}${Number.isFinite(v.value) ? v.unit : ""}`;
+
+      // fixed ring color per metric (also while loading)
+      const ringColor = v.color ?? RING_COLOR_BY_VITAL[v.name] ?? "#0ea5e9"; // fallback sky-500
+
+      // while loading, draw a full ring so the donuts look “ready”
+      const progressRaw = scoreToGood(v.value, thresholds[0], thresholds[1]);
+      const progress = isLoading
+        ? 100
+        : Number.isFinite(progressRaw)
+        ? Number(progressRaw.toFixed(1))
+        : 100;
+
       const statusTitle =
-        status === "good"
+        status === "loading"
+          ? "Loading field data…"
+          : status === "good"
           ? "Meets Core Web Vitals target"
           : status === "warn"
-          ? "Needs improvement (between good and poor thresholds)"
-          : "Poor (above the poor threshold)";
+          ? "Needs improvement"
+          : "Poor";
 
-      const options: ApexCharts.ApexOptions = {
+      const options: ApexOptions = {
         chart: {
           type: "radialBar",
           sparkline: { enabled: true },
-         
-           animations: {
-      enabled: false,
-      animateGradually: { enabled: false },
-      dynamicAnimation: { enabled: false },
-      speed: 0,
-    },
-          foreColor: "currentColor",
+          animations: {
+            enabled: false,
+            animateGradually: { enabled: false },
+            dynamicAnimation: { enabled: false },
+          },
           toolbar: { show: false },
+          foreColor: "currentColor",
           redrawOnParentResize: true,
         },
-        noData: { text: "" }, // ✅ top-level
+        noData: { text: "" },
         colors: [ringColor],
         fill: { type: "solid", colors: [ringColor] },
-        
         stroke: { colors: [ringColor], lineCap: "round" },
         plotOptions: {
           radialBar: {
             hollow: { size: "55%", margin: 2 },
-            track: { background: "rgba(148,163,184,0.25)", strokeWidth: "88%" },
+            track: { background: NEUTRAL_TRACK, strokeWidth: "88%" },
             dataLabels: {
-              value: {
-                show: true,
-                offsetY: -14,
-                fontSize: "18px",
-                fontWeight: 800,
-                color: "currentColor",
-                formatter: () => rawLabel,
-              },
-              name: { show: true, offsetY: 20, color: "currentColor", fontSize: "14px", fontWeight: 700 },
+              show: false, // we overlay our own center content
+              value: { show: false },
+              name: { show: false },
+              total: { show: false },
             },
           },
         },
-        tooltip: { enabled: true, y: { formatter: () => `${rawLabel} • representative (p75) value over the last 28 days` } },
         labels: [v.name],
+        tooltip: {
+          enabled: !isLoading, // disable tooltip while loading
+          y: {
+            formatter: () =>
+              isLoading ? "" : `${valueLabel} • representative (p75) value over the last 28 days`,
+          },
+        },
       };
 
-      const series = [Number.isFinite(progress) ? progress : 0.001];
+      const series = [progress];
 
-      return { key: `${v.name}-${ringColor}`, v, status, progress, rawLabel, targetLabel, statusTitle, options, series };
+      return {
+        key: v.name,
+        v,
+        status,
+        ringColor,
+        valueLabel,
+        targetLabel,
+        statusTitle,
+        options,
+        series,
+      };
     });
-  }, [vitals, reduceMotion]);
+  }, [vitals]);
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       {items.map((it) => (
         <div
           key={it.key}
-          className="apex-vitals min-h-[200px] flex flex-col items-center text-center text-slate-900 dark:text-white"
-          role="img"
-          aria-label={`${it.v.name} ${it.rawLabel}, target ≤ ${it.targetLabel}, status ${it.status}`}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={Math.round(it.progress)}
+          className="min-h-[200px] flex flex-col items-center text-center text-slate-900 dark:text-white"
+          role="group"
+          aria-label={`${it.v.name} ${it.valueLabel} target ≤ ${it.targetLabel}`}
         >
-          {/* 🔒 Reserve donut space from first paint */}
-          
+          {/* Ring */}
+          <div className="relative w-full flex items-center justify-center" style={{ height: CHART_H }}>
+            <Chart options={it.options} series={it.series} type="radialBar" height={CHART_H} />
 
-          <div className="w-full flex items-center justify-center" style={{ height: CHART_H }}>
-         <Chart key={it.key} options={it.options} series={it.series} type="radialBar" height={CHART_H} />
+            {/* Center overlay (static content) */}
+            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+              <div className="text-sm font-semibold tracking-wide">{it.v.name}</div>
+              <div className="mt-1 text-[11px] text-slate-500/80 dark:text-slate-400/80">
+                Target ≤ {it.targetLabel}
+              </div>
+            </div>
           </div>
 
-
-          <p className="mt-2 text-[11px] text-slate-500/80 dark:text-slate-400/80">Target ≤ {it.targetLabel}</p>
-          <StatusPill status={it.status} className="mt-2" title={it.statusTitle} />
-
-          <style jsx global>{`
-            .apex-vitals .apexcharts-datalabel-value {
-              text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
-            }
-            .dark .apex-vitals .apexcharts-datalabel-value {
-              text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
-            }
-          `}</style>
+          {/* Dynamic line: value + status */}
+          <div className="mt-2 flex items-center justify-center gap-2">
+            <span className="tabular-nums font-extrabold text-base leading-none">
+              {it.valueLabel}
+            </span>
+            <StatusPill status={it.status} title={it.statusTitle} />
+          </div>
         </div>
       ))}
     </div>
   );
 }
+
+export type { CoreVital as CoreVitalType };
