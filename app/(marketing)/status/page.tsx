@@ -3,8 +3,7 @@
 import { useState } from "react"
 import { ThemeProvider } from "next-themes"
 import { CheckCircle, AlertTriangle, XCircle, Clock, Activity, Bell, Calendar, ExternalLink } from "lucide-react"
-import Header from "../dashboard/components/header"
-import Footer from "../dashboard/components/footer"
+
 
 export default function StatusPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)

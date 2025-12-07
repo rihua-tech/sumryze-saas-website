@@ -5,8 +5,6 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { ThemeProvider } from "next-themes"
 import { Calendar, Scale, FileText, Users, CreditCard, Shield, AlertTriangle, ChevronRight, Gavel } from "lucide-react"
-import Header from "../dashboard/components/header"
-import Footer from "../dashboard/components/footer"
 
 export default function TermsOfServicePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
