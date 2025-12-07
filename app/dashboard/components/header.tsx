@@ -138,7 +138,7 @@ export default function Header({
             </div>
 
            
-
+            {/* ✅ Right: Theme + User Menu 
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               className="rounded-lg p-2 text-gray-600 hover:scale-110 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
@@ -146,7 +146,8 @@ export default function Header({
             >
               {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
-
+           */}
+           
             <div className="relative" ref={avatarDropdownRef}>
               <button
                 onClick={() => setIsAvatarDropdownOpen(!isAvatarDropdownOpen)}

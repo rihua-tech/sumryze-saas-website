@@ -22,6 +22,8 @@ const DEFAULT_COLORS = {
   CLS: "#f59e0b", // amber
 };
 
+const resolvePageSpeedApiKey = () => (process.env.PAGE_SPEED_API_KEY?.trim() || undefined);
+
 /* ----------------------------- Utilities ------------------------- */
 function toInt(s: string | undefined, def: number) {
   const n = Number(s);
@@ -106,7 +108,7 @@ function buildVitals(lcpSeconds?: number, inpMs?: number, cls?: number): CoreVit
 /* ------------------------ PageSpeed (CrUX) ------------------------ */
 export async function fetchVitalsFromPSI(
   normalizedUrl: string,
-  apiKey?: string,
+  apiKey: string | undefined = resolvePageSpeedApiKey(),
   strategy: "mobile" | "desktop" = "mobile"
 ): Promise<CoreVital[]> {
   const endpoint =
@@ -120,7 +122,13 @@ export async function fetchVitalsFromPSI(
   });
 
   if (!res.ok) {
-    // 204 == no field data; 429/5xx quota/transient
+    if (res.status === 403) {
+      throw new Error("PageSpeed API key missing or invalid (403)");
+    }
+    if (res.status === 429) {
+      throw new Error("PageSpeed API quota exceeded (429)");
+    }
+    // 204 == no field data; 5xx = transient
     throw new Error(`PSI HTTP ${res.status}`);
   }
 

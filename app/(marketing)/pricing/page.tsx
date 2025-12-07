@@ -83,9 +83,12 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen">
+     
+    
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-indigo-50 via-white to-emerald-50 py-10">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          
           <div className="text-center">
           
             <Badge className="mb-4 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 text-xs px-3 py-1.5 font-medium rounded-full shadow-sm transition-all duration-200">          
@@ -137,7 +140,9 @@ export default function PricingPage() {
       {/* Pricing Cards */}
       <section className=" bg-white pt-4 pb-2">
         
-          <div className="max-w-[70rem] mx-auto px-4 sm:px-6 lg:px-8">
+         
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
           
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-1 md:grid-cols-3">
 

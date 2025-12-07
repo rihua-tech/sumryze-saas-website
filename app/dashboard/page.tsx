@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useUserContext } from "@/app/context/UserContext";
 import { Button } from "@/components/ui/button";
-import SegmentedMenu from "./components/SegmentedMenu";
+
 import UrlSearchBar from "./components/UrlSearchBar";
 import AISummaryCard from "./components/overview/AISummaryCard";
 import KPICardsContainer from "./components/overview/KPICardsContainer";
@@ -17,133 +17,182 @@ import AIPredictionsCard from "./components/overview/AIPredictionsCard";
 import ContentPerformanceCard from "./components/overview/ContentPerformanceCard";
 import AiSeoAssistantCard from "./components/overview/AiSeoAssistantCard";
 import AISuggestions from "./components/overview/AISuggestions";
-import { useUrlContext } from "@/app/context/UrlContext";
 import DashboardActions from "./components/DashboardActions";
-import SEOScoreCardBlock from "./components/overview/SEOScoreCardBlock";
-import TopPagesCardBlock from "./components/overview/TopPagesCardBlock";
 
+import { useUrlContext } from "@/app/context/UrlContext";
+import type { CoreVital } from "./components/overview/CoreWebVitalsChart";
 
 export default function Dashboard() {
   const { isFreeUser } = useUserContext();
-  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const { setUrl } = useUrlContext();
+  const site = searchParams.get("site") || ""; // current URL being analyzed
+  const { url, setUrl } = useUrlContext();
 
-  // Add the missing handler
-  function handleRefreshSummary() {
-    // TODO: Implement refresh logic here
-    // For now, just log to console
-    console.log("Refresh summary clicked");
-  }
+  const [webVitals, setWebVitals] = useState<CoreVital[] | null>(null);
+  const [loadingVitals, setLoadingVitals] = useState(false);
+  const [vitalsError, setVitalsError] = useState<string | null>(null);
 
+  // Keep context synchronized with ?site= in the URL on initial loads or navigation events.
   useEffect(() => {
-    setUrl("https://example.com"); // ← set to the URL you want to audit
-  }, []);
+    if (site && site !== url) {
+      setUrl(site);
+    }
+  }, [site, url, setUrl]);
 
-  
-  const [isLoading, setIsLoading] = useState({ 
-  audit: false,
-  download: false,
-  blog: false,
-  share: false,
-});
+  // Fetch Core Web Vitals whenever the selected URL changes.
+  useEffect(() => {
+    if (!url) {
+      setWebVitals(null);
+      setVitalsError(null);
+      setLoadingVitals(false);
+      return;
+    }
 
-const handleAudit = async () => {
-  setIsLoading(prev => ({ ...prev, audit: true }));
-  await runAuditAPI();
-  setIsLoading(prev => ({ ...prev, audit: false }));
-};
+    let isCancelled = false;
 
-const handleDownload = async () => {
-  setIsLoading(prev => ({ ...prev, download: true }));
-  await exportPDF();
-  setIsLoading(prev => ({ ...prev, download: false }));
-};
+    async function fetchVitals(currentUrl: string) {
+      try {
+        setLoadingVitals(true);
+        setVitalsError(null);
 
+        const response = await fetch(`/api/web-vitals?url=${encodeURIComponent(currentUrl)}`, {
+          cache: "no-store",
+        });
 
-const handleGenerateBlog = async () => {
-  setIsLoading(prev => ({ ...prev, blog: true }));
-  await generateBlogAPI(); // Replace with your actual blog generation function
-  setIsLoading(prev => ({ ...prev, blog: false }));
-};
+        const data = await response.json().catch(() => ({}));
 
-const handleShareReport = async () => {
-  setIsLoading(prev => ({ ...prev, share: true }));
-  await shareReportAPI(); // Replace with your actual share logic
-  setIsLoading(prev => ({ ...prev, share: false }));
-};
+        if (!response.ok) {
+          const message = typeof data?.error === "string" ? data.error : "No Core Web Vitals available for this site.";
+          throw new Error(message);
+        }
 
+        if (!isCancelled) {
+          setWebVitals(Array.isArray(data?.vitals) ? data.vitals : null);
+        }
+      } catch (error) {
+        if (isCancelled) return;
+        const message = error instanceof Error && error.message ? error.message : "Failed to load Core Web Vitals.";
+        setVitalsError(message);
+        setWebVitals(null);
+      } finally {
+        if (!isCancelled) {
+          setLoadingVitals(false);
+        }
+      }
+    }
 
+    fetchVitals(url);
 
+    return () => {
+      isCancelled = true;
+    };
+  }, [url]);
+
+  // ----------------------------------------------------
+  //  CTA button states
+  // ----------------------------------------------------
+  const [isLoading, setIsLoading] = useState({
+    audit: false,
+    download: false,
+    blog: false,
+    share: false,
+  });
+
+  const handleAudit = async () => {
+    setIsLoading(prev => ({ ...prev, audit: true }));
+    await runAuditAPI();
+    setIsLoading(prev => ({ ...prev, audit: false }));
+  };
+
+  const handleDownload = async () => {
+    setIsLoading(prev => ({ ...prev, download: true }));
+    await exportPDF();
+    setIsLoading(prev => ({ ...prev, download: false }));
+  };
+
+  const handleGenerateBlog = async () => {
+    setIsLoading(prev => ({ ...prev, blog: true }));
+    await generateBlogAPI();
+    setIsLoading(prev => ({ ...prev, blog: false }));
+  };
+
+  const handleShareReport = async () => {
+    setIsLoading(prev => ({ ...prev, share: true }));
+    await shareReportAPI();
+    setIsLoading(prev => ({ ...prev, share: false }));
+  };
+
+  // ----------------------------------------------------
+  //  RENDER
+  // ----------------------------------------------------
 
   return (
     <div className="max-w-7xl mx-auto px-5 pb-8 space-y-8">
-      <SegmentedMenu />
 
       {/* Mobile CTA */}
       <div className="flex md:hidden justify-center">
         <Link href="/pricing">
-          <Button className="h-8 px-4 py-1.5 text-sm font-medium bg-indigo-500 hover:bg-indigo-600 text-white rounded-md shadow-sm ml-4 transition-colors duration-200 ease-in-out">
+          <Button className="h-8 px-4 py-1.5 text-sm font-medium bg-indigo-500 hover:bg-indigo-600 text-white rounded-md shadow-sm ml-4">
             Start Free Trial
           </Button>
         </Link>
       </div>
 
       {/* Header & Search */}
-      <div className="w-full px-4 pt-0">
-        <div className="max-w-screen-xl mx-auto w-full space-y-4">
-          <div className="text-center mt-2 md:pt-6 mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-200">
-              Analyze Any Website for SEO Insights
-            </h1>
-          </div>
-          <div className="w-full flex justify-center">
+      <div className="w-full px-4">
+        <div className="max-w-screen-xl mx-auto space-y-16">
+          <h1 className="text-center text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-200 mt-12">
+            Analyze Any Website for SEO Insights
+          </h1>
+
+          <div className="flex justify-center">
             <UrlSearchBar isFreeUser={isFreeUser} />
           </div>
         </div>
       </div>
 
-      {/* AI Insights Banner */}
-       <AISummaryCard/>
+      {/* AI Summary */}
+      <AISummaryCard />
 
-      {/* Main 2-Column Layout */}
+      {/* Main Layout */}
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Left Column */}
+
+        {/* LEFT COLUMN */}
         <div className="w-full lg:w-1/2 space-y-6">
-       
-         <KPICardsContainer />    
+          <KPICardsContainer />
           <KeywordGrowthCard />
-          <CoreWebVitalsCard />
+          
+
+          <CoreWebVitalsCard
+            vitals={webVitals}
+            loading={loadingVitals}
+            error={vitalsError}
+          />
+
           <TrafficOverviewCard />
+
+          
           <TrafficByChannelCard />
         </div>
 
-        {/* Right Column: AI Optimization Hub */}
+        {/* RIGHT COLUMN */}
         <div className="w-full lg:w-1/2 space-y-6">
-          {/* Assistant */}
-          <div className="space-y-6">           
-            <AiSeoAssistantCard/>
-           <ContentPerformanceCard/> 
-            <AISuggestions />                      
-            {/* AI Predictions  */}
-           <AIPredictionsCard />                        
-            {/* AI Content Performance + */}
-           
-          </div>
+          <AiSeoAssistantCard />
+          <ContentPerformanceCard />
+          <AISuggestions />
+          <AIPredictionsCard />
         </div>
       </div>
 
-      {/* CTA Buttons */}
-     <DashboardActions
-     isLoading={isLoading}
-     onAudit={handleAudit}
-     onDownload={handleDownload}
-     onShare={handleShareReport}
-     onGenerateBlog={handleGenerateBlog}
-/>
-
-
+      {/* Bottom CTA Buttons */}
+      <DashboardActions
+        isLoading={isLoading}
+        onAudit={handleAudit}
+        onDownload={handleDownload}
+        onGenerateBlog={handleGenerateBlog}
+        onShare={handleShareReport}
+      />
     </div>
   );
 }
-

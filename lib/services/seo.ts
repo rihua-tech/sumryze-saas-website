@@ -32,8 +32,8 @@ async function fetchWithTimeout(
 }
 
 /**
- * Calls PageSpeed Insights and returns Lighthouse SEO (0–100), or `null` on failure.
- * - Accepts optional API key via `PAGESPEED_API_KEY` (or legacy `PSI_API_KEY`)
+ * Calls PageSpeed Insights and returns Lighthouse SEO (0-100), or `null` on failure.
+ * - Accepts optional API key via `PAGE_SPEED_API_KEY`
  * - Supports `device` strategy: "mobile" | "desktop"
  * - Never throws: route layer decides how to fall back.
  */
@@ -43,8 +43,7 @@ export async function getSeoScorePSI(
   signal?: AbortSignal
 ): Promise<number | null> {
   try {
-    // Either env var works (PAGESPEED_API_KEY preferred)
-    const key = (process.env.PAGESPEED_API_KEY || process.env.PSI_API_KEY || "").trim();
+    const key = (process.env.PAGE_SPEED_API_KEY || "").trim();
 
     const qs = new URLSearchParams({
       url,

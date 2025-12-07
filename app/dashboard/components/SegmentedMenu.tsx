@@ -9,9 +9,7 @@ export default function SegmentedMenu() {
   const links = [
     { label: "Overview", href: "/dashboard" },
     { label: "Reports", href: "/dashboard/reports" },
-    { label: "Analytics", href: "/dashboard/analytics" },
-    { label: "Fixes", href: "/dashboard/Fixes" },
-    { label: "Content", href: "/dashboard/llm-content" }, // Changed from AI SEO to LLM Content
+    
     { label: "Clients", href: "/dashboard/clients" },
   ];
 

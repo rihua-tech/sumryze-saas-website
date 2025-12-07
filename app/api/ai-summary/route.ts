@@ -83,9 +83,9 @@ Respond with *summary text only*. Do not include labels or headings.
 `;
 
    // ✅ Skip OpenAI in dev or mock mode
-    if (process.env.USE_OPENAI !== "false") {
-      return NextResponse.json(mockData);
-    }
+   //if (process.env.USE_OPENAI !== "false") {
+   //return NextResponse.json(mockData);
+  // }
 
 
 

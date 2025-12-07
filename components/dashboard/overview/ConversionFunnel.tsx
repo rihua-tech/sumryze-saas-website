@@ -30,7 +30,6 @@ export default function ConversionFunnel() {
       toolbar: { show: false },
       animations: {
         enabled: true,
-        easing: "easeinout",
         speed: 800,
       },
     },
@@ -44,7 +43,6 @@ export default function ConversionFunnel() {
     },
     dataLabels: {
       enabled: true,
-      position: "right",
       formatter: (_: number, opts) => labelsWithPercent[opts.dataPointIndex],
       style: {
         fontSize: "12px",

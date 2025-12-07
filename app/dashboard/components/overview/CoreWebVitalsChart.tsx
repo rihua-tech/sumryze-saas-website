@@ -22,7 +22,7 @@ export type CoreVital = {
   thresholds?: [number, number]; // [good, warn]
   color?: string;                // optional override
 };
-type Props = { vitals?: CoreVital[] };
+type Props = { vitals?: CoreVital[] | null };
 
 export const DEFAULT_THRESHOLDS: Record<string, [number, number]> = {
   LCP: [2.5, 4.0],
@@ -80,7 +80,7 @@ function StatusPill({
   title?: string;
 }) {
   const label =
-    status === "good" ? "Good" : status === "warn" ? "Needs work" : status === "poor" ? "Poor" : "Loading…";
+    status === "good" ? "Good" : status === "warn" ? "Needs work" : status === "poor" ? "Poor" : "Loading...";
 
   const classes =
     status === "good"
@@ -111,9 +111,19 @@ function StatusPill({
   );
 }
 
-export default function CoreWebVitalsChart({ vitals = [] }: Props) {
+export default function CoreWebVitalsChart({ vitals }: Props) {
+  if (vitals === null) {
+    return (
+      <div className="min-h-[200px] flex items-center justify-center text-sm text-slate-500 dark:text-slate-400">
+        No Data
+      </div>
+    );
+  }
+
+  const safeVitals = Array.isArray(vitals) ? vitals : [];
+
   // Always reserve the 3 cells even if nothing is provided
-  if (!vitals.length) {
+  if (!safeVitals.length) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[0, 1, 2].map((i) => (
@@ -124,7 +134,7 @@ export default function CoreWebVitalsChart({ vitals = [] }: Props) {
   }
 
   const items = useMemo(() => {
-    return vitals.map((v) => {
+    return safeVitals.map((v) => {
       const thresholds = v.thresholds ?? DEFAULT_THRESHOLDS[v.name] ?? [v.target, v.target * 1.6];
       const isLoading = !Number.isFinite(v.value);
       const status: StatusKey | "loading" = isLoading ? "loading" : getVitalStatus(v.value, thresholds);
@@ -145,7 +155,7 @@ export default function CoreWebVitalsChart({ vitals = [] }: Props) {
 
       const statusTitle =
         status === "loading"
-          ? "Loading field data…"
+          ? "Loading field data..."
           : status === "good"
           ? "Meets Core Web Vitals target"
           : status === "warn"
@@ -205,7 +215,7 @@ export default function CoreWebVitalsChart({ vitals = [] }: Props) {
         series,
       };
     });
-  }, [vitals]);
+  }, [safeVitals]);
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
