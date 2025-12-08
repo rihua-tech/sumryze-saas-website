@@ -169,9 +169,9 @@ public/                # Static assets
 ```
 
 🧪 **What This Project Demonstrates**
-```
+
 This project is part of my data / analytics / AI portfolio and showcases:
-```
+
 - Building a real SaaS-style dashboard using Next.js App Router
 
 - Designing a clean analytics UI with multiple charting libraries
