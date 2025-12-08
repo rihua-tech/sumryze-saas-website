@@ -186,8 +186,7 @@ export default function TermsOfServicePage() {
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-        {/* Header */}
-        <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
+   
 
         <div className="flex flex-1 pt-16">
           {/* Table of Contents Sidebar */}
@@ -616,8 +615,7 @@ export default function TermsOfServicePage() {
           </main>
         </div>
 
-        {/* Footer */}
-        <Footer />
+     
 
         {/* Mobile Sidebar Overlay */}
         {sidebarOpen && (

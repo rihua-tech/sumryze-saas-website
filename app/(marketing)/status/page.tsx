@@ -135,8 +135,7 @@ export default function StatusPage() {
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-        {/* Header */}
-        <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
+  
 
         {/* Main Content */}
         <main className="flex-1 pt-16 transition-colors">
@@ -389,8 +388,7 @@ export default function StatusPage() {
           </div>
         </main>
 
-        {/* Footer */}
-        <Footer />
+     
 
         {/* Mobile Sidebar Overlay */}
         {sidebarOpen && (
