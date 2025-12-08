@@ -1,6 +1,6 @@
 # 🚀 Sumryze – AI-Powered SEO Reporting Dashboard
 
-🔗 Live demo: https://sumryze-saas-website.vercel.app
+🔗 Live demo: https://sumryze-saas-website.vercel.app; https://sumryze-saas-website.vercel.app/dashboard
 
 
 
