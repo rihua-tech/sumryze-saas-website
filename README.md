@@ -95,8 +95,6 @@ cd sumryze-saas-website
 
 ```pnpm install
 
-```
-
 You can also use npm or yarn, but the project is configured and tested with pnpm.
 
 3. **Configure environment variables**
@@ -132,7 +130,7 @@ Project → Settings → Environment Variables.
 4. **Run the dev server**
 
    ```pnpm dev
-   ```
+   
 Then open:
 
 Marketing site: http://localhost:3000
