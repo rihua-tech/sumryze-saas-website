@@ -1,5 +1,8 @@
 # 🚀 Sumryze – AI-Powered SEO Reporting Dashboard
 
+🔗 Live demo: https://sumryze-saas-website.vercel.app
+
+
 
 Sumryze is a full-stack SaaS dashboard for **automated SEO reporting and AI-generated insights**.  
 It’s designed for agencies, freelancers, and e-commerce brands who need **beautiful, client-ready SEO reports** without spending hours in GA4, Search Console, and spreadsheets.
