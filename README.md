@@ -131,7 +131,7 @@ Project → Settings → Environment Variables.
 
 4. **Run the dev server**
 
-   ``` pnpm dev
+   ```pnpm dev
    ```
 Then open:
 
@@ -149,8 +149,7 @@ pnpm start
 ```
 
 🧭 **Project Structure (High Level)**
-
-app/
+```app/
   (marketing)/         # Landing pages, pricing, blog, support, etc.
   dashboard/           # Auth-protected SaaS dashboard (App Router)
     components/        # Header, sidebar, charts, dashboard widgets
@@ -167,8 +166,41 @@ components/            # Shared UI components
 lib/                   # Utilities (analytics helpers, API clients, config)
 styles/                # Global styles & Tailwind setup
 public/                # Static assets
+```
 
-🧪** What This Project Demonstrates**
+🧪 **What This Project Demonstrates**
+This project is part of my data / analytics / AI portfolio and showcases:
+
+Building a real SaaS-style dashboard using Next.js App Router
+
+Designing a clean analytics UI with multiple charting libraries
+
+Structuring modular API routes for SEO & traffic metrics
+
+Integrating OpenAI into a production-ready API (/api/ai-summary)
+
+Managing secrets & environment variables across local dev and Vercel
+
+Deploying and hardening a Next.js app (e.g., React2Shell Next.js security fix)
+
+📌 **Roadmap / Future Ideas**
+
+Plug API routes into live GA4 & GSC data
+
+Add report scheduling (weekly / monthly PDF exports)
+
+Multi-client support with per-client workspaces
+
+Per-seat billing & Stripe integration
+
+More advanced AI features (content ideas, keyword clustering, anomaly detection)
+
+🤝 **Feedback & Contact**
+If you have feedback or suggestions, feel free to open an issue or reach out.
+
+Thanks for checking out Sumryze – AI SEO Reporting Dashboard!
+
+***Email:rhuavan@gamil.com***
 
 
 
