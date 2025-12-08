@@ -3,9 +3,11 @@
 import { useState } from "react";
 
 
-import Header from "./components/Header";
-import Sidebar from "./components/Sidebar";
-import Footer from "./components/Footer";
+
+import Header from "./components/header";
+import Sidebar from "./components/sidebar";
+import Footer from "./components/footer";
+
 
 import { usePathname } from "next/navigation";
 import { UserProvider } from "@/app/context/UserContext"; // ✅ Import your provider
