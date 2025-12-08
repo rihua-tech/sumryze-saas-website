@@ -204,7 +204,7 @@ This project is part of my data / analytics / AI portfolio and showcases:
 
 - Thanks for checking out Sumryze – AI SEO Reporting Dashboard!
 
-***Email:rhuavan@gamil.com***
+***Email:rihuavan@gamil.com***
 
 
 
