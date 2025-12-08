@@ -100,7 +100,7 @@ pnpm install
 You can also use npm or yarn, but the project is configured and tested with pnpm.
 
 3. **Configure environment variables**
-   Create a .env.local file in the project root:
+Create a .env.local file in the project root:
 
  ``` touch .env.local
 Add the required keys (example placeholders):
@@ -131,7 +131,9 @@ Project → Settings → Environment Variables.
 
 4. **Run the dev server**
 
-```pnpm dev
+```
+pnpm dev
+
 ```
    
 Then open:
