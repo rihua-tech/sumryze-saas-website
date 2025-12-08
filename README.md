@@ -88,5 +88,27 @@ cd sumryze-saas-website
 ```bash
 pnpm install
 
+## 🚀 Getting Started (Local Development)
+
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/rihua-tech/sumryze-saas-website.git
+cd sumryze-saas-website
+2. Install dependencies
+bash
+Copy code
+pnpm install
+You can also use npm or yarn, but the project is configured and tested with pnpm.
+
+perl
+Copy code
+
+Key idea:  
+- Make sure the first code block (with `git clone` / `cd`) is **closed** with ```  
+- Then put the `### 2. Install dependencies` heading **after** that, not inside the code block.
+
+If you paste that in your README, the headings will render correctly instead of inside the grey box.
+::contentReference[oaicite:0]{index=0}
 
 
