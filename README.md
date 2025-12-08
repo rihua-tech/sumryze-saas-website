@@ -151,7 +151,7 @@ pnpm build
 pnpm start
 ```
 
-🧭 **Project Structure (High Level)**
+## 🧭 Project Structure (High Level)
 ```app/
   (marketing)/         # Landing pages, pricing, blog, support, etc.
   dashboard/           # Auth-protected SaaS dashboard (App Router)
@@ -171,7 +171,7 @@ styles/                # Global styles & Tailwind setup
 public/                # Static assets
 ```
 
-🧪 **What This Project Demonstrates**
+## 🧪What This Project Demonstrates
 
 This project is part of my data / analytics / AI portfolio and showcases:
 
@@ -187,7 +187,7 @@ This project is part of my data / analytics / AI portfolio and showcases:
 
 - Deploying and hardening a Next.js app (e.g., React2Shell Next.js security fix)
   
-📌 **Roadmap / Future Ideas**
+## 📌 Roadmap / Future Ideas
 
 - Plug API routes into live GA4 & GSC data
 
@@ -199,7 +199,7 @@ This project is part of my data / analytics / AI portfolio and showcases:
 
 - More advanced AI features (content ideas, keyword clustering, anomaly detection)
 
-🤝 **Feedback & Contact**
+## 🤝 Feedback & Contact
 - If you have feedback or suggestions, feel free to open an issue or reach out.
 
 - Thanks for checking out Sumryze – AI SEO Reporting Dashboard!
