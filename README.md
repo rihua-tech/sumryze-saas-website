@@ -83,4 +83,8 @@ It’s designed for agencies, freelancers, and e-commerce brands who need **beau
 git clone https://github.com/rihua-tech/sumryze-saas-website.git
 cd sumryze-saas-website
 
+### 2. Install dependencies
+```bash
+pnpm install
+
 
