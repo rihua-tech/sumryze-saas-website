@@ -207,6 +207,9 @@ This project is part of my data / analytics / AI portfolio and showcases:
 
 - Thanks for checking out ***Sumryze – AI SEO Reporting Dashboard***!
 
+- 🔗 Live demo:https://sumryze-saas-website.vercel.app/dashboard
+
+
 ***Email:rihuavan@gamil.com***
 
 
