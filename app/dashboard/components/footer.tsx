@@ -6,7 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Globe } from "lucide-react";
 
-export default function DashboardFooter() {
+export default function Footer() {
   const [selectedLanguage, setSelectedLanguage] = useState("EN");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
