@@ -73,42 +73,104 @@ It’s designed for agencies, freelancers, and e-commerce brands who need **beau
 - ESLint / Next lint
 - Deployed on **Vercel**
 
+
+**Tooling**
+
+- pnpm
+- TypeScript
+- ESLint / Next lint
+- Deployed on **Vercel**
+
 ---
 
 ## 🚀 Getting Started (Local Development)
 
-### 1. Clone the repo
+1. **Clone the repo**
 
 ```bash
 git clone https://github.com/rihua-tech/sumryze-saas-website.git
 cd sumryze-saas-website
+```
+2. **Install dependencies**
 
-## 2. Install dependencies
+```pnpm install
 
-```bash
-pnpm install
+```
 
-## 🚀 Getting Started (Local Development)
-
-### 1. Clone the repo
-
-```bash
-git clone https://github.com/rihua-tech/sumryze-saas-website.git
-cd sumryze-saas-website
-2. Install dependencies
-bash
-Copy code
-pnpm install
 You can also use npm or yarn, but the project is configured and tested with pnpm.
 
-perl
-Copy code
+3. **Configure environment variables**
+   Create a .env.local file in the project root:
 
-Key idea:  
-- Make sure the first code block (with `git clone` / `cd`) is **closed** with ```  
-- Then put the `### 2. Install dependencies` heading **after** that, not inside the code block.
+ ``` touch .env.local
+Add the required keys (example placeholders):
 
-If you paste that in your README, the headings will render correctly instead of inside the grey box.
-::contentReference[oaicite:0]{index=0}
+```# OpenAI
+OPENAI_API_KEY=your_openai_api_key
+
+# Google OAuth (for NextAuth)
+GOOGLE_OAUTH_CLIENT_ID=your_google_oauth_client_id
+GOOGLE_OAUTH_CLIENT_SECRET=your_google_oauth_client_secret
+
+# NextAuth
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_random_long_secret
+
+# Google APIs (GA4 / GSC / PageSpeed / CrUX)
+PAGE_SPEED_API_KEY=your_pagespeed_api_key
+CRUX_API_KEY=your_crux_api_key
+GSC_SCOPES=https://www.googleapis.com/auth/webmasters.readonly
+GA4_SCOPES=https://www.googleapis.com/auth/analytics.readonly
+
+# Public base URL for API calls (used on the frontend)
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
+```
+
+In production (Vercel), set the same variables under
+Project → Settings → Environment Variables.
+
+4. **Run the dev server**
+
+   ``` pnpm dev
+   ```
+Then open:
+
+Marketing site: http://localhost:3000
+
+Dashboard: http://localhost:3000/dashboard
+
+(You’ll be redirected through the NextAuth sign-in flow.)
+
+5. **Production build**
+   
+```
+pnpm build
+pnpm start
+```
+
+🧭 **Project Structure (High Level)**
+
+app/
+  (marketing)/         # Landing pages, pricing, blog, support, etc.
+  dashboard/           # Auth-protected SaaS dashboard (App Router)
+    components/        # Header, sidebar, charts, dashboard widgets
+    layout.tsx         # Dashboard shell layout
+    page.tsx           # Main dashboard entry
+  api/                 # Serverless API routes
+    ai-summary/        # AI SEO summary endpoint (OpenAI)
+    ai-predictions/    # AI prediction endpoint (OpenAI)
+    kpis/              # SEO KPIs
+    traffic/           # Traffic overview
+    traffic-channel/   # Channel breakdown
+    ...                # Other SEO and support endpoints
+components/            # Shared UI components
+lib/                   # Utilities (analytics helpers, API clients, config)
+styles/                # Global styles & Tailwind setup
+public/                # Static assets
+
+🧪** What This Project Demonstrates**
+
+
+
 
 
