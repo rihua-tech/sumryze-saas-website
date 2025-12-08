@@ -169,36 +169,37 @@ public/                # Static assets
 ```
 
 🧪 **What This Project Demonstrates**
+```
 This project is part of my data / analytics / AI portfolio and showcases:
+```
+- Building a real SaaS-style dashboard using Next.js App Router
 
-Building a real SaaS-style dashboard using Next.js App Router
+- Designing a clean analytics UI with multiple charting libraries
 
-Designing a clean analytics UI with multiple charting libraries
+- Structuring modular API routes for SEO & traffic metrics
 
-Structuring modular API routes for SEO & traffic metrics
+- Integrating OpenAI into a production-ready API (/api/ai-summary)
 
-Integrating OpenAI into a production-ready API (/api/ai-summary)
+- Managing secrets & environment variables across local dev and Vercel
 
-Managing secrets & environment variables across local dev and Vercel
-
-Deploying and hardening a Next.js app (e.g., React2Shell Next.js security fix)
-
+- Deploying and hardening a Next.js app (e.g., React2Shell Next.js security fix)
+  
 📌 **Roadmap / Future Ideas**
 
-Plug API routes into live GA4 & GSC data
+- Plug API routes into live GA4 & GSC data
 
-Add report scheduling (weekly / monthly PDF exports)
+- Add report scheduling (weekly / monthly PDF exports)
 
-Multi-client support with per-client workspaces
+- Multi-client support with per-client workspaces
 
-Per-seat billing & Stripe integration
+- Per-seat billing & Stripe integration
 
-More advanced AI features (content ideas, keyword clustering, anomaly detection)
+- More advanced AI features (content ideas, keyword clustering, anomaly detection)
 
 🤝 **Feedback & Contact**
-If you have feedback or suggestions, feel free to open an issue or reach out.
+- If you have feedback or suggestions, feel free to open an issue or reach out.
 
-Thanks for checking out Sumryze – AI SEO Reporting Dashboard!
+- Thanks for checking out Sumryze – AI SEO Reporting Dashboard!
 
 ***Email:rhuavan@gamil.com***
 
