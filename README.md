@@ -127,7 +127,7 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
 ```
 
 In production (Vercel), set the same variables under
-Project → Settings → Environment Variables.
+***Project → Settings → Environment Variables***.
 
 4. **Run the dev server**
 
@@ -202,7 +202,7 @@ This project is part of my data / analytics / AI portfolio and showcases:
 ## 🤝 Feedback & Contact
 - If you have feedback or suggestions, feel free to open an issue or reach out.
 
-- Thanks for checking out Sumryze – AI SEO Reporting Dashboard!
+- Thanks for checking out ***Sumryze – AI SEO Reporting Dashboard***!
 
 ***Email:rihuavan@gamil.com***
 
