@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
+
+
 import Header from "@/app/dashboard/components/Header";
 import Sidebar from "@/app/dashboard/components/Sidebar";
 import Footer from "@/app/dashboard/components/Footer";
+
 import { usePathname } from "next/navigation";
 import { UserProvider } from "@/app/context/UserContext"; // ✅ Import your provider
 
