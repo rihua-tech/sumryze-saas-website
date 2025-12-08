@@ -84,5 +84,3 @@ git clone https://github.com/rihua-tech/sumryze-saas-website.git
 cd sumryze-saas-website
 
 
-2. Install dependencies
-
